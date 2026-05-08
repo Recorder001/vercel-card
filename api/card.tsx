@@ -5,12 +5,35 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const NM = path.join(__dirname, '..', 'node_modules');
 
-let cachedFont: Buffer | null = null;
-function loadFont(): Buffer {
-  if (cachedFont) return cachedFont;
-  cachedFont = fs.readFileSync(path.join(__dirname, 'fonts/Pretendard-Bold.woff'));
-  return cachedFont;
+// Module-level font cache (shared across warm Lambda invocations)
+let fontPretendard: Buffer | null = null;
+let fontArchivo: Buffer | null = null;
+let fontNanumLatin: Buffer | null = null;
+let fontNanumKorean: Buffer | null = null;
+
+function loadFonts() {
+  if (!fontPretendard)
+    fontPretendard = fs.readFileSync(path.join(__dirname, 'fonts/Pretendard-Bold.woff'));
+  if (!fontArchivo)
+    fontArchivo = fs.readFileSync(
+      path.join(NM, '@fontsource/archivo-black/files/archivo-black-latin-400-normal.woff2')
+    );
+  if (!fontNanumLatin)
+    fontNanumLatin = fs.readFileSync(
+      path.join(NM, '@fontsource/nanum-pen-script/files/nanum-pen-script-latin-400-normal.woff2')
+    );
+  if (!fontNanumKorean)
+    fontNanumKorean = fs.readFileSync(
+      path.join(NM, '@fontsource/nanum-pen-script/files/nanum-pen-script-korean-400-normal.woff2')
+    );
+  return {
+    pretendard: fontPretendard!,
+    archivo: fontArchivo!,
+    nanumLatin: fontNanumLatin!,
+    nanumKorean: fontNanumKorean!,
+  };
 }
 
 function clamp(val: string | null): number {
@@ -18,14 +41,19 @@ function clamp(val: string | null): number {
   return Math.min(100, Math.max(0, isNaN(n) ? 0 : n));
 }
 
+// ── Design Tokens (StyleTokensCard.jsx 기준) ─────────────────────────
 const TOKENS = {
   paper: '#F5EFE0', paperDeep: '#EDE3CB', paperShade: '#E2D6B8',
-  red: '#C0392B', ink: '#1A1A1A', inkSoft: '#2A2522', noteBrown: '#5C4A3A',
-  highlighter: 'rgba(255,225,90,0.55)',
+  red: '#C0392B', redDeep: '#8E2A1F', ink: '#1A1A1A', inkSoft: '#2A2522',
+  noteBrown: '#5C4A3A', highlighter: 'rgba(255,225,90,0.55)',
   study: '#D9534F', power: '#E67E22', art: '#8E44AD', social: '#27AE60', craft: '#2980B9',
   heart: '#E63946', fire: '#F37121',
+  // Archivo Black italic → English/numbers display font
+  display: '"ArchivoBlack","Pretendard",sans-serif',
+  // Pretendard 900 → Korean labels
   sansKR: '"Pretendard","Noto Sans KR",sans-serif',
-  display: '"Pretendard",sans-serif',
+  // NanumPenScript → 속마음 handwriting
+  hand: '"NanumPenScript","Pretendard",cursive',
 };
 
 const EMOTIONS: Record<string, { label: string; kr: string; color: string }> = {
@@ -56,7 +84,7 @@ const RANK_NAMES: Record<string, string[]> = {
   craft:  ['마이너스의손', '잔고장전문가', '야무짐', '독보적', '미다스의 손', '헤파이스토스'],
 };
 
-function rankOf(pt: number): { n: number; max: boolean } {
+function rankOf(pt: number) {
   if (pt >= 100) return { n: 6, max: true };
   if (pt >= 80)  return { n: 5, max: false };
   if (pt >= 60)  return { n: 4, max: false };
@@ -82,14 +110,14 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
   const affection = clamp(searchParams.get('affection'));
   const stress    = clamp(searchParams.get('stress'));
   const emotion   = searchParams.get('emotion')  || 'flutter';
-  const event     = searchParams.get('event')    || '이벤트';
-  const dday      = searchParams.get('dday')     || '0';
+  const event     = searchParams.get('event')    || '미정';
+  const dday      = searchParams.get('dday')     || '?';
   const thought   = searchParams.get('thought')  || '...';
 
   const emo = EMOTIONS[emotion] || EMOTIONS.flutter;
-  const fontData = loadFont();
+  const fonts = loadFonts();
 
-  // Pentagon radar geometry
+  // ── Pentagon radar geometry ────────────────────────────────────────
   const cx = 235, cy = 240, R = 175, N = 5;
   const statVals = [study, power, art, social, craft];
   const angle = (i: number) => -Math.PI / 2 + (i * 2 * Math.PI / N);
@@ -105,7 +133,6 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
     };
   });
   const polyData = points.map(p => `${p.x},${p.y}`).join(' ');
-  const gridLevels = [0.2, 0.4, 0.6, 0.8, 1];
 
   const imageResponse = new ImageResponse(
     (
@@ -114,39 +141,54 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
         background: TOKENS.paper, color: TOKENS.ink,
         display: 'flex', flexDirection: 'column', fontFamily: TOKENS.sansKR,
       }}>
-        {/* Header */}
+
+        {/* ── Header ──────────────────────────────────────────────────── */}
         <div style={{
           height: 70, background: TOKENS.ink, color: '#fff', display: 'flex',
           alignItems: 'center', padding: '0 26px', position: 'relative', overflow: 'hidden',
         }}>
+          {/* STATUS label */}
           <div style={{
             fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 13,
             letterSpacing: 4, color: TOKENS.red, marginRight: 14, display: 'flex',
           }}>STATUS</div>
+
+          {/* Character name */}
           <div style={{
             fontFamily: TOKENS.sansKR, fontWeight: 900, fontSize: 42,
             color: '#fff', letterSpacing: -1.5, lineHeight: 1, display: 'flex',
             textShadow: `4px 4px 0 ${TOKENS.red}`,
           }}>{char}</div>
+
           <div style={{ flex: 1 }} />
+
+          {/* NEXT EVENT badge — skewX replaces clipPath(calc) for Satori compat */}
           <div style={{
             display: 'flex', alignItems: 'center', gap: 10,
-            background: TOKENS.red, color: '#fff', padding: '8px 16px',
-            fontFamily: TOKENS.sansKR, fontWeight: 800,
+            background: TOKENS.red, color: '#fff',
+            paddingLeft: 16, paddingRight: 26, paddingTop: 8, paddingBottom: 8,
             boxShadow: `3px 3px 0 ${TOKENS.paper}`,
-            clipPath: 'polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%)',
+            transform: 'skewX(-10deg)',
           }}>
             <span style={{
               fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 11,
-              letterSpacing: 2, opacity: 0.85, display: 'flex',
+              letterSpacing: 2, opacity: 0.85, display: 'flex', transform: 'skewX(10deg)',
             }}>NEXT EVENT</span>
-            <span style={{ fontSize: 16, fontWeight: 900, display: 'flex' }}>{event}</span>
-            <span style={{ opacity: 0.5, display: 'flex' }}>·</span>
-            <span style={{ fontSize: 18, fontWeight: 900, display: 'flex' }}>{dday}일 남음</span>
+            <span style={{
+              fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 16,
+              fontWeight: 900, display: 'flex', transform: 'skewX(10deg)',
+            }}>{event}</span>
+            <span style={{ opacity: 0.5, display: 'flex', transform: 'skewX(10deg)' }}>·</span>
+            <span style={{
+              fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 18,
+              fontWeight: 900, display: 'flex', transform: 'skewX(10deg)',
+            }}>{dday}일 남음</span>
           </div>
         </div>
 
+        {/* ── Body ────────────────────────────────────────────────────── */}
         <div style={{ flex: 1, display: 'flex', position: 'relative' }}>
+
           {/* Left: Pentagon radar chart */}
           <div style={{
             width: 540, position: 'relative', display: 'flex',
@@ -155,11 +197,11 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
           }}>
             <svg width={500} height={500} viewBox="0 0 500 500"
                  style={{ position: 'absolute', top: 10, left: 20 }}>
-              {/* Grid polygons */}
-              {gridLevels.map((s, idx) => {
+              {/* Grid polygons — 5 levels, outermost solid, inner dashed */}
+              {[0.2, 0.4, 0.6, 0.8, 1].map((s, idx) => {
                 const pts = Array.from({ length: N }).map((_, i) => {
-                  const r = R * s;
-                  return `${cx + r * Math.cos(angle(i))},${cy + r * Math.sin(angle(i))}`;
+                  const gr = R * s;
+                  return `${cx + gr * Math.cos(angle(i))},${cy + gr * Math.sin(angle(i))}`;
                 }).join(' ');
                 return (
                   <polygon key={idx} points={pts} fill="none"
@@ -173,11 +215,11 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
                 <line key={i} x1={cx} y1={cy} x2={p.ax} y2={p.ay}
                   stroke={TOKENS.paperShade} strokeWidth={1.2} />
               ))}
-              {/* Fill polygon */}
+              {/* Data fill */}
               <polygon points={polyData}
                 fill={TOKENS.red} fillOpacity={0.18}
                 stroke={TOKENS.red} strokeWidth={2.5} />
-              {/* Data points */}
+              {/* Data points — MAX gets gold ring */}
               {points.map((p, i) => (
                 <circle key={i} cx={p.x} cy={p.y} r={p.isMax ? 9 : 6}
                   fill={p.color}
@@ -185,27 +227,36 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
                   strokeWidth={p.isMax ? 4 : 2} />
               ))}
             </svg>
-            {/* Labels as HTML divs — SVG <text> not supported in Satori */}
+
+            {/* Stat labels — HTML divs (SVG <text> unsupported in Satori) */}
             {points.map((p, i) => {
-              const r = rankOf(p.v);
+              const rk = rankOf(p.v);
+              const rName = p.isMax ? RANK_NAMES[p.key][5] : RANK_NAMES[p.key][rk.n - 1];
               return (
                 <div key={i} style={{
                   position: 'absolute',
-                  left: 20 + p.lx,
-                  top: 10 + p.ly,
+                  left: 20 + p.lx, top: 10 + p.ly,
                   transform: 'translate(-50%, -50%)',
                   display: 'flex', flexDirection: 'column', alignItems: 'center',
                 }}>
                   <div style={{
                     fontFamily: TOKENS.display, fontStyle: 'italic', fontWeight: 800,
-                    fontSize: 14, letterSpacing: 2, color: p.color, display: 'flex',
+                    fontSize: 13, letterSpacing: 2, color: p.color, display: 'flex',
                   }}>{p.emoji} {p.kr}</div>
                   <div style={{
                     fontFamily: TOKENS.display, fontStyle: 'italic', fontWeight: 800,
-                    fontSize: 18, color: p.isMax ? '#C8A434' : TOKENS.ink, display: 'flex',
+                    fontSize: p.isMax ? 16 : 14,
+                    color: p.isMax ? '#C8A434' : TOKENS.ink, display: 'flex',
+                    letterSpacing: 0.5,
                   }}>
-                    {p.isMax ? 'MAX' : `${p.v}pt · R${r.n}`}
+                    {p.isMax ? 'MAX' : `${p.v}pt · R${rk.n}`}
                   </div>
+                  {!p.isMax && (
+                    <div style={{
+                      fontFamily: TOKENS.sansKR, fontSize: 10,
+                      color: TOKENS.noteBrown, display: 'flex', opacity: 0.8,
+                    }}>{rName}</div>
+                  )}
                 </div>
               );
             })}
@@ -216,6 +267,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
             flex: 1, padding: '16px 22px', display: 'flex', flexDirection: 'column',
             gap: 12, fontFamily: TOKENS.sansKR, position: 'relative',
           }}>
+
             {/* Affection & Stress meters */}
             <div style={{
               display: 'flex', flexDirection: 'column', gap: 10,
@@ -223,7 +275,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
               border: `2px solid ${TOKENS.ink}`,
               boxShadow: `5px 5px 0 ${TOKENS.ink}`,
             }}>
-              {/* Affection */}
+              {/* Affection row */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ fontSize: 18, lineHeight: 1, display: 'flex' }}>❤</span>
@@ -231,7 +283,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
                     fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 11,
                     letterSpacing: 3, color: TOKENS.heart, display: 'flex',
                   }}>AFFECTION</span>
-                  <span style={{ fontSize: 13, fontWeight: 900, color: TOKENS.ink, display: 'flex' }}>호감도</span>
+                  <span style={{ fontFamily: TOKENS.sansKR, fontSize: 13, fontWeight: 900, color: TOKENS.ink, display: 'flex' }}>호감도</span>
                   <span style={{ flex: 1 }} />
                   <span style={{
                     fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 22,
@@ -240,15 +292,16 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
                 </div>
                 <div style={{
                   height: 14, background: '#E2D6B8', display: 'flex',
-                  border: `2px solid ${TOKENS.ink}`, position: 'relative', overflow: 'hidden',
+                  border: `2px solid ${TOKENS.ink}`, overflow: 'hidden',
                 }}>
                   <div style={{
-                    width: `${Math.min(100, affection)}%`, height: '100%', background: TOKENS.heart,
+                    width: `${Math.min(100, affection)}%`, height: '100%',
+                    background: TOKENS.heart,
                     boxShadow: 'inset -2px -2px 0 rgba(0,0,0,0.18)', display: 'flex',
                   }} />
                 </div>
               </div>
-              {/* Stress */}
+              {/* Stress row */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ fontSize: 18, lineHeight: 1, display: 'flex' }}>🔥</span>
@@ -256,7 +309,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
                     fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 11,
                     letterSpacing: 3, color: TOKENS.fire, display: 'flex',
                   }}>STRESS</span>
-                  <span style={{ fontSize: 13, fontWeight: 900, color: TOKENS.ink, display: 'flex' }}>스트레스</span>
+                  <span style={{ fontFamily: TOKENS.sansKR, fontSize: 13, fontWeight: 900, color: TOKENS.ink, display: 'flex' }}>스트레스</span>
                   <span style={{ flex: 1 }} />
                   <span style={{
                     fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 22,
@@ -265,17 +318,18 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
                 </div>
                 <div style={{
                   height: 14, background: '#E2D6B8', display: 'flex',
-                  border: `2px solid ${TOKENS.ink}`, position: 'relative', overflow: 'hidden',
+                  border: `2px solid ${TOKENS.ink}`, overflow: 'hidden',
                 }}>
                   <div style={{
-                    width: `${Math.min(100, stress)}%`, height: '100%', background: TOKENS.fire,
+                    width: `${Math.min(100, stress)}%`, height: '100%',
+                    background: TOKENS.fire,
                     boxShadow: 'inset -2px -2px 0 rgba(0,0,0,0.18)', display: 'flex',
                   }} />
                 </div>
               </div>
             </div>
 
-            {/* Thought box */}
+            {/* 속마음 — notebook lines + highlighter + Nanum Pen Script */}
             <div style={{
               position: 'relative', display: 'flex', flexDirection: 'column',
               background: '#FFF9E0',
@@ -283,38 +337,45 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
               border: `2px solid ${TOKENS.ink}`,
               padding: '14px 18px 16px',
               boxShadow: `5px 5px 0 ${TOKENS.ink}`,
+              flex: 1,
             }}>
               <div style={{
                 fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 11,
                 letterSpacing: 3, color: TOKENS.noteBrown, display: 'flex',
               }}>속마음 · INNER</div>
+              {/* Highlighter bar */}
               <div style={{
-                position: 'absolute', left: 14, right: 14, top: 42, height: 30,
+                position: 'absolute', left: 14, right: 14, top: 42, height: 34,
                 background: TOKENS.highlighter, transform: 'rotate(-0.6deg)', display: 'flex',
               }} />
+              {/* Handwriting text */}
               <div style={{
                 position: 'relative', marginTop: 6, display: 'flex',
-                fontFamily: TOKENS.sansKR, fontSize: 22, color: TOKENS.noteBrown, lineHeight: 1.25,
+                fontFamily: TOKENS.hand, fontSize: 28, color: TOKENS.noteBrown, lineHeight: 1.3,
               }}>
-                <span style={{ color: TOKENS.red, fontSize: 28, display: 'flex' }}>"</span>
+                <span style={{ fontFamily: TOKENS.display, fontStyle: 'italic', color: TOKENS.red, fontSize: 34, display: 'flex', lineHeight: 1 }}>"</span>
                 {thought}
-                <span style={{ color: TOKENS.red, fontSize: 28, display: 'flex' }}>"</span>
+                <span style={{ fontFamily: TOKENS.display, fontStyle: 'italic', color: TOKENS.red, fontSize: 34, display: 'flex', lineHeight: 1 }}>"</span>
               </div>
             </div>
 
-            {/* Emotion badge */}
+            {/* Emotion badge — ink background + colored hard shadow + skewX */}
             <div style={{
               display: 'flex', alignItems: 'center', gap: 14,
-              background: TOKENS.ink, color: '#fff', padding: '12px 16px',
+              background: TOKENS.ink, color: '#fff',
+              paddingLeft: 16, paddingRight: 28, paddingTop: 12, paddingBottom: 12,
               boxShadow: `6px 6px 0 ${emo.color}`,
-              clipPath: 'polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%)',
+              transform: 'skewX(-10deg)',
             }}>
+              {/* Emotion circle */}
               <div style={{
                 width: 42, height: 42, borderRadius: '50%', background: emo.color,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 20,
+                transform: 'skewX(10deg)',
               }}>♥</div>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {/* Emotion label */}
+              <div style={{ display: 'flex', flexDirection: 'column', transform: 'skewX(10deg)' }}>
                 <div style={{
                   fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 11,
                   letterSpacing: 3, color: emo.color, display: 'flex',
@@ -324,10 +385,11 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
                   lineHeight: 1, marginTop: 2, display: 'flex',
                 }}>
                   {emo.label}
-                  <span style={{ fontSize: 14, color: '#E2D6B8', marginLeft: 6 }}>· {emo.kr}</span>
+                  <span style={{ fontFamily: TOKENS.sansKR, fontSize: 14, color: '#E2D6B8', marginLeft: 6, display: 'flex', alignItems: 'center' }}>· {emo.kr}</span>
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </div>
@@ -335,7 +397,12 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
     {
       width: 1200,
       height: 600,
-      fonts: [{ name: 'Pretendard', data: fontData, weight: 700, style: 'normal' }],
+      fonts: [
+        { name: 'Pretendard',    data: fonts.pretendard, weight: 700, style: 'normal' },
+        { name: 'ArchivoBlack',  data: fonts.archivo,    weight: 400, style: 'normal' },
+        { name: 'NanumPenScript', data: fonts.nanumLatin, weight: 400, style: 'normal' },
+        { name: 'NanumPenScript', data: fonts.nanumKorean, weight: 400, style: 'normal' },
+      ],
     }
   );
 

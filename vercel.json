@@ -1,7 +1,12 @@
 {
   "functions": {
     "api/*.tsx": {
-      "includeFiles": "public/fonts/**"
+      "includeFiles": [
+        "api/fonts/**",
+        "node_modules/@fontsource/archivo-black/files/archivo-black-latin-400-normal.woff2",
+        "node_modules/@fontsource/nanum-pen-script/files/nanum-pen-script-latin-400-normal.woff2",
+        "node_modules/@fontsource/nanum-pen-script/files/nanum-pen-script-korean-400-normal.woff2"
+      ]
     }
   }
 }
