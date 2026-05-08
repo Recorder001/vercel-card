@@ -18,214 +18,315 @@ function clamp(val: string | null): number {
   return Math.min(100, Math.max(0, isNaN(n) ? 0 : n));
 }
 
+const TOKENS = {
+  paper: '#F5EFE0', paperDeep: '#EDE3CB', paperShade: '#E2D6B8',
+  red: '#C0392B', ink: '#1A1A1A', inkSoft: '#2A2522', noteBrown: '#5C4A3A',
+  highlighter: 'rgba(255,225,90,0.55)',
+  study: '#D9534F', power: '#E67E22', art: '#8E44AD', social: '#27AE60', craft: '#2980B9',
+  heart: '#E63946', fire: '#F37121',
+  sansKR: '"Pretendard","Noto Sans KR",sans-serif',
+  display: '"Pretendard",sans-serif',
+};
+
+const EMOTIONS: Record<string, { label: string; kr: string; color: string }> = {
+  depressed: { label: 'DEPRESSED', kr: '우울', color: '#5D6D7E' },
+  anxious:   { label: 'ANXIOUS',   kr: '불안', color: '#7D6B8A' },
+  shocked:   { label: 'SHOCKED',   kr: '충격', color: '#F1C40F' },
+  happy:     { label: 'HAPPY',     kr: '행복', color: '#F39C12' },
+  joy:       { label: 'JOY',       kr: '환희', color: '#E74C3C' },
+  expect:    { label: 'EXPECT',    kr: '기대', color: '#E67E22' },
+  moved:     { label: 'MOVED',     kr: '감동', color: '#3498DB' },
+  flutter:   { label: 'SETTLE',    kr: '설렘', color: '#EC7AA0' },
+  love:      { label: 'LOVE',      kr: '사랑', color: '#E63946' },
+};
+
+const STAT_META = [
+  { key: 'study',  emoji: '📚', kr: '학업', color: TOKENS.study  },
+  { key: 'power',  emoji: '💪', kr: '체력', color: TOKENS.power  },
+  { key: 'art',    emoji: '🎨', kr: '예술', color: TOKENS.art    },
+  { key: 'social', emoji: '💬', kr: '사교', color: TOKENS.social },
+  { key: 'craft',  emoji: '🛠', kr: '재주', color: TOKENS.craft  },
+];
+
 const RANK_NAMES: Record<string, string[]> = {
-  study: ['바부', '평균이하', '평균이상', '박학다식', '지식의 요람'],
-  power: ['저질', '달팽이', '토끼', '라이징스타', '마라토너'],
-  art: ['무미건조', '정취', '운치', '풍류', '거장'],
-  social: ['외톨이', '듣기만점', '스피처', '두터운교우관계', '인싸'],
-  craft: ['마이너스의 손', '잔고장전문가', '야무짐', '독보적', '미다스의손'],
+  study:  ['바부', '평균이하', '평균이상', '박학다식', '지식의 요람', '만물박사'],
+  power:  ['저질', '달팽이', '토끼', '라이징스타', '마라토너', '올림푸스'],
+  art:    ['무미건조', '정취', '운치', '풍류', '거장', '신필'],
+  social: ['외톨이', '듣기만점', '스피처', '두터운교우관계', '인싸', '카리스마'],
+  craft:  ['마이너스의손', '잔고장전문가', '야무짐', '독보적', '미다스의 손', '헤파이스토스'],
 };
 
-const STAT_META: Record<string, { emoji: string; label: string; color: string }> = {
-  study: { emoji: '📚', label: '학업', color: '#D9534F' },
-  power: { emoji: '💪', label: '체력', color: '#E67E22' },
-  art: { emoji: '🎨', label: '예술', color: '#8E44AD' },
-  social: { emoji: '💬', label: '사교', color: '#27AE60' },
-  craft: { emoji: '🛠', label: '재주', color: '#2980B9' },
-};
-
-const EMOTION_MAP: Record<string, string> = {
-  depressed: '😓 우울',
-  anxious: '😨 불안',
-  shocked: '😱 충격',
-  happy: '😄 행복',
-  joy: '😆 즐거움',
-  expect: '🥺 기대',
-  moved: '🥹 감동',
-  flutter: '💕 설렘',
-  love: '💞 사랑',
-};
-
-function ptToRank(pt: number): number {
-  return Math.min(5, Math.floor(pt / 20) + 1);
+function rankOf(pt: number): { n: number; max: boolean } {
+  if (pt >= 100) return { n: 6, max: true };
+  if (pt >= 80)  return { n: 5, max: false };
+  if (pt >= 60)  return { n: 4, max: false };
+  if (pt >= 40)  return { n: 3, max: false };
+  if (pt >= 20)  return { n: 2, max: false };
+  return { n: 1, max: false };
 }
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
-  try { return await _handler(req, res); } catch (e: any) { res.statusCode = 500; res.end('ERROR: ' + String(e?.message || e)); }
+  try { return await _handler(req, res); }
+  catch (e: any) { res.statusCode = 500; res.end('ERROR: ' + String(e?.message || e)); }
 }
+
 async function _handler(req: IncomingMessage, res: ServerResponse) {
   const { searchParams } = new URL(req.url!, 'http://localhost');
 
-  const charName = searchParams.get('char') || '캐릭터';
-  const userName = searchParams.get('user') || 'P';
-  const study = clamp(searchParams.get('study'));
-  const power = clamp(searchParams.get('power'));
-  const art = clamp(searchParams.get('art'));
-  const social = clamp(searchParams.get('social'));
-  const craft = clamp(searchParams.get('craft'));
+  const char      = searchParams.get('char')    || '캐릭터';
+  const study     = clamp(searchParams.get('study'));
+  const power     = clamp(searchParams.get('power'));
+  const art       = clamp(searchParams.get('art'));
+  const social    = clamp(searchParams.get('social'));
+  const craft     = clamp(searchParams.get('craft'));
   const affection = clamp(searchParams.get('affection'));
-  const emotion = searchParams.get('emotion') || 'happy';
-  const event = searchParams.get('event') || '-';
-  const dday = searchParams.get('dday') || '-';
-  const thought = searchParams.get('thought') || '...';
+  const stress    = clamp(searchParams.get('stress'));
+  const emotion   = searchParams.get('emotion')  || 'flutter';
+  const event     = searchParams.get('event')    || '이벤트';
+  const dday      = searchParams.get('dday')     || '0';
+  const thought   = searchParams.get('thought')  || '...';
 
-  const stats = [
-    { key: 'study', pt: study },
-    { key: 'power', pt: power },
-    { key: 'art', pt: art },
-    { key: 'social', pt: social },
-    { key: 'craft', pt: craft },
-  ];
-
-  const paperBg = `https://www.transparenttextures.com/patterns/paper-fibers.png`;
-  const notebookBg = `https://www.transparenttextures.com/patterns/lined-paper.png`;
+  const emo = EMOTIONS[emotion] || EMOTIONS.flutter;
   const fontData = loadFont();
+
+  // Pentagon radar geometry
+  const cx = 235, cy = 240, R = 175, N = 5;
+  const statVals = [study, power, art, social, craft];
+  const angle = (i: number) => -Math.PI / 2 + (i * 2 * Math.PI / N);
+  const points = STAT_META.map((s, i) => {
+    const v = Math.min(100, statVals[i] ?? 0);
+    const r = (v / 100) * R;
+    return {
+      x: cx + r * Math.cos(angle(i)), y: cy + r * Math.sin(angle(i)),
+      ax: cx + R * Math.cos(angle(i)), ay: cy + R * Math.sin(angle(i)),
+      lx: cx + (R + 38) * Math.cos(angle(i)), ly: cy + (R + 38) * Math.sin(angle(i)),
+      v, color: s.color, key: s.key, kr: s.kr, emoji: s.emoji,
+      isMax: v >= 100,
+    };
+  });
+  const polyData = points.map(p => `${p.x},${p.y}`).join(' ');
+  const gridLevels = [0.2, 0.4, 0.6, 0.8, 1];
 
   const imageResponse = new ImageResponse(
     (
-      <div
-        style={{
-          width: '600px',
-          height: '900px',
-          display: 'flex',
-          flexDirection: 'column',
-          backgroundColor: '#F5EFE0',
-          backgroundImage: `url(${paperBg})`,
-          padding: '32px',
-          fontFamily: 'Pretendard',
-          position: 'relative',
-        }}
-      >
-        {/* 페5 빨간 액센트 */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '120px',
-            height: '40px',
-            backgroundColor: '#C0392B',
-            transform: 'skewX(-20deg) translateX(-20px)',
-            display: 'flex',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            right: 0,
-            width: '120px',
-            height: '40px',
-            backgroundColor: '#1A1A1A',
-            transform: 'skewX(-20deg) translateX(20px)',
-            display: 'flex',
-          }}
-        />
-
-        {/* 헤더 */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            marginBottom: '20px',
-            paddingBottom: '16px',
-            borderBottom: '3px solid #2C2C2C',
-          }}
-        >
-          <div style={{ display: 'flex', fontSize: '14px', color: '#8B7355', letterSpacing: '4px', marginBottom: '4px' }}>
-            STATUS / {userName.toUpperCase()}
-          </div>
-          <div style={{ display: 'flex', fontSize: '40px', fontWeight: 900, color: '#1A1A1A', fontStyle: 'italic', letterSpacing: '-1px' }}>
-            {charName}
+      <div style={{
+        position: 'relative', width: 1200, height: 600, overflow: 'hidden',
+        background: TOKENS.paper, color: TOKENS.ink,
+        display: 'flex', flexDirection: 'column', fontFamily: TOKENS.sansKR,
+      }}>
+        {/* Header */}
+        <div style={{
+          height: 70, background: TOKENS.ink, color: '#fff', display: 'flex',
+          alignItems: 'center', padding: '0 26px', position: 'relative', overflow: 'hidden',
+        }}>
+          <div style={{
+            fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 13,
+            letterSpacing: 4, color: TOKENS.red, marginRight: 14, display: 'flex',
+          }}>STATUS</div>
+          <div style={{
+            fontFamily: TOKENS.sansKR, fontWeight: 900, fontSize: 42,
+            color: '#fff', letterSpacing: -1.5, lineHeight: 1, display: 'flex',
+            textShadow: `4px 4px 0 ${TOKENS.red}`,
+          }}>{char}</div>
+          <div style={{ flex: 1 }} />
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            background: TOKENS.red, color: '#fff', padding: '8px 16px',
+            fontFamily: TOKENS.sansKR, fontWeight: 800,
+            boxShadow: `3px 3px 0 ${TOKENS.paper}`,
+            clipPath: 'polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%)',
+          }}>
+            <span style={{
+              fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 11,
+              letterSpacing: 2, opacity: 0.85, display: 'flex',
+            }}>NEXT EVENT</span>
+            <span style={{ fontSize: 16, fontWeight: 900, display: 'flex' }}>{event}</span>
+            <span style={{ opacity: 0.5, display: 'flex' }}>·</span>
+            <span style={{ fontSize: 18, fontWeight: 900, display: 'flex' }}>{dday}일 남음</span>
           </div>
         </div>
 
-        {/* 호감도 */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            marginBottom: '20px',
-            backgroundColor: 'rgba(255,255,255,0.6)',
-            padding: '14px 18px',
-            borderRadius: '4px',
-            border: '2px solid #2C2C2C',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <div style={{ display: 'flex', fontSize: '20px', fontWeight: 700, color: '#C0392B' }}>❤ 호감도</div>
-            <div style={{ display: 'flex', fontSize: '22px', fontWeight: 900, color: '#1A1A1A' }}>
-              {affection}% · {EMOTION_MAP[emotion] || EMOTION_MAP['happy']}
-            </div>
+        <div style={{ flex: 1, display: 'flex', position: 'relative' }}>
+          {/* Left: Pentagon radar chart */}
+          <div style={{
+            width: 540, position: 'relative', display: 'flex',
+            alignItems: 'center', justifyContent: 'center',
+            borderRight: `3px solid ${TOKENS.ink}`,
+          }}>
+            <svg width={500} height={500} viewBox="0 0 500 500"
+                 style={{ position: 'absolute', top: 10, left: 20 }}>
+              {/* Grid polygons */}
+              {gridLevels.map((s, idx) => {
+                const pts = Array.from({ length: N }).map((_, i) => {
+                  const r = R * s;
+                  return `${cx + r * Math.cos(angle(i))},${cy + r * Math.sin(angle(i))}`;
+                }).join(' ');
+                return (
+                  <polygon key={idx} points={pts} fill="none"
+                    stroke={TOKENS.paperShade}
+                    strokeWidth={s === 1 ? 2 : 1.2}
+                    strokeDasharray={idx < 4 ? '3 4' : 'none'} />
+                );
+              })}
+              {/* Axis lines */}
+              {points.map((p, i) => (
+                <line key={i} x1={cx} y1={cy} x2={p.ax} y2={p.ay}
+                  stroke={TOKENS.paperShade} strokeWidth={1.2} />
+              ))}
+              {/* Fill polygon */}
+              <polygon points={polyData}
+                fill={TOKENS.red} fillOpacity={0.18}
+                stroke={TOKENS.red} strokeWidth={2.5} />
+              {/* Data points */}
+              {points.map((p, i) => (
+                <circle key={i} cx={p.x} cy={p.y} r={p.isMax ? 9 : 6}
+                  fill={p.color}
+                  stroke={p.isMax ? '#FFD700' : TOKENS.ink}
+                  strokeWidth={p.isMax ? 4 : 2} />
+              ))}
+              {/* Labels */}
+              {points.map((p, i) => {
+                const r = rankOf(p.v);
+                return (
+                  <g key={i}>
+                    <text x={p.lx} y={p.ly - 4} textAnchor="middle"
+                      style={{ font: `italic 800 14px ${TOKENS.display}`, letterSpacing: 2 }}
+                      fill={p.color}>{p.emoji} {p.kr}</text>
+                    <text x={p.lx} y={p.ly + 14} textAnchor="middle"
+                      style={{ font: `italic 800 18px ${TOKENS.display}` }}
+                      fill={p.isMax ? '#C8A434' : TOKENS.ink}>
+                      {p.isMax ? 'MAX' : `${p.v}pt · R${r.n}`}
+                    </text>
+                  </g>
+                );
+              })}
+            </svg>
           </div>
-          <div style={{ display: 'flex', width: '100%', height: '14px', backgroundColor: '#E8DCC4', borderRadius: '2px', overflow: 'hidden', border: '1px solid #2C2C2C' }}>
-            <div style={{ display: 'flex', width: `${affection}%`, height: '100%', backgroundColor: '#C0392B' }} />
-          </div>
-        </div>
 
-        {/* 이벤트 D-day */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '20px',
-            padding: '10px 16px',
-            backgroundColor: '#1A1A1A',
-            color: '#F5EFE0',
-          }}
-        >
-          <div style={{ display: 'flex', fontSize: '14px', letterSpacing: '3px' }}>NEXT EVENT</div>
-          <div style={{ display: 'flex', fontSize: '18px', fontWeight: 700 }}>{event} · D-{dday}</div>
-        </div>
-
-        {/* 5스탯 */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {stats.map(({ key, pt }) => {
-            const meta = STAT_META[key];
-            const rank = ptToRank(pt);
-            const rankName = RANK_NAMES[key][rank - 1];
-            return (
-              <div key={key} style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'rgba(255,255,255,0.5)', padding: '10px 14px', borderLeft: `6px solid ${meta.color}` }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <div style={{ display: 'flex', fontSize: '18px', fontWeight: 700, color: '#1A1A1A' }}>
-                    {meta.emoji} {meta.label}
-                    <span style={{ marginLeft: '12px', fontSize: '13px', color: meta.color, fontWeight: 900, letterSpacing: '1px' }}>
-                      RANK {rank} · {rankName}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', fontSize: '18px', fontWeight: 900, color: '#1A1A1A' }}>{pt}</div>
+          {/* Right: meters + thought + emotion */}
+          <div style={{
+            flex: 1, padding: '16px 22px', display: 'flex', flexDirection: 'column',
+            gap: 12, fontFamily: TOKENS.sansKR, position: 'relative',
+          }}>
+            {/* Affection & Stress meters */}
+            <div style={{
+              display: 'flex', flexDirection: 'column', gap: 10,
+              background: '#FAF4E2', padding: '14px 16px',
+              border: `2px solid ${TOKENS.ink}`,
+              boxShadow: `5px 5px 0 ${TOKENS.ink}`,
+            }}>
+              {/* Affection */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 18, lineHeight: 1, display: 'flex' }}>❤</span>
+                  <span style={{
+                    fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 11,
+                    letterSpacing: 3, color: TOKENS.heart, display: 'flex',
+                  }}>AFFECTION</span>
+                  <span style={{ fontSize: 13, fontWeight: 900, color: TOKENS.ink, display: 'flex' }}>호감도</span>
+                  <span style={{ flex: 1 }} />
+                  <span style={{
+                    fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 22,
+                    color: TOKENS.ink, letterSpacing: 0.5, display: 'flex',
+                  }}>{affection}<span style={{ fontSize: 11, opacity: 0.6 }}>%</span></span>
                 </div>
-                <div style={{ display: 'flex', width: '100%', height: '8px', backgroundColor: '#E8DCC4', borderRadius: '1px', overflow: 'hidden' }}>
-                  <div style={{ display: 'flex', width: `${Math.max(pt, 0)}%`, height: '100%', backgroundColor: meta.color }} />
+                <div style={{
+                  height: 14, background: '#E2D6B8', display: 'flex',
+                  border: `2px solid ${TOKENS.ink}`, position: 'relative', overflow: 'hidden',
+                }}>
+                  <div style={{
+                    width: `${Math.min(100, affection)}%`, height: '100%', background: TOKENS.heart,
+                    boxShadow: 'inset -2px -2px 0 rgba(0,0,0,0.18)', display: 'flex',
+                  }} />
                 </div>
               </div>
-            );
-          })}
-        </div>
+              {/* Stress */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 18, lineHeight: 1, display: 'flex' }}>🔥</span>
+                  <span style={{
+                    fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 11,
+                    letterSpacing: 3, color: TOKENS.fire, display: 'flex',
+                  }}>STRESS</span>
+                  <span style={{ fontSize: 13, fontWeight: 900, color: TOKENS.ink, display: 'flex' }}>스트레스</span>
+                  <span style={{ flex: 1 }} />
+                  <span style={{
+                    fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 22,
+                    color: TOKENS.ink, letterSpacing: 0.5, display: 'flex',
+                  }}>{stress}<span style={{ fontSize: 11, opacity: 0.6 }}>%</span></span>
+                </div>
+                <div style={{
+                  height: 14, background: '#E2D6B8', display: 'flex',
+                  border: `2px solid ${TOKENS.ink}`, position: 'relative', overflow: 'hidden',
+                }}>
+                  <div style={{
+                    width: `${Math.min(100, stress)}%`, height: '100%', background: TOKENS.fire,
+                    boxShadow: 'inset -2px -2px 0 rgba(0,0,0,0.18)', display: 'flex',
+                  }} />
+                </div>
+              </div>
+            </div>
 
-        {/* 속마음 */}
-        <div
-          style={{
-            display: 'flex',
-            marginTop: '20px',
-            padding: '12px 16px',
-            backgroundColor: 'rgba(255,255,180,0.4)',
-            backgroundImage: `url(${notebookBg})`,
-            borderTop: '1px solid #8B7355',
-            borderBottom: '1px solid #8B7355',
-            fontStyle: 'italic',
-            fontSize: '15px',
-            color: '#5C4A3A',
-          }}
-        >
-          " {thought} "
+            {/* Thought box */}
+            <div style={{
+              position: 'relative', display: 'flex', flexDirection: 'column',
+              background: '#FFF9E0',
+              backgroundImage: 'repeating-linear-gradient(to bottom, transparent 0, transparent 27px, #D9C9A6 27px, #D9C9A6 28px)',
+              border: `2px solid ${TOKENS.ink}`,
+              padding: '14px 18px 16px',
+              boxShadow: `5px 5px 0 ${TOKENS.ink}`,
+            }}>
+              <div style={{
+                fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 11,
+                letterSpacing: 3, color: TOKENS.noteBrown, display: 'flex',
+              }}>속마음 · INNER</div>
+              <div style={{
+                position: 'absolute', left: 14, right: 14, top: 42, height: 30,
+                background: TOKENS.highlighter, transform: 'rotate(-0.6deg)', display: 'flex',
+              }} />
+              <div style={{
+                position: 'relative', marginTop: 6, display: 'flex',
+                fontFamily: TOKENS.sansKR, fontSize: 22, color: TOKENS.noteBrown, lineHeight: 1.25,
+              }}>
+                <span style={{ color: TOKENS.red, fontSize: 28, display: 'flex' }}>"</span>
+                {thought}
+                <span style={{ color: TOKENS.red, fontSize: 28, display: 'flex' }}>"</span>
+              </div>
+            </div>
+
+            {/* Emotion badge */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 14,
+              background: TOKENS.ink, color: '#fff', padding: '12px 16px',
+              boxShadow: `6px 6px 0 ${emo.color}`,
+              clipPath: 'polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%)',
+            }}>
+              <div style={{
+                width: 42, height: 42, borderRadius: '50%', background: emo.color,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 20,
+              }}>♥</div>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{
+                  fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 11,
+                  letterSpacing: 3, color: emo.color, display: 'flex',
+                }}>EMOTION · 감정</div>
+                <div style={{
+                  fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 24,
+                  lineHeight: 1, marginTop: 2, display: 'flex',
+                }}>
+                  {emo.label}
+                  <span style={{ fontSize: 14, color: '#E2D6B8', marginLeft: 6 }}>· {emo.kr}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     ),
     {
-      width: 600,
-      height: 900,
+      width: 1200,
+      height: 600,
       fonts: [{ name: 'Pretendard', data: fontData, weight: 700, style: 'normal' }],
     }
   );
