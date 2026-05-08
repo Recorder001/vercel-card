@@ -39,15 +39,17 @@ const TOKENS = {
 };
 
 const EMOTIONS: Record<string, { label: string; kr: string; color: string }> = {
-  depressed: { label: 'DEPRESSED', kr: '우울', color: '#5D6D7E' },
-  anxious:   { label: 'ANXIOUS',   kr: '불안', color: '#7D6B8A' },
-  shocked:   { label: 'SHOCKED',   kr: '충격', color: '#F1C40F' },
-  happy:     { label: 'HAPPY',     kr: '행복', color: '#F39C12' },
-  joy:       { label: 'JOY',       kr: '환희', color: '#E74C3C' },
-  expect:    { label: 'EXPECT',    kr: '기대', color: '#E67E22' },
-  moved:     { label: 'MOVED',     kr: '감동', color: '#3498DB' },
-  flutter:   { label: 'SETTLE',    kr: '설렘', color: '#EC7AA0' },
-  love:      { label: 'LOVE',      kr: '사랑', color: '#E63946' },
+  depressed:   { label: 'DEPRESSED',  kr: '우울',    color: '#5D6D7E' },
+  anxious:     { label: 'ANXIOUS',    kr: '불안',    color: '#7D6B8A' },
+  shocked:     { label: 'SHOCKED',    kr: '충격',    color: '#F1C40F' },
+  happy:       { label: 'HAPPY',      kr: '행복',    color: '#F39C12' },
+  expect:      { label: 'EXPECT',     kr: '기대',    color: '#E67E22' },
+  moved:       { label: 'MOVED',      kr: '감동',    color: '#3498DB' },
+  flutter:     { label: 'SETTLE',     kr: '설렘',    color: '#EC7AA0' },
+  irritated:   { label: 'IRRITATED',  kr: '짜증',    color: '#D35400' },
+  serious:     { label: 'SERIOUS',    kr: '진지',    color: '#2C3E50' },
+  angry:       { label: 'ANGRY',      kr: '분노',    color: '#922B21' },
+  embarrassed: { label: 'BLUSH',      kr: '부끄러움', color: '#E91E8C' },
 };
 
 const WEATHER: Record<string, { icon: string; label: string }> = {
