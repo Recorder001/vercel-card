@@ -62,13 +62,13 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
   const location = searchParams.get('location') || '';
   const turn     = Number(searchParams.get('turn') ?? 1);
 
-  const u_name   = searchParams.get('u_name')   || '';
-  const u_club   = searchParams.get('u_club')   || '';
-  const u_outfit = searchParams.get('u_outfit') || '';
-  const u_act    = searchParams.get('u_act')    || '';
-  const c_club   = searchParams.get('c_club')   || '';
-  const c_outfit = searchParams.get('c_outfit') || '';
-  const c_act    = searchParams.get('c_act')    || '';
+  const u_name   = searchParams.get('u_name')   || '-';
+  const u_club   = searchParams.get('u_club')   || '-';
+  const u_outfit = searchParams.get('u_outfit') || '-';
+  const u_act    = searchParams.get('u_act')    || '-';
+  const c_club   = searchParams.get('c_club')   || '-';
+  const c_outfit = searchParams.get('c_outfit') || '-';
+  const c_act    = searchParams.get('c_act')    || '-';
 
   const emo = EMOTIONS[emotion] || EMOTIONS.flutter;
   const w   = WEATHER[weather]  || WEATHER.sunny;
@@ -83,9 +83,9 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
         display: 'flex', flexDirection: 'column',
         fontFamily: TOKENS.sansKR,
       }}>
-        {/* Full-bleed illustration background */}
+        {/* Full-bleed background + slash decorations (behind everything) */}
         <div style={{
-          position: 'absolute', inset: 0, display: 'flex',
+          position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex',
           alignItems: 'flex-end', justifyContent: 'center', overflow: 'hidden',
           background: 'linear-gradient(135deg,#EDE3CB 0%,#D9C9A6 60%,#B8A57F 100%)',
         }}>
@@ -100,15 +100,31 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
               opacity: 0.4, display: 'flex',
             }} />
           )}
-          {/* Top vignette */}
+          {/* Vignettes */}
           <div style={{
             position: 'absolute', top: 0, left: 0, right: 0, height: 120,
             background: 'linear-gradient(180deg,rgba(26,26,26,0.55),transparent)', display: 'flex',
           }} />
-          {/* Bottom vignette */}
           <div style={{
             position: 'absolute', bottom: 0, left: 0, right: 0, height: 140,
             background: 'linear-gradient(0deg,rgba(26,26,26,0.55),transparent)', display: 'flex',
+          }} />
+          {/* Diagonal slash decorations (inside background layer = behind UI) */}
+          <div style={{
+            position: 'absolute', width: 420, height: 48, background: TOKENS.ink,
+            transform: 'rotate(-22deg)', top: 80, left: -80, display: 'flex',
+          }} />
+          <div style={{
+            position: 'absolute', width: 360, height: 20, background: TOKENS.red,
+            transform: 'rotate(-22deg)', top: 96, left: -110, display: 'flex',
+          }} />
+          <div style={{
+            position: 'absolute', width: 420, height: 48, background: TOKENS.ink,
+            transform: 'rotate(-22deg)', bottom: 60, right: -80, display: 'flex',
+          }} />
+          <div style={{
+            position: 'absolute', width: 360, height: 20, background: TOKENS.red,
+            transform: 'rotate(-22deg)', bottom: 84, right: -110, display: 'flex',
           }} />
         </div>
 
@@ -139,25 +155,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
           </div>
         </div>
 
-        {/* Diagonal slash decorations */}
-        <div style={{
-          position: 'absolute', width: 420, height: 48, background: TOKENS.ink,
-          transform: 'rotate(-22deg)', top: 80, left: -80, zIndex: 2, display: 'flex',
-        }} />
-        <div style={{
-          position: 'absolute', width: 360, height: 20, background: TOKENS.red,
-          transform: 'rotate(-22deg)', top: 96, left: -110, zIndex: 2, display: 'flex',
-        }} />
-        <div style={{
-          position: 'absolute', width: 420, height: 48, background: TOKENS.ink,
-          transform: 'rotate(-22deg)', bottom: 60, right: -80, zIndex: 2, display: 'flex',
-        }} />
-        <div style={{
-          position: 'absolute', width: 360, height: 20, background: TOKENS.red,
-          transform: 'rotate(-22deg)', bottom: 84, right: -110, zIndex: 2, display: 'flex',
-        }} />
-
-        {/* ⓤ panel (left) */}
+        {/* U panel (left) */}
         <div style={{
           position: 'absolute', left: 24, top: 90, zIndex: 3, width: 280,
           background: 'rgba(245,239,224,0.92)',
@@ -172,18 +170,18 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
               fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 20,
             }}>U</div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <div style={{ fontSize: 10, letterSpacing: 2.5, fontWeight: 800, color: '#9A8B6A', display: 'flex' }}>YOU · ⓤ</div>
-              <div style={{ fontWeight: 900, fontSize: 24, color: TOKENS.ink, lineHeight: 1, letterSpacing: -0.5, display: 'flex' }}>{u_name || 'Player'}</div>
+              <div style={{ fontSize: 10, letterSpacing: 2.5, fontWeight: 800, color: '#9A8B6A', display: 'flex' }}>YOU</div>
+              <div style={{ fontWeight: 900, fontSize: 24, color: TOKENS.ink, lineHeight: 1, letterSpacing: -0.5, display: 'flex' }}>{u_name}</div>
             </div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 3, fontSize: 12.5, color: TOKENS.inkSoft, lineHeight: 1.55 }}>
-            {u_club   && <div style={{ display: 'flex', gap: 6 }}><b style={{ color: '#9A8B6A' }}>CLUB</b> {u_club}</div>}
-            {u_outfit && <div style={{ display: 'flex', gap: 6 }}><b style={{ color: '#9A8B6A' }}>FIT</b>  {u_outfit}</div>}
-            {u_act    && <div style={{ display: 'flex', gap: 6 }}><b style={{ color: '#9A8B6A' }}>ACT</b>  {u_act}</div>}
+            <div style={{ display: 'flex', gap: 6 }}><b style={{ color: '#9A8B6A' }}>CLUB</b> {u_club}</div>
+            <div style={{ display: 'flex', gap: 6 }}><b style={{ color: '#9A8B6A' }}>FIT</b>  {u_outfit}</div>
+            <div style={{ display: 'flex', gap: 6 }}><b style={{ color: '#9A8B6A' }}>ACT</b>  {u_act}</div>
           </div>
         </div>
 
-        {/* ⓒ panel (right) */}
+        {/* C panel (right) */}
         <div style={{
           position: 'absolute', right: 24, top: 90, zIndex: 3, width: 300,
           background: TOKENS.ink, color: '#fff',
@@ -197,7 +195,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
               fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 22,
             }}>C</div>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <div style={{ fontSize: 10, letterSpacing: 2.5, fontWeight: 800, color: emo.color, display: 'flex' }}>NOW · ⓒ</div>
+              <div style={{ fontSize: 10, letterSpacing: 2.5, fontWeight: 800, color: emo.color, display: 'flex' }}>NOW</div>
               <div style={{ fontWeight: 900, fontSize: 26, color: '#fff', lineHeight: 1, letterSpacing: -0.5, display: 'flex' }}>{char}</div>
             </div>
             <div style={{
@@ -206,18 +204,27 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
             }}>{emo.label}</div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 3, fontSize: 12.5, color: '#E2D6B8', lineHeight: 1.55 }}>
-            {c_club   && <div style={{ display: 'flex', gap: 6 }}><b style={{ color: emo.color }}>CLUB</b> {c_club}</div>}
-            {c_outfit && <div style={{ display: 'flex', gap: 6 }}><b style={{ color: emo.color }}>FIT</b>  {c_outfit}</div>}
-            {c_act    && <div style={{ display: 'flex', gap: 6 }}><b style={{ color: emo.color }}>ACT</b>  {c_act}</div>}
+            <div style={{ display: 'flex', gap: 6 }}><b style={{ color: emo.color }}>CLUB</b> {c_club}</div>
+            <div style={{ display: 'flex', gap: 6 }}><b style={{ color: emo.color }}>FIT</b>  {c_outfit}</div>
+            <div style={{ display: 'flex', gap: 6 }}><b style={{ color: emo.color }}>ACT</b>  {c_act}</div>
           </div>
         </div>
 
-        {/* Large character name bottom-left */}
+        {/* Character name — 3-layer stamp effect (black → red → white) */}
         <div style={{
-          position: 'absolute', left: 30, bottom: 24, zIndex: 3, display: 'flex',
+          position: 'absolute', left: 40, bottom: 14, zIndex: 3, display: 'flex',
+          fontFamily: TOKENS.sansKR, fontWeight: 900, color: TOKENS.ink,
+          fontSize: 88, lineHeight: 0.9, letterSpacing: -3,
+        }}>{char}</div>
+        <div style={{
+          position: 'absolute', left: 35, bottom: 19, zIndex: 4, display: 'flex',
+          fontFamily: TOKENS.sansKR, fontWeight: 900, color: TOKENS.red,
+          fontSize: 88, lineHeight: 0.9, letterSpacing: -3,
+        }}>{char}</div>
+        <div style={{
+          position: 'absolute', left: 30, bottom: 24, zIndex: 5, display: 'flex',
           fontFamily: TOKENS.sansKR, fontWeight: 900, color: '#fff',
           fontSize: 88, lineHeight: 0.9, letterSpacing: -3,
-          textShadow: `5px 5px 0 ${TOKENS.red}, 10px 10px 0 ${TOKENS.ink}`,
         }}>{char}</div>
       </div>
     ),

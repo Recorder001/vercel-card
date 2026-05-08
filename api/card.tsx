@@ -190,10 +190,10 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
                 return (
                   <g key={i}>
                     <text x={p.lx} y={p.ly - 4} textAnchor="middle"
-                      style={{ font: `italic 800 14px ${TOKENS.display}`, letterSpacing: 2 }}
+                      style={{ fontFamily: TOKENS.display, fontStyle: 'italic', fontWeight: 800, fontSize: 14, letterSpacing: 2 }}
                       fill={p.color}>{p.emoji} {p.kr}</text>
                     <text x={p.lx} y={p.ly + 14} textAnchor="middle"
-                      style={{ font: `italic 800 18px ${TOKENS.display}` }}
+                      style={{ fontFamily: TOKENS.display, fontStyle: 'italic', fontWeight: 800, fontSize: 18 }}
                       fill={p.isMax ? '#C8A434' : TOKENS.ink}>
                       {p.isMax ? 'MAX' : `${p.v}pt · R${r.n}`}
                     </text>
