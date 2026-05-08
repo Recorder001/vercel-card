@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const NM = path.join(__dirname, '..', 'node_modules');
+const FONTS = path.join(__dirname, 'fonts');
 
 // Module-level font cache (shared across warm Lambda invocations)
 let fontPretendard: Buffer | null = null;
@@ -15,19 +15,13 @@ let fontNanumKorean: Buffer | null = null;
 
 function loadFonts() {
   if (!fontPretendard)
-    fontPretendard = fs.readFileSync(path.join(__dirname, 'fonts/Pretendard-Bold.woff'));
+    fontPretendard = fs.readFileSync(path.join(FONTS, 'Pretendard-Bold.woff'));
   if (!fontArchivo)
-    fontArchivo = fs.readFileSync(
-      path.join(NM, '@fontsource/archivo-black/files/archivo-black-latin-400-normal.woff2')
-    );
+    fontArchivo = fs.readFileSync(path.join(FONTS, 'ArchivoBlack.woff2'));
   if (!fontNanumLatin)
-    fontNanumLatin = fs.readFileSync(
-      path.join(NM, '@fontsource/nanum-pen-script/files/nanum-pen-script-latin-400-normal.woff2')
-    );
+    fontNanumLatin = fs.readFileSync(path.join(FONTS, 'NanumPenLatin.woff2'));
   if (!fontNanumKorean)
-    fontNanumKorean = fs.readFileSync(
-      path.join(NM, '@fontsource/nanum-pen-script/files/nanum-pen-script-korean-400-normal.woff2')
-    );
+    fontNanumKorean = fs.readFileSync(path.join(FONTS, 'NanumPenKorean.woff2'));
   return {
     pretendard: fontPretendard!,
     archivo: fontArchivo!,
