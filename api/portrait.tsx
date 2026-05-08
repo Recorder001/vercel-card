@@ -5,12 +5,28 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const FONTS = path.join(__dirname, 'fonts');
 
-let cachedFont: Buffer | null = null;
-function loadFont(): Buffer {
-  if (cachedFont) return cachedFont;
-  cachedFont = fs.readFileSync(path.join(__dirname, 'fonts/Pretendard-Bold.woff'));
-  return cachedFont;
+let fontPretendard: Buffer | null = null;
+let fontArchivo: Buffer | null = null;
+let fontNanumLatin: Buffer | null = null;
+let fontNanumKorean: Buffer | null = null;
+
+function loadFonts() {
+  if (!fontPretendard)
+    fontPretendard = fs.readFileSync(path.join(FONTS, 'Pretendard-Bold.woff'));
+  if (!fontArchivo)
+    fontArchivo = fs.readFileSync(path.join(FONTS, 'ArchivoBlack.woff'));
+  if (!fontNanumLatin)
+    fontNanumLatin = fs.readFileSync(path.join(FONTS, 'NanumPenLatin.woff'));
+  if (!fontNanumKorean)
+    fontNanumKorean = fs.readFileSync(path.join(FONTS, 'NanumPenKorean.woff'));
+  return {
+    pretendard: fontPretendard!,
+    archivo: fontArchivo!,
+    nanumLatin: fontNanumLatin!,
+    nanumKorean: fontNanumKorean!,
+  };
 }
 
 const TOKENS = {
@@ -18,7 +34,8 @@ const TOKENS = {
   red: '#C0392B', redDeep: '#8E2A1F', ink: '#1A1A1A', inkSoft: '#2A2522',
   noteBrown: '#5C4A3A',
   sansKR: '"Pretendard","Noto Sans KR",sans-serif',
-  display: '"Pretendard",sans-serif',
+  display: '"ArchivoBlack","Pretendard",sans-serif',
+  hand: '"NanumPenScript","Pretendard",cursive',
 };
 
 const EMOTIONS: Record<string, { label: string; kr: string; color: string }> = {
@@ -73,7 +90,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
   const emo = EMOTIONS[emotion] || EMOTIONS.flutter;
   const w   = WEATHER[weather]  || WEATHER.sunny;
   const tIcon = TIMESLOT[timeslot] || '🏙';
-  const fontData = loadFont();
+  const fonts = loadFonts();
 
   const imageResponse = new ImageResponse(
     (
@@ -171,7 +188,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
               fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 20,
             }}>U</div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <div style={{ fontSize: 10, letterSpacing: 2.5, fontWeight: 800, color: '#9A8B6A', display: 'flex' }}>YOU</div>
+              <div style={{ fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 10, letterSpacing: 2.5, fontWeight: 800, color: '#9A8B6A', display: 'flex' }}>YOU</div>
               <div style={{ fontWeight: 900, fontSize: 24, color: TOKENS.ink, lineHeight: 1, letterSpacing: -0.5, display: 'flex' }}>{u_name}</div>
             </div>
           </div>
@@ -196,7 +213,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
               fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 22,
             }}>C</div>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <div style={{ fontSize: 10, letterSpacing: 2.5, fontWeight: 800, color: emo.color, display: 'flex' }}>NOW</div>
+              <div style={{ fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 10, letterSpacing: 2.5, fontWeight: 800, color: emo.color, display: 'flex' }}>NOW</div>
               <div style={{ fontWeight: 900, fontSize: 26, color: '#fff', lineHeight: 1, letterSpacing: -0.5, display: 'flex' }}>{char}</div>
             </div>
             <div style={{
@@ -232,7 +249,12 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
     {
       width: 1200,
       height: 600,
-      fonts: [{ name: 'Pretendard', data: fontData, weight: 700, style: 'normal' }],
+      fonts: [
+        { name: 'Pretendard',     data: fonts.pretendard,  weight: 700, style: 'normal' },
+        { name: 'ArchivoBlack',   data: fonts.archivo,     weight: 400, style: 'normal' },
+        { name: 'NanumPenScript', data: fonts.nanumLatin,  weight: 400, style: 'normal' },
+        { name: 'NanumPenScript', data: fonts.nanumKorean, weight: 400, style: 'normal' },
+      ],
     }
   );
 
