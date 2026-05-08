@@ -1,0 +1,7 @@
+node_modules/
+.vercel/
+.claude/
+api/test.ts
+api/test-og.ts
+api/font-data.ts
+public/fonts/

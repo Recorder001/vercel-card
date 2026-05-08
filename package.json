@@ -1,0 +1,21 @@
+{
+  "name": "goo9-stat-card",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Goo9 캐챗용 가변 스탯 카드 + 캐릭터 포트레이트 API",
+  "scripts": {
+    "build": "echo 'no build step'",
+    "deploy": "vercel --prod"
+  },
+  "engines": {
+    "node": "20.x"
+  },
+  "dependencies": {
+    "@vercel/og": "^0.11.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.2",
+    "@types/react": "^18.3.28",
+    "react": "^18.3.1"
+  }
+}
