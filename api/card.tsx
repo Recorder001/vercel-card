@@ -184,23 +184,31 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
                   stroke={p.isMax ? '#FFD700' : TOKENS.ink}
                   strokeWidth={p.isMax ? 4 : 2} />
               ))}
-              {/* Labels */}
-              {points.map((p, i) => {
-                const r = rankOf(p.v);
-                return (
-                  <g key={i}>
-                    <text x={p.lx} y={p.ly - 4} textAnchor="middle"
-                      style={{ fontFamily: TOKENS.display, fontStyle: 'italic', fontWeight: 800, fontSize: 14, letterSpacing: 2 }}
-                      fill={p.color}>{p.emoji} {p.kr}</text>
-                    <text x={p.lx} y={p.ly + 14} textAnchor="middle"
-                      style={{ fontFamily: TOKENS.display, fontStyle: 'italic', fontWeight: 800, fontSize: 18 }}
-                      fill={p.isMax ? '#C8A434' : TOKENS.ink}>
-                      {p.isMax ? 'MAX' : `${p.v}pt · R${r.n}`}
-                    </text>
-                  </g>
-                );
-              })}
             </svg>
+            {/* Labels as HTML divs — SVG <text> not supported in Satori */}
+            {points.map((p, i) => {
+              const r = rankOf(p.v);
+              return (
+                <div key={i} style={{
+                  position: 'absolute',
+                  left: 20 + p.lx,
+                  top: 10 + p.ly,
+                  transform: 'translate(-50%, -50%)',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center',
+                }}>
+                  <div style={{
+                    fontFamily: TOKENS.display, fontStyle: 'italic', fontWeight: 800,
+                    fontSize: 14, letterSpacing: 2, color: p.color, display: 'flex',
+                  }}>{p.emoji} {p.kr}</div>
+                  <div style={{
+                    fontFamily: TOKENS.display, fontStyle: 'italic', fontWeight: 800,
+                    fontSize: 18, color: p.isMax ? '#C8A434' : TOKENS.ink, display: 'flex',
+                  }}>
+                    {p.isMax ? 'MAX' : `${p.v}pt · R${r.n}`}
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           {/* Right: meters + thought + emotion */}

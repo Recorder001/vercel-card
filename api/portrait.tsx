@@ -136,13 +136,14 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
           fontFamily: TOKENS.sansKR, fontWeight: 700, fontSize: 18,
         }}>
           <div style={{
-            background: TOKENS.red, color: '#fff', padding: '0 18px', height: '100%',
+            background: TOKENS.red, color: '#fff',
+            paddingLeft: 18, paddingRight: 30, height: '100%',
             display: 'flex', alignItems: 'center', gap: 8,
             fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 22,
-            clipPath: 'polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%)',
+            transform: 'skewX(-14deg)',
           }}>
-            <span style={{ opacity: 0.8, fontSize: 16, display: 'flex' }}>TURN</span>
-            <span style={{ fontSize: 26, display: 'flex' }}>{String(turn).padStart(2, '0')}</span>
+            <span style={{ display: 'flex', transform: 'skewX(14deg)', opacity: 0.8, fontSize: 16 }}>TURN</span>
+            <span style={{ display: 'flex', transform: 'skewX(14deg)', fontSize: 26 }}>{String(turn).padStart(2, '0')}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 18, padding: '0 22px', flex: 1 }}>
             {date && <span style={{ display: 'flex', gap: 6 }}>📅 <b>{date}</b></span>}
