@@ -252,6 +252,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
       fonts: [
         { name: 'Pretendard',     data: fonts.pretendard,  weight: 700, style: 'normal' },
         { name: 'ArchivoBlack',   data: fonts.archivo,     weight: 400, style: 'normal' },
+        { name: 'ArchivoBlack',   data: fonts.archivo,     weight: 400, style: 'italic' },
         { name: 'NanumPenScript', data: fonts.nanumLatin,  weight: 400, style: 'normal' },
         { name: 'NanumPenScript', data: fonts.nanumKorean, weight: 400, style: 'normal' },
       ],

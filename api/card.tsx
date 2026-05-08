@@ -342,13 +342,10 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
                 position: 'absolute', left: 14, right: 14, top: 42, height: 34,
                 background: TOKENS.highlighter, transform: 'rotate(-0.6deg)', display: 'flex',
               }} />
-              {/* Handwriting text */}
-              <div style={{
-                position: 'relative', marginTop: 6, display: 'flex',
-                fontFamily: TOKENS.hand, fontSize: 28, color: TOKENS.noteBrown, lineHeight: 1.3,
-              }}>
+              {/* Handwriting text — wrap thought in span to ensure NanumPenScript applies */}
+              <div style={{ position: 'relative', marginTop: 6, display: 'flex', alignItems: 'center' }}>
                 <span style={{ fontFamily: TOKENS.display, fontStyle: 'italic', color: TOKENS.red, fontSize: 34, display: 'flex', lineHeight: 1 }}>"</span>
-                {thought}
+                <span style={{ fontFamily: TOKENS.hand, fontSize: 28, color: TOKENS.noteBrown, display: 'flex', lineHeight: 1.3 }}>{thought}</span>
                 <span style={{ fontFamily: TOKENS.display, fontStyle: 'italic', color: TOKENS.red, fontSize: 34, display: 'flex', lineHeight: 1 }}>"</span>
               </div>
             </div>
@@ -392,9 +389,11 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
       width: 1200,
       height: 600,
       fonts: [
-        { name: 'Pretendard',    data: fonts.pretendard, weight: 700, style: 'normal' },
-        { name: 'ArchivoBlack',  data: fonts.archivo,    weight: 400, style: 'normal' },
-        { name: 'NanumPenScript', data: fonts.nanumLatin, weight: 400, style: 'normal' },
+        { name: 'Pretendard',     data: fonts.pretendard,  weight: 700, style: 'normal' },
+        // Register ArchivoBlack as both normal+italic so CSS fontStyle:'italic' matches
+        { name: 'ArchivoBlack',   data: fonts.archivo,     weight: 400, style: 'normal' },
+        { name: 'ArchivoBlack',   data: fonts.archivo,     weight: 400, style: 'italic' },
+        { name: 'NanumPenScript', data: fonts.nanumLatin,  weight: 400, style: 'normal' },
         { name: 'NanumPenScript', data: fonts.nanumKorean, weight: 400, style: 'normal' },
       ],
     }
