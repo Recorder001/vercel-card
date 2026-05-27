@@ -80,8 +80,6 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
   const timeslot = searchParams.get('timeslot') || '점심';
   const location = searchParams.get('location') || '';
   const turn     = Number(searchParams.get('turn') ?? 1);
-  const slotTurn = turn % 4 || 4;
-
 
   const u_name   = searchParams.get('u_name')   || '-';
   const u_club   = searchParams.get('u_club')   || '-';
@@ -169,10 +167,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 18, padding: '0 22px', flex: 1 }}>
             {date && <span style={{ display: 'flex', gap: 6 }}>📅 <b>{date}</b></span>}
             {date && <span style={{ opacity: 0.4, display: 'flex' }}>·</span>}
-            <span style={{ display: 'flex', gap: 6 }}>
-              {tIcon} {timeslot}
-              <span style={{ opacity: 0.7, display: 'flex' }}>({slotTurn}/4)</span>
-            </span>
+            <span style={{ display: 'flex', gap: 6 }}>{tIcon} {timeslot}</span>
             <span style={{ opacity: 0.4, display: 'flex' }}>·</span>
             <span style={{ display: 'flex', gap: 6 }}>{w.icon} {w.label}</span>
             {location && <span style={{ opacity: 0.4, display: 'flex' }}>·</span>}

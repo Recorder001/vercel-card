@@ -1,5 +1,4 @@
 {
-  "outputDirectory": ".",
   "functions": {
     "api/*.tsx": {
       "includeFiles": "api/fonts/**"
