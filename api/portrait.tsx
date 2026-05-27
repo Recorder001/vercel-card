@@ -81,6 +81,9 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
   const location = searchParams.get('location') || '';
   const turn     = Number(searchParams.get('turn') ?? 1);
 
+  const slot_turn  = searchParams.get('slot_turn')  || '';
+  const slot_total = searchParams.get('slot_total') || '';
+
   const u_name   = searchParams.get('u_name')   || '-';
   const u_club   = searchParams.get('u_club')   || '-';
   const u_outfit = searchParams.get('u_outfit') || '-';
@@ -167,7 +170,14 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 18, padding: '0 22px', flex: 1 }}>
             {date && <span style={{ display: 'flex', gap: 6 }}>📅 <b>{date}</b></span>}
             {date && <span style={{ opacity: 0.4, display: 'flex' }}>·</span>}
-            <span style={{ display: 'flex', gap: 6 }}>{tIcon} {timeslot}</span>
+            <span style={{ display: 'flex', gap: 6 }}>
+              {tIcon} {timeslot}
+              {slot_turn && (
+                <span style={{ opacity: 0.7, display: 'flex' }}>
+                  ({slot_turn}{slot_total ? `/${slot_total}` : ''})
+                </span>
+              )}
+            </span>
             <span style={{ opacity: 0.4, display: 'flex' }}>·</span>
             <span style={{ display: 'flex', gap: 6 }}>{w.icon} {w.label}</span>
             {location && <span style={{ opacity: 0.4, display: 'flex' }}>·</span>}
