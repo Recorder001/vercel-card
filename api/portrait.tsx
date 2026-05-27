@@ -81,8 +81,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
   const location = searchParams.get('location') || '';
   const turn     = Number(searchParams.get('turn') ?? 1);
 
-  const slot_turn  = searchParams.get('slot_turn')  || '';
-  const slot_total = searchParams.get('slot_total') || '';
+  const slot_turn = searchParams.get('slot_turn') || '';
 
   const u_name   = searchParams.get('u_name')   || '-';
   const u_club   = searchParams.get('u_club')   || '-';
@@ -173,9 +172,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
             <span style={{ display: 'flex', gap: 6 }}>
               {tIcon} {timeslot}
               {slot_turn && (
-                <span style={{ opacity: 0.7, display: 'flex' }}>
-                  ({slot_turn}{slot_total ? `/${slot_total}` : ''})
-                </span>
+                <span style={{ opacity: 0.7, display: 'flex' }}>({slot_turn}/4)</span>
               )}
             </span>
             <span style={{ opacity: 0.4, display: 'flex' }}>·</span>
