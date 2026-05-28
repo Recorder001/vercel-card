@@ -33,6 +33,17 @@ function loadFonts(): FontCache {
   return fontCache;
 }
 
+function renderThought(text: string) {
+  const parts = text.split('…');
+  if (parts.length === 1) return text;
+  return parts.flatMap((part, i) => {
+    const nodes: any[] = [];
+    if (part) nodes.push(<span key={`t${i}`} style={{ fontFamily: 'NanumPenLatin, NanumPenKorean, Pretendard, cursive', display: 'flex' }}>{part}</span>);
+    if (i < parts.length - 1) nodes.push(<span key={`e${i}`} style={{ fontFamily: 'Pretendard, sans-serif', display: 'flex' }}>…</span>);
+    return nodes;
+  });
+}
+
 function clamp(val: string | null): number {
   const n = parseInt(val ?? '0');
   return Math.min(100, Math.max(0, isNaN(n) ? 0 : n));
@@ -361,11 +372,11 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
               <div style={{ position: 'relative', marginTop: 1, display: 'flex', alignItems: 'center' }}>
                 <span style={{
                   fontFamily: TOKENS.hand, fontSize: 48, color: TOKENS.noteBrown,
-                  display: 'flex', lineHeight: 1.3,
+                  display: 'flex', lineHeight: 1.3, flexWrap: 'wrap',
                   background: TOKENS.highlighter,
                   padding: '3px 8px',
                   transform: 'rotate(-0.6deg)',
-                }}>{thought}</span>
+                }}>{renderThought(thought)}</span>
               </div>
             </div>
 
