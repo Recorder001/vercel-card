@@ -1,4 +1,5 @@
 {
+  "alias": ["vercel-card-mu.vercel.app"],
   "functions": {
     "api/*.tsx": {
       "includeFiles": "api/{fonts,characters,미오통합,assets}/**"
