@@ -5,29 +5,32 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const FONTS = path.join(__dirname, 'fonts');
+const FONTS   = path.join(__dirname, 'fonts');
+const ASSETS  = path.join(__dirname, 'assets');
 
-// Module-level font cache (shared across warm Lambda invocations)
-let fontPretendard: Buffer | null = null;
-let fontArchivo: Buffer | null = null;
-let fontNanumLatin: Buffer | null = null;
-let fontNanumKorean: Buffer | null = null;
+type FontCache = { pretendard: ArrayBuffer; bowlby: ArrayBuffer; paperozi: ArrayBuffer; paperozi7: ArrayBuffer; nanumLatin: ArrayBuffer; nanumKorean: ArrayBuffer; gasoekOne: ArrayBuffer };
+let fontCache: FontCache | null = null;
+let statBgCache: string | null = null;
+function toAB(b: Buffer): ArrayBuffer { return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer; }
 
-function loadFonts() {
-  if (!fontPretendard)
-    fontPretendard = fs.readFileSync(path.join(FONTS, 'Pretendard-Bold.woff'));
-  if (!fontArchivo)
-    fontArchivo = fs.readFileSync(path.join(FONTS, 'ArchivoBlack.woff'));
-  if (!fontNanumLatin)
-    fontNanumLatin = fs.readFileSync(path.join(FONTS, 'NanumPenLatin.woff'));
-  if (!fontNanumKorean)
-    fontNanumKorean = fs.readFileSync(path.join(FONTS, 'NanumPenKorean.woff'));
-  return {
-    pretendard: fontPretendard!,
-    archivo: fontArchivo!,
-    nanumLatin: fontNanumLatin!,
-    nanumKorean: fontNanumKorean!,
+function loadStatBg(): string {
+  if (statBgCache) return statBgCache;
+  statBgCache = `data:image/jpeg;base64,${fs.readFileSync(path.join(ASSETS, 'stat_bg.jpg')).toString('base64')}`;
+  return statBgCache;
+}
+
+function loadFonts(): FontCache {
+  if (fontCache) return fontCache;
+  fontCache = {
+    pretendard:  toAB(fs.readFileSync(path.join(FONTS, 'Pretendard-Bold.woff'))),
+    bowlby:      toAB(fs.readFileSync(path.join(FONTS, 'BowlbyOneSC.ttf'))),
+    paperozi:    toAB(fs.readFileSync(path.join(FONTS, 'Paperozi.ttf'))),
+    paperozi7:   toAB(fs.readFileSync(path.join(FONTS, 'Paperozi7.ttf'))),
+    nanumLatin:  toAB(fs.readFileSync(path.join(FONTS, 'NanumPenLatin.woff'))),
+    nanumKorean: toAB(fs.readFileSync(path.join(FONTS, 'NanumPenKorean.woff'))),
+    gasoekOne:   toAB(fs.readFileSync(path.join(FONTS, 'GasoekOne.ttf'))),
   };
+  return fontCache;
 }
 
 function clamp(val: string | null): number {
@@ -35,19 +38,16 @@ function clamp(val: string | null): number {
   return Math.min(100, Math.max(0, isNaN(n) ? 0 : n));
 }
 
-// ── Design Tokens (StyleTokensCard.jsx 기준) ─────────────────────────
 const TOKENS = {
   paper: '#F5EFE0', paperDeep: '#EDE3CB', paperShade: '#E2D6B8',
   red: '#C0392B', redDeep: '#8E2A1F', ink: '#1A1A1A', inkSoft: '#2A2522',
   noteBrown: '#5C4A3A', highlighter: 'rgba(255,225,90,0.55)',
-  study: '#D9534F', power: '#E67E22', art: '#8E44AD', social: '#27AE60', craft: '#2980B9',
+  study: '#D45858', power: '#E07835', art: '#9050BB', social: '#2EAD68', craft: '#3A8EC8',
   heart: '#E63946', fire: '#F37121',
-  // Archivo Black italic → English/numbers display font
-  display: '"ArchivoBlack","Pretendard",sans-serif',
-  // Pretendard 900 → Korean labels
-  sansKR: '"Pretendard","Noto Sans KR",sans-serif',
-  // NanumPenScript → 속마음 handwriting
-  hand: '"NanumPenScript","Pretendard",cursive',
+  display: 'BowlbyOneSC, Paperozi, sans-serif',
+  sansKR: 'Paperozi, sans-serif',
+  hand: 'NanumPenLatin, NanumPenKorean, Pretendard, cursive',
+  charName: 'GasoekOne, Pretendard, sans-serif',
 };
 
 const EMOTIONS: Record<string, { label: string; kr: string; color: string }> = {
@@ -55,21 +55,35 @@ const EMOTIONS: Record<string, { label: string; kr: string; color: string }> = {
   anxious:     { label: 'ANXIOUS',    kr: '불안',    color: '#7D6B8A' },
   shocked:     { label: 'SHOCKED',    kr: '충격',    color: '#F1C40F' },
   happy:       { label: 'HAPPY',      kr: '행복',    color: '#F39C12' },
+  joy:         { label: 'JOY',        kr: '기쁨',    color: '#FFB800' },
   expect:      { label: 'EXPECT',     kr: '기대',    color: '#E67E22' },
   moved:       { label: 'MOVED',      kr: '감동',    color: '#3498DB' },
-  flutter:     { label: 'SETTLE',     kr: '설렘',    color: '#EC7AA0' },
-  irritated:   { label: 'IRRITATED',  kr: '짜증',    color: '#D35400' },
-  serious:     { label: 'SERIOUS',    kr: '진지',    color: '#2C3E50' },
+  flutter:     { label: 'FLUTTER',    kr: '설렘',    color: '#EC7AA0' },
+  love:        { label: 'LOVE',       kr: '사랑',    color: '#E91E63' },
   angry:       { label: 'ANGRY',      kr: '분노',    color: '#922B21' },
+  lonely:      { label: 'LONELY',     kr: '외로움',  color: '#607D8B' },
   embarrassed: { label: 'BLUSH',      kr: '부끄러움', color: '#E91E8C' },
+  conflicted:  { label: 'CONFLICTED', kr: '갈등',    color: '#9B59B6' },
+  nostalgic:   { label: 'NOSTALGIC',  kr: '그리움',  color: '#C8960C' },
+  numb:        { label: 'NUMB',       kr: '무감각',  color: '#90A4AE' },
+  proud:       { label: 'PROUD',      kr: '자부심',  color: '#C8A434' },
+  relieved:    { label: 'RELIEVED',   kr: '안도',    color: '#26A69A' },
+  nervous:     { label: 'NERVOUS',    kr: '긴장',    color: '#FF9800' },
+  frustrated:  { label: 'FRUSTRATED', kr: '답답함',  color: '#E64A19' },
+  guilty:      { label: 'GUILTY',     kr: '죄책감',  color: '#795548' },
+  calm:        { label: 'CALM',       kr: '평온',    color: '#5BA3C9' },
+  determined:  { label: 'DETERMINED', kr: '결의',    color: '#1565C0' },
+  jealous:     { label: 'JEALOUS',    kr: '질투',    color: '#388E3C' },
+  annoyed:     { label: 'ANNOYED',    kr: '짜증',    color: '#D84315' },
+  furious:     { label: 'FURIOUS',    kr: '격노',    color: '#7B0000' },
 };
 
 const STAT_META = [
-  { key: 'study',  emoji: '📚', kr: '학업', color: TOKENS.study  },
-  { key: 'power',  emoji: '💪', kr: '체력', color: TOKENS.power  },
-  { key: 'art',    emoji: '🎨', kr: '예술', color: TOKENS.art    },
-  { key: 'social', emoji: '💬', kr: '사교', color: TOKENS.social },
-  { key: 'craft',  emoji: '🛠', kr: '재주', color: TOKENS.craft  },
+  { key: 'study',  emoji: '📚', kr: '학업', color: TOKENS.study,  colorDark: '#952C2C', labelExtra: 38 },
+  { key: 'power',  emoji: '💪', kr: '체력', color: TOKENS.power,  colorDark: '#9B4A18', labelExtra: 80 },
+  { key: 'art',    emoji: '🎨', kr: '예술', color: TOKENS.art,    colorDark: '#5C2880', labelExtra: 42 },
+  { key: 'social', emoji: '💬', kr: '사교', color: TOKENS.social, colorDark: '#1A7A40', labelExtra: 42 },
+  { key: 'craft',  emoji: '🛠', kr: '재주', color: TOKENS.craft,  colorDark: '#1E5E90', labelExtra: 72 },
 ];
 
 const RANK_NAMES: Record<string, string[]> = {
@@ -77,7 +91,7 @@ const RANK_NAMES: Record<string, string[]> = {
   power:  ['저질', '달팽이', '토끼', '라이징스타', '마라토너', '올림푸스'],
   art:    ['무미건조', '정취', '운치', '풍류', '거장', '신필'],
   social: ['외톨이', '듣기만점', '스피처', '두터운교우관계', '인싸', '카리스마'],
-  craft:  ['마이너스의손', '잔고장전문가', '야무짐', '독보적', '미다스의 손', '헤파이스토스'],
+  craft:  ['허접', '고장잦음', '취미생', '전문가', '장인', '명장'],
 };
 
 function rankOf(pt: number) {
@@ -105,7 +119,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
   const craft     = clamp(searchParams.get('craft'));
   const affection = clamp(searchParams.get('affection'));
   const stress    = clamp(searchParams.get('stress'));
-  const emotion   = searchParams.get('emotion')  || 'flutter';
+  const emotion   = searchParams.get('emotion')  || 'calm';
   const event     = searchParams.get('event')    || '미정';
   const dday      = searchParams.get('dday')     || '?';
   const thought   = searchParams.get('thought')  || '...';
@@ -114,7 +128,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
   const fonts = loadFonts();
 
   // ── Pentagon radar geometry ────────────────────────────────────────
-  const cx = 235, cy = 240, R = 175, N = 5;
+  const cx = 250, cy = 271, R = 175, N = 5;
   const statVals = [study, power, art, social, craft];
   const angle = (i: number) => -Math.PI / 2 + (i * 2 * Math.PI / N);
   const points = STAT_META.map((s, i) => {
@@ -123,12 +137,13 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
     return {
       x: cx + r * Math.cos(angle(i)), y: cy + r * Math.sin(angle(i)),
       ax: cx + R * Math.cos(angle(i)), ay: cy + R * Math.sin(angle(i)),
-      lx: cx + (R + 38) * Math.cos(angle(i)), ly: cy + (R + 38) * Math.sin(angle(i)),
-      v, color: s.color, key: s.key, kr: s.kr, emoji: s.emoji,
+      lx: cx + (R + s.labelExtra) * Math.cos(angle(i)), ly: cy + (R + s.labelExtra) * Math.sin(angle(i)),
+      v, color: s.color, colorDark: s.colorDark, key: s.key, kr: s.kr, emoji: s.emoji,
       isMax: v >= 100,
     };
   });
   const polyData = points.map(p => `${p.x},${p.y}`).join(' ');
+
 
   const imageResponse = new ImageResponse(
     (
@@ -140,60 +155,61 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
 
         {/* ── Header ──────────────────────────────────────────────────── */}
         <div style={{
-          height: 70, background: TOKENS.ink, color: '#fff', display: 'flex',
+          height: 100, background: TOKENS.ink, color: '#fff', display: 'flex',
           alignItems: 'center', padding: '0 26px', position: 'relative', overflow: 'hidden',
         }}>
-          {/* STATUS label */}
-          <div style={{
-            fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 13,
-            letterSpacing: 4, color: TOKENS.red, marginRight: 14, display: 'flex',
-          }}>STATUS</div>
-
-          {/* Character name */}
-          <div style={{
-            fontFamily: TOKENS.sansKR, fontWeight: 900, fontSize: 42,
-            color: '#fff', letterSpacing: -1.5, lineHeight: 1, display: 'flex',
-            textShadow: `4px 4px 0 ${TOKENS.red}`,
-          }}>{char}</div>
+          {/* STATUS — 3-layer stamp (ArchivoBlack Italic) */}
+          <div style={{ position: 'relative', display: 'flex', alignSelf: 'center', paddingRight: 10, marginTop: -12 }}>
+            {/* Transparent spacer sets layout width */}
+            <div style={{ fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 76, lineHeight: 1, color: 'transparent', display: 'flex' }}>STATUS</div>
+            {/* Back shadow */}
+            <div style={{ position: 'absolute', left: 7, top: 7, fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 76, color: TOKENS.redDeep, lineHeight: 1, display: 'flex' }}>STATUS</div>
+            {/* Red mid */}
+            <div style={{ position: 'absolute', left: 3, top: 3, fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 76, color: TOKENS.red, lineHeight: 1, display: 'flex' }}>STATUS</div>
+            {/* White front — last in DOM = renders on top */}
+            <div style={{ position: 'absolute', left: 0, top: 0, fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 76, color: '#fff', lineHeight: 1, display: 'flex' }}>STATUS</div>
+          </div>
 
           <div style={{ flex: 1 }} />
 
-          {/* NEXT EVENT badge — skewX replaces clipPath(calc) for Satori compat */}
+          {/* NEXT EVENT badge */}
           <div style={{
             display: 'flex', alignItems: 'center', gap: 10,
             background: TOKENS.red, color: '#fff',
-            paddingLeft: 16, paddingRight: 26, paddingTop: 8, paddingBottom: 8,
+            paddingLeft: 16, paddingRight: 26, paddingTop: 4, paddingBottom: 4,
             boxShadow: `3px 3px 0 ${TOKENS.paper}`,
             transform: 'skewX(-10deg)',
           }}>
             <span style={{
-              fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 11,
+              fontFamily: TOKENS.display, fontSize: 24, fontStyle: 'italic',
               letterSpacing: 2, opacity: 0.85, display: 'flex', transform: 'skewX(10deg)',
             }}>NEXT EVENT</span>
             <span style={{
-              fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 16,
+              fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 38,
               fontWeight: 900, display: 'flex', transform: 'skewX(10deg)',
             }}>{event}</span>
             <span style={{ opacity: 0.5, display: 'flex', transform: 'skewX(10deg)' }}>·</span>
             <span style={{
-              fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 18,
-              fontWeight: 900, display: 'flex', transform: 'skewX(10deg)',
-            }}>{dday}일 남음</span>
+              fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 24,
+              fontWeight: 900, display: 'flex', transform: 'skewX(10deg)', alignItems: 'center', gap: 2,
+            }}><span style={{ fontSize: 42 }}>{dday}</span>일 남음</span>
           </div>
         </div>
 
         {/* ── Body ────────────────────────────────────────────────────── */}
         <div style={{ flex: 1, display: 'flex', position: 'relative' }}>
 
-          {/* Left: Pentagon radar chart */}
+          {/* Left: Stat radar */}
           <div style={{
-            width: 540, position: 'relative', display: 'flex',
+            width: 620, position: 'relative', display: 'flex',
             alignItems: 'center', justifyContent: 'center',
             borderRight: `3px solid ${TOKENS.ink}`,
+            overflow: 'hidden',
           }}>
+            {/* Filled polygon + grid + vertex dots */}
             <svg width={500} height={500} viewBox="0 0 500 500"
-                 style={{ position: 'absolute', top: 10, left: 20 }}>
-              {/* Grid polygons — 5 levels, outermost solid, inner dashed */}
+                 style={{ position: 'absolute', top: 0, left: 60 }}>
+              {/* Grid: concentric pentagons */}
               {[0.2, 0.4, 0.6, 0.8, 1].map((s, idx) => {
                 const pts = Array.from({ length: N }).map((_, i) => {
                   const gr = R * s;
@@ -206,53 +222,55 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
                     strokeDasharray={idx < 4 ? '3 4' : 'none'} />
                 );
               })}
-              {/* Axis lines */}
+              {/* Spoke lines */}
               {points.map((p, i) => (
                 <line key={i} x1={cx} y1={cy} x2={p.ax} y2={p.ay}
                   stroke={TOKENS.paperShade} strokeWidth={1.2} />
               ))}
-              {/* Data fill */}
+              {/* Filled stat polygon */}
               <polygon points={polyData}
-                fill={TOKENS.red} fillOpacity={0.18}
+                fill={TOKENS.red} fillOpacity={0.22}
                 stroke={TOKENS.red} strokeWidth={2.5} />
-              {/* Data points — MAX gets gold ring */}
+              {/* Vertex dots */}
               {points.map((p, i) => (
-                <circle key={i} cx={p.x} cy={p.y} r={p.isMax ? 9 : 6}
-                  fill={p.color}
-                  stroke={p.isMax ? '#FFD700' : TOKENS.ink}
-                  strokeWidth={p.isMax ? 4 : 2} />
+                <circle key={i} cx={p.x} cy={p.y} r={p.isMax ? 7 : 4}
+                  fill={p.color} stroke={TOKENS.ink} strokeWidth={1.5} />
               ))}
             </svg>
 
-            {/* Stat labels — HTML divs (SVG <text> unsupported in Satori) */}
+            {/* Stat labels */}
             {points.map((p, i) => {
               const rk = rankOf(p.v);
-              const rName = p.isMax ? RANK_NAMES[p.key][5] : RANK_NAMES[p.key][rk.n - 1];
+              const rName = RANK_NAMES[p.key][p.isMax ? 5 : rk.n - 1];
               return (
                 <div key={i} style={{
                   position: 'absolute',
-                  left: 20 + p.lx, top: 10 + p.ly,
+                  left: 60 + p.lx, top: p.ly + ([2, 3].includes(i) ? 8 : -18),
                   transform: 'translate(-50%, -50%)',
-                  display: 'flex', flexDirection: 'column', alignItems: 'center',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 9,
                 }}>
-                  <div style={{
-                    fontFamily: TOKENS.display, fontStyle: 'italic', fontWeight: 800,
-                    fontSize: 13, letterSpacing: 2, color: p.color, display: 'flex',
-                  }}>{p.emoji} {p.kr}</div>
-                  <div style={{
-                    fontFamily: TOKENS.display, fontStyle: 'italic', fontWeight: 800,
-                    fontSize: p.isMax ? 16 : 14,
-                    color: p.isMax ? '#C8A434' : TOKENS.ink, display: 'flex',
-                    letterSpacing: 0.5,
-                  }}>
-                    {p.isMax ? 'MAX' : `${p.v}pt · R${rk.n}`}
+                  <div style={{ position: 'relative', display: 'flex' }}>
+                    {/* Spacer — sets layout size */}
+                    <div style={{ transform: 'skewX(-8deg)', padding: '4px 12px', display: 'flex' }}>
+                      <span style={{ fontFamily: 'Paperozi, sans-serif', fontSize: 32, lineHeight: 1, display: 'flex', color: 'transparent' }}>{p.kr}</span>
+                    </div>
+                    {/* Dark shadow layer */}
+                    <div style={{ position: 'absolute', left: 4, top: 4, background: p.colorDark, transform: 'skewX(-8deg)', padding: '4px 12px', display: 'flex' }}>
+                      <span style={{ fontFamily: 'Paperozi, sans-serif', fontWeight: 900, fontSize: 32, color: p.colorDark, lineHeight: 1, display: 'flex', transform: 'skewX(8deg)' }}>{p.kr}</span>
+                    </div>
+                    {/* Main color layer */}
+                    <div style={{ position: 'absolute', left: 0, top: 0, background: p.color, transform: 'skewX(-8deg)', padding: '4px 12px', display: 'flex' }}>
+                      <span style={{ fontFamily: 'Paperozi, sans-serif', fontWeight: 900, fontSize: 32, color: '#fff', lineHeight: 1, display: 'flex', transform: 'skewX(8deg)' }}>{p.kr}</span>
+                    </div>
                   </div>
-                  {!p.isMax && (
-                    <div style={{
-                      fontFamily: TOKENS.sansKR, fontSize: 10,
-                      color: TOKENS.noteBrown, display: 'flex', opacity: 0.8,
-                    }}>{rName}</div>
-                  )}
+                  <div style={{
+                    fontFamily: 'Paperozi, sans-serif', fontSize: 20,
+                    fontWeight: 700,
+                    color: p.isMax ? '#C8A434' : TOKENS.inkSoft,
+                    lineHeight: 1, display: 'flex',
+                  }}>
+                    {p.isMax ? `MAX · ${rName}` : `${p.v}pt · ${rName}`}
+                  </div>
                 </div>
               );
             })}
@@ -260,34 +278,34 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
 
           {/* Right: meters + thought + emotion */}
           <div style={{
-            flex: 1, padding: '16px 22px', display: 'flex', flexDirection: 'column',
-            gap: 12, fontFamily: TOKENS.sansKR, position: 'relative',
+            flex: 1, padding: '14px 22px', display: 'flex', flexDirection: 'column',
+            gap: 10, fontFamily: TOKENS.sansKR, position: 'relative',
           }}>
 
             {/* Affection & Stress meters */}
             <div style={{
-              display: 'flex', flexDirection: 'column', gap: 10,
-              background: '#FAF4E2', padding: '14px 16px',
+              display: 'flex', flexDirection: 'column', gap: 2,
+              background: '#FAF4E2', padding: '4px 14px',
               border: `2px solid ${TOKENS.ink}`,
               boxShadow: `5px 5px 0 ${TOKENS.ink}`,
             }}>
               {/* Affection row */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 18, lineHeight: 1, display: 'flex' }}>❤</span>
+                  <span style={{ fontSize: 29, lineHeight: 1, display: 'flex' }}>❤</span>
                   <span style={{
-                    fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 11,
+                    fontFamily: TOKENS.display, fontSize: 24, fontStyle: 'italic',
                     letterSpacing: 3, color: TOKENS.heart, display: 'flex',
                   }}>AFFECTION</span>
-                  <span style={{ fontFamily: TOKENS.sansKR, fontSize: 13, fontWeight: 900, color: TOKENS.ink, display: 'flex' }}>호감도</span>
+                  <span style={{ fontFamily: TOKENS.sansKR, fontSize: 25, fontWeight: 900, color: TOKENS.ink, display: 'flex' }}>호감도</span>
                   <span style={{ flex: 1 }} />
                   <span style={{
-                    fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 22,
-                    color: TOKENS.ink, letterSpacing: 0.5, display: 'flex',
-                  }}>{affection}<span style={{ fontSize: 11, opacity: 0.6 }}>%</span></span>
+                    fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 28,
+                    color: TOKENS.ink, lineHeight: 1, display: 'flex', alignItems: 'baseline',
+                  }}>{affection}<span style={{ fontSize: 15, opacity: 0.6 }}>%</span></span>
                 </div>
                 <div style={{
-                  height: 14, background: '#E2D6B8', display: 'flex',
+                  height: 18, background: '#E2D6B8', display: 'flex',
                   border: `2px solid ${TOKENS.ink}`, overflow: 'hidden',
                 }}>
                   <div style={{
@@ -298,22 +316,22 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
                 </div>
               </div>
               {/* Stress row */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 18, lineHeight: 1, display: 'flex' }}>🔥</span>
+                  <span style={{ fontSize: 29, lineHeight: 1, display: 'flex' }}>🔥</span>
                   <span style={{
-                    fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 11,
+                    fontFamily: TOKENS.display, fontSize: 24, fontStyle: 'italic',
                     letterSpacing: 3, color: TOKENS.fire, display: 'flex',
                   }}>STRESS</span>
-                  <span style={{ fontFamily: TOKENS.sansKR, fontSize: 13, fontWeight: 900, color: TOKENS.ink, display: 'flex' }}>스트레스</span>
+                  <span style={{ fontFamily: TOKENS.sansKR, fontSize: 25, fontWeight: 900, color: TOKENS.ink, display: 'flex' }}>스트레스</span>
                   <span style={{ flex: 1 }} />
                   <span style={{
-                    fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 22,
-                    color: TOKENS.ink, letterSpacing: 0.5, display: 'flex',
-                  }}>{stress}<span style={{ fontSize: 11, opacity: 0.6 }}>%</span></span>
+                    fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 28,
+                    color: TOKENS.ink, lineHeight: 1, display: 'flex', alignItems: 'baseline',
+                  }}>{stress}<span style={{ fontSize: 15, opacity: 0.6 }}>%</span></span>
                 </div>
                 <div style={{
-                  height: 14, background: '#E2D6B8', display: 'flex',
+                  height: 18, background: '#E2D6B8', display: 'flex',
                   border: `2px solid ${TOKENS.ink}`, overflow: 'hidden',
                 }}>
                   <div style={{
@@ -336,23 +354,22 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
               flex: 1,
             }}>
               <div style={{
-                fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 11,
+                fontFamily: TOKENS.display, fontSize: 20, fontStyle: 'italic',
                 letterSpacing: 3, color: TOKENS.noteBrown, display: 'flex',
               }}>속마음 · INNER</div>
-              {/* Highlighter bar */}
-              <div style={{
-                position: 'absolute', left: 14, right: 14, top: 42, height: 34,
-                background: TOKENS.highlighter, transform: 'rotate(-0.6deg)', display: 'flex',
-              }} />
-              {/* Handwriting text — wrap thought in span to ensure NanumPenScript applies */}
-              <div style={{ position: 'relative', marginTop: 6, display: 'flex', alignItems: 'center' }}>
-                <span style={{ fontFamily: TOKENS.display, fontStyle: 'italic', color: TOKENS.red, fontSize: 34, display: 'flex', lineHeight: 1 }}>"</span>
-                <span style={{ fontFamily: TOKENS.hand, fontSize: 28, color: TOKENS.noteBrown, display: 'flex', lineHeight: 1.3 }}>{thought}</span>
-                <span style={{ fontFamily: TOKENS.display, fontStyle: 'italic', color: TOKENS.red, fontSize: 34, display: 'flex', lineHeight: 1 }}>"</span>
+              {/* Handwriting text — highlighter background sized to text width */}
+              <div style={{ position: 'relative', marginTop: 1, display: 'flex', alignItems: 'center' }}>
+                <span style={{
+                  fontFamily: TOKENS.hand, fontSize: 48, color: TOKENS.noteBrown,
+                  display: 'flex', lineHeight: 1.3,
+                  background: TOKENS.highlighter,
+                  padding: '3px 8px',
+                  transform: 'rotate(-0.6deg)',
+                }}>{thought}</span>
               </div>
             </div>
 
-            {/* Emotion badge — ink background + colored hard shadow + skewX */}
+            {/* Emotion badge */}
             <div style={{
               display: 'flex', alignItems: 'center', gap: 14,
               background: TOKENS.ink, color: '#fff',
@@ -360,25 +377,23 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
               boxShadow: `6px 6px 0 ${emo.color}`,
               transform: 'skewX(-10deg)',
             }}>
-              {/* Emotion circle */}
               <div style={{
-                width: 42, height: 42, borderRadius: '50%', background: emo.color,
+                width: 63, height: 63, borderRadius: '50%', background: emo.color,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 20,
+                fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 30,
                 transform: 'skewX(10deg)',
               }}>♥</div>
-              {/* Emotion label */}
               <div style={{ display: 'flex', flexDirection: 'column', transform: 'skewX(10deg)' }}>
                 <div style={{
-                  fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 11,
+                  fontFamily: TOKENS.display, fontSize: 20, fontStyle: 'italic',
                   letterSpacing: 3, color: emo.color, display: 'flex',
                 }}>EMOTION · 감정</div>
                 <div style={{
-                  fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 24,
+                  fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 41,
                   lineHeight: 1, marginTop: 2, display: 'flex',
                 }}>
                   {emo.label}
-                  <span style={{ fontFamily: TOKENS.sansKR, fontSize: 14, color: '#E2D6B8', marginLeft: 6, display: 'flex', alignItems: 'center' }}>· {emo.kr}</span>
+                  <span style={{ fontFamily: TOKENS.sansKR, fontSize: 24, color: '#E2D6B8', marginLeft: 6, display: 'flex', alignItems: 'center' }}>· {emo.kr}</span>
                 </div>
               </div>
             </div>
@@ -392,17 +407,18 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
       height: 600,
       fonts: [
         { name: 'Pretendard',     data: fonts.pretendard,  weight: 700, style: 'normal' },
-        // Register ArchivoBlack as both normal+italic so CSS fontStyle:'italic' matches
-        { name: 'ArchivoBlack',   data: fonts.archivo,     weight: 400, style: 'normal' },
-        { name: 'ArchivoBlack',   data: fonts.archivo,     weight: 400, style: 'italic' },
-        { name: 'NanumPenScript', data: fonts.nanumLatin,  weight: 400, style: 'normal' },
-        { name: 'NanumPenScript', data: fonts.nanumKorean, weight: 400, style: 'normal' },
+        { name: 'BowlbyOneSC',    data: fonts.bowlby,      weight: 400, style: 'normal' },
+        { name: 'Paperozi',       data: fonts.paperozi,    weight: 900, style: 'normal' },
+        { name: 'Paperozi',       data: fonts.paperozi7,   weight: 700, style: 'normal' },
+        { name: 'NanumPenLatin',  data: fonts.nanumLatin,  weight: 400, style: 'normal' },
+        { name: 'NanumPenKorean', data: fonts.nanumKorean, weight: 400, style: 'normal' },
+        { name: 'GasoekOne',      data: fonts.gasoekOne,   weight: 400, style: 'normal' },
       ],
     }
   );
 
   const buffer = Buffer.from(await imageResponse.arrayBuffer());
   res.setHeader('Content-Type', 'image/png');
-  res.setHeader('Cache-Control', 'public, max-age=600');
+  res.setHeader('Cache-Control', 'no-cache, no-store, max-age=0');
   res.end(buffer);
 }
