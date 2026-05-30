@@ -493,33 +493,48 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
   };
 
   const fonts = loadFonts();
-  const W = 400;
-  const H = 3400;
+  const COL = 432;
+  const GAP = 20;
+  const PAD = 24;
+  const W = PAD * 2 + COL * 3 + GAP * 2;  // 1376 → 정사각형
+  const H = W;
+
+  const col = (children: any) => (
+    <div style={{ width: COL, display: 'flex', flexDirection: 'column', gap: 18 }}>{children}</div>
+  );
 
   const imageResponse = new ImageResponse(
     (
-      <div style={{ width: W, background: C.bg, display: 'flex', flexDirection: 'column', padding: 22, gap: 18 }}>
-        <div style={{ textAlign: 'center', padding: '8px 0 4px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-          <div style={{ fontFamily: DSP, fontWeight: 900, fontSize: 56, color: '#fff', textShadow: `5px 6px 0 ${C.redDark}`, lineHeight: 1.02, display: 'flex', alignItems: 'center' }}>
+      <div style={{ width: W, height: H, background: C.bg, display: 'flex', flexDirection: 'column', padding: PAD, gap: 18 }}>
+
+        {/* 헤더 (전체 폭) */}
+        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18, padding: '4px 0 2px' }}>
+          <div style={{ fontFamily: DSP, fontWeight: 900, fontSize: 52, color: '#fff', textShadow: `5px 6px 0 ${C.redDark}`, lineHeight: 1, display: 'flex', alignItems: 'center' }}>
             <span>GUIDE</span><span style={{ color: C.red }}>&</span><span>PROGRESS</span>
           </div>
-          <div style={{ fontFamily: BDY, fontWeight: 800, color: C.muted, fontSize: 13 }}>청춘회생록 · 플레이어 시스템 가이드</div>
+          <div style={{ fontFamily: BDY, fontWeight: 800, color: C.muted, fontSize: 14 }}>청춘회생록 · 플레이어 시스템 가이드</div>
         </div>
-        <TimeSystem timeSlot={timeSlot} affection={affection} />
-        <StatSection stats={stats} />
-        <div style={{ display: 'flex', flexDirection: 'row', gap: 18 }}>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><StressSection stress={stress} /></div>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><AffectionSection affection={affection} /></div>
-        </div>
-        <WeatherGuide weather={weather} />
-        <EventJudge stats={stats} />
-        <div style={{ display: 'flex', flexDirection: 'row', gap: 18 }}>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><ClubGuide club={club} /></div>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><DMGuide affection={affection} /></div>
-        </div>
-        <Timeline date={date} />
-        <div style={{ textAlign: 'center', fontFamily: BDY, color: C.muted, fontSize: 12, padding: '8px 0 4px' }}>
-          청춘회생록 · 시스템 가이드 + 진행도
+
+        {/* 3열 컬럼 */}
+        <div style={{ display: 'flex', flexDirection: 'row', gap: GAP, alignItems: 'flex-start' }}>
+          {col([
+            <TimeSystem key="time" timeSlot={timeSlot} affection={affection} />,
+            <StatSection key="stats" stats={stats} />,
+            <StressSection key="stress" stress={stress} />,
+          ])}
+          {col([
+            <EventJudge key="judge" stats={stats} />,
+            <WeatherGuide key="weather" weather={weather} />,
+          ])}
+          {col([
+            <AffectionSection key="aff" affection={affection} />,
+            <ClubGuide key="club" club={club} />,
+            <DMGuide key="dm" affection={affection} />,
+            <Timeline key="timeline" date={date} />,
+            <div key="footer" style={{ textAlign: 'center', fontFamily: BDY, color: C.muted, fontSize: 12, padding: '4px 0' }}>
+              청춘회생록 · 시스템 가이드 + 진행도
+            </div>,
+          ])}
         </div>
       </div>
     ),
