@@ -415,7 +415,11 @@ function DMGuide({ affection }: { affection: number }) {
 function Timeline({ date }: { date: string }) {
   const COLS = [56, 152, 248, 344];
   const ROWS = [80, 190, 300];
-  const pos  = (i: number) => {
+  const SVG_W = 400, SVG_H = 360;
+  const TW = 320, TH = 288;
+  const s = (v: number) => Math.round(v * TW / SVG_W);
+
+  const pos = (i: number) => {
     const row = Math.floor(i / 4);
     let col = i % 4;
     if (row % 2 === 1) col = 3 - col;
@@ -431,30 +435,33 @@ function Timeline({ date }: { date: string }) {
         <span style={{ fontFamily: DSP, fontSize: 13, color: C.muted }}>📅</span>
         <span style={{ fontFamily: DSP, fontSize: 16, color: C.ink }}>{date}</span>
       </div>
-      <svg viewBox="0 0 400 360" width="560" height="504" style={{ display: 'block', margin: '0 auto' }}>
-        <path d="M56 80 H344 C384 80 384 190 344 190 H56 C16 190 16 300 56 300 H344" fill="none" stroke={C.line} strokeWidth="4" strokeLinecap="round" />
-        <polygon points="194,74 207,80 194,86" fill={C.muted} />
-        <polygon points="207,184 194,190 207,196" fill={C.muted} />
-        <polygon points="194,294 207,300 194,306" fill={C.muted} />
-        {EVENTS.map((e, i) => {
+      <div style={{ position: 'relative', width: TW, height: TH, display: 'flex', alignSelf: 'center' }}>
+        <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} width={TW} height={TH} style={{ position: 'absolute', top: 0, left: 0 }}>
+          <path d="M56 80 H344 C384 80 384 190 344 190 H56 C16 190 16 300 56 300 H344" fill="none" stroke={C.line} strokeWidth="4" strokeLinecap="round" />
+          <polygon points="194,74 207,80 194,86" fill={C.muted} />
+          <polygon points="207,184 194,190 207,196" fill={C.muted} />
+          <polygon points="194,294 207,300 194,306" fill={C.muted} />
+          {EVENTS.map((e, i) => {
+            const { x, y } = pos(i);
+            return <circle key={i} cx={x} cy={y} r={12.5} fill={e.color} stroke={C.ink} strokeWidth={2.5} />;
+          })}
+          <polygon points={`${hx-6},${hy-21} ${hx+6},${hy-21} ${hx},${hy-13}`} fill={C.red} />
+          <circle cx={hx} cy={hy} r={7} fill={C.red} stroke="#fff" strokeWidth={2.5} />
+          <circle cx={hx} cy={hy} r={10.5} fill="none" stroke={C.red} strokeWidth={1.5} strokeDasharray="3 3" />
+        </svg>
+        <div style={{ position: 'absolute', left: s(hx), top: s(hy) - 32, transform: 'translateX(-50%)', fontFamily: DSP, fontSize: 11, color: C.red, whiteSpace: 'nowrap' }}>HERE</div>
+        {EVENTS.flatMap((e, i) => {
           const { x, y } = pos(i);
           const yr = e.year !== 2026 ? "'27 " : '';
-          const lines = e.name.split('\n');
-          return (
-            <g key={i}>
-              <text x={x} y={y - 19} textAnchor="middle" fontSize={10} fontFamily={BDY} fontWeight={700} fill={C.muted}>{yr}{e.date}</text>
-              <circle cx={x} cy={y} r={12.5} fill={e.color} stroke={C.ink} strokeWidth={2.5} />
-              {lines.map((l, j) => (
-                <text key={j} x={x} y={y + 26 + j * 13} textAnchor="middle" fontSize={11} fontFamily={BDY} fontWeight={900} fill={C.ink}>{l}</text>
-              ))}
-            </g>
-          );
+          const nameLines = e.name.split('\n');
+          return [
+            <div key={`d${i}`} style={{ position: 'absolute', left: s(x), top: s(y) - 25, transform: 'translateX(-50%)', fontFamily: BDY, fontSize: 9, fontWeight: 700, color: C.muted, whiteSpace: 'nowrap' }}>{`${yr}${e.date}`}</div>,
+            ...nameLines.map((l, j) => (
+              <div key={`n${i}${j}`} style={{ position: 'absolute', left: s(x), top: s(y) + 11 + j * 11, transform: 'translateX(-50%)', fontFamily: BDY, fontSize: 10, fontWeight: 900, color: C.ink, whiteSpace: 'nowrap' }}>{l}</div>
+            )),
+          ];
         })}
-        <text x={hx} y={hy - 28} textAnchor="middle" fontSize={13} fontFamily={DSP} fill={C.red}>HERE</text>
-        <polygon points={`${hx - 6},${hy - 21} ${hx + 6},${hy - 21} ${hx},${hy - 13}`} fill={C.red} />
-        <circle cx={hx} cy={hy} r={7} fill={C.red} stroke="#fff" strokeWidth={2.5} />
-        <circle cx={hx} cy={hy} r={10.5} fill="none" stroke={C.red} strokeWidth={1.5} strokeDasharray="3 3" />
-      </svg>
+      </div>
       <div style={{ textAlign: 'center', fontFamily: BDY, fontSize: 12, color: C.muted, fontWeight: 700, marginTop: 6 }}>
         2026.3 입학 → 2027.3 졸업 · 빨간 점이 현재 위치
       </div>
