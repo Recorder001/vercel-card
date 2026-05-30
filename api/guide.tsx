@@ -502,7 +502,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
   const GAP = 20;
   const PAD = 24;
   const W = 1000;
-  const H = 2200;
+  const H = 2000;
   const COL = Math.floor((W - PAD * 2 - GAP) / 2);
 
   const col = (children: any) => (
@@ -530,7 +530,6 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><StressSection stress={stress} /></div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><AffectionSection affection={affection} /></div>
             </div>,
-            <WeatherGuide key="weather" weather={weather} />,
           ])}
           {col([
             <div key="cd" style={{ display: 'flex', flexDirection: 'row', gap: 14 }}>
@@ -538,6 +537,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><DMGuide affection={affection} /></div>
             </div>,
             <Timeline key="timeline" date={date} />,
+            <WeatherGuide key="weather" weather={weather} />,
           ])}
         </div>
 
