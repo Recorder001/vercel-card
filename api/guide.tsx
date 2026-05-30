@@ -501,7 +501,12 @@ function timeline(date: string): string {
 }
 
 // ── Handler ────────────────────────────────────────────────────────────
-export default function handler(req: IncomingMessage, res: ServerResponse) {
+export default async function handler(req: IncomingMessage, res: ServerResponse) {
+  try { return await _handler(req, res); }
+  catch (e: any) { res.statusCode = 500; res.end('ERROR: ' + String(e?.message || e)); }
+}
+
+async function _handler(req: IncomingMessage, res: ServerResponse) {
   const { searchParams } = new URL(req.url!, 'http://localhost');
 
   const timeSlot  = searchParams.get('timeslot') || '아침';
@@ -575,3 +580,4 @@ export default function handler(req: IncomingMessage, res: ServerResponse) {
   res.statusCode = 200;
   res.end(html);
 }
+
