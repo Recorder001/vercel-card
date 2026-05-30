@@ -1,4 +1,5 @@
-import { ImageResponse } from '@vercel/og';
+import satori from 'satori/standalone';
+import sharp from 'sharp';
 import type { IncomingMessage, ServerResponse } from 'http';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -77,7 +78,7 @@ const EVENTS = [
 // ── Shared components ─────────────────────────────────────────────────
 function SCard({ en, ko, accent, children, py, grow }: { en: string; ko: string; accent: string; children: any; py?: number; grow?: boolean }) {
   return (
-    <div style={{ flex: grow ? 1 : undefined, background: C.card, border: `3px solid ${C.ink}`, borderRadius: 16, overflow: 'hidden', boxShadow: '5px 5px 0 rgba(0,0,0,0.18)', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ ...(grow ? { flex: 1 } : {}), background: C.card, border: `3px solid ${C.ink}`, borderRadius: 16, overflow: 'hidden', boxShadow: '5px 5px 0 rgba(0,0,0,0.18)', display: 'flex', flexDirection: 'column' }}>
       <div style={{ background: C.panel, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 14px' }}>
         <div style={{ width: 11, height: 22, background: accent, flexShrink: 0 }} />
         <span style={{ fontFamily: DSP, color: '#fff', fontSize: 19, lineHeight: 1, whiteSpace: 'nowrap', flexShrink: 0 }}>{en}</span>
@@ -510,8 +511,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
     <div style={{ width: COL, display: 'flex', flexDirection: 'column', gap: 18 }}>{children}</div>
   );
 
-  const imageResponse = new ImageResponse(
-    (
+  const jsx = (
       <div style={{ width: W, background: C.bg, display: 'flex', flexDirection: 'column', padding: PAD, gap: 18 }}>
 
         {/* 헤더 */}
@@ -549,18 +549,18 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
           청춘회생록 · 시스템 가이드 + 진행도
         </div>
       </div>
-    ),
-    {
-      width: W,
-      height: undefined, // satori auto-fits height to content → no clipping, no whitespace
-      fonts: [
-        { name: 'GasoekOne',  data: fonts.gasoekOne,  style: 'normal', weight: 400 },
-        { name: 'Pretendard', data: fonts.pretendard,  style: 'normal', weight: 700 },
-      ],
-    }
   );
 
-  const buffer = Buffer.from(await imageResponse.arrayBuffer());
+  // satori without height → auto-fits to content, no clipping, no whitespace
+  const svg = await satori(jsx, {
+    width: W,
+    fonts: [
+      { name: 'GasoekOne',  data: fonts.gasoekOne,  style: 'normal', weight: 400 },
+      { name: 'Pretendard', data: fonts.pretendard,  style: 'normal', weight: 700 },
+    ],
+  });
+
+  const buffer = await sharp(Buffer.from(svg)).png().toBuffer();
   res.setHeader('Content-Type', 'image/png');
   res.setHeader('Cache-Control', 'no-cache, no-store, max-age=0');
   res.end(buffer);
