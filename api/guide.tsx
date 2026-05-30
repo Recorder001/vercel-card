@@ -495,9 +495,9 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
   const fonts = loadFonts();
   const GAP = 20;
   const PAD = 24;
-  const W = 1500;
-  const H = W;                                  // 정사각형 1:1
-  const COL = Math.floor((W - PAD * 2 - GAP * 2) / 3);
+  const W = 1000;
+  const H = 1900;
+  const COL = Math.floor((W - PAD * 2 - GAP) / 2);  // ~476
 
   const col = (children: any) => (
     <div style={{ width: COL, display: 'flex', flexDirection: 'column', gap: 18 }}>{children}</div>
@@ -507,29 +507,33 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
     (
       <div style={{ width: W, height: H, background: C.bg, display: 'flex', flexDirection: 'column', padding: PAD, gap: 18 }}>
 
-        {/* 헤더 (전체 폭) */}
+        {/* 헤더 */}
         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18, padding: '4px 0 2px' }}>
-          <div style={{ fontFamily: DSP, fontWeight: 900, fontSize: 52, color: '#fff', textShadow: `5px 6px 0 ${C.redDark}`, lineHeight: 1, display: 'flex', alignItems: 'center' }}>
+          <div style={{ fontFamily: DSP, fontWeight: 900, fontSize: 48, color: '#fff', textShadow: `5px 6px 0 ${C.redDark}`, lineHeight: 1, display: 'flex', alignItems: 'center' }}>
             <span>GUIDE</span><span style={{ color: C.red }}>&</span><span>PROGRESS</span>
           </div>
           <div style={{ fontFamily: BDY, fontWeight: 800, color: C.muted, fontSize: 14 }}>청춘회생록 · 플레이어 시스템 가이드</div>
         </div>
 
-        {/* 3열 컬럼 */}
-        <div style={{ display: 'flex', flexDirection: 'row', gap: GAP, alignItems: 'flex-start', justifyContent: 'center' }}>
+        {/* 2열 */}
+        <div style={{ display: 'flex', flexDirection: 'row', gap: GAP, alignItems: 'flex-start' }}>
+          {/* 좌: TIME · STATS · STRESS+AFFECTION · WEATHER */}
           {col([
             <TimeSystem key="time" timeSlot={timeSlot} affection={affection} />,
             <StatSection key="stats" stats={stats} />,
-            <AffectionSection key="aff" affection={affection} />,
-          ])}
-          {col([
-            <StressSection key="stress" stress={stress} />,
+            <div key="sa" style={{ display: 'flex', flexDirection: 'row', gap: 14 }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><StressSection stress={stress} /></div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><AffectionSection affection={affection} /></div>
+            </div>,
             <WeatherGuide key="weather" weather={weather} />,
-            <ClubGuide key="club" club={club} />,
-            <DMGuide key="dm" affection={affection} />,
           ])}
+          {/* 우: JUDGE · CLUB+DM · TIMELINE */}
           {col([
             <EventJudge key="judge" stats={stats} />,
+            <div key="cd" style={{ display: 'flex', flexDirection: 'row', gap: 14 }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><ClubGuide club={club} /></div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><DMGuide affection={affection} /></div>
+            </div>,
             <Timeline key="timeline" date={date} />,
             <div key="footer" style={{ textAlign: 'center', fontFamily: BDY, color: C.muted, fontSize: 12, padding: '4px 0' }}>
               청춘회생록 · 시스템 가이드 + 진행도
