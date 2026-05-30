@@ -1,5 +1,4 @@
-import satori from 'satori/standalone';
-import sharp from 'sharp';
+import { ImageResponse } from '@vercel/og';
 import type { IncomingMessage, ServerResponse } from 'http';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -511,7 +510,8 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
     <div style={{ width: COL, display: 'flex', flexDirection: 'column', gap: 18 }}>{children}</div>
   );
 
-  const jsx = (
+  const imageResponse = new ImageResponse(
+    (
       <div style={{ width: W, background: C.bg, display: 'flex', flexDirection: 'column', padding: PAD, gap: 18 }}>
 
         {/* 헤더 */}
@@ -549,18 +549,18 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
           청춘회생록 · 시스템 가이드 + 진행도
         </div>
       </div>
+    ),
+    {
+      width: W,
+      height: undefined, // override @vercel/og's 630 default → satori auto-fits height to content
+      fonts: [
+        { name: 'GasoekOne',  data: fonts.gasoekOne,  style: 'normal', weight: 400 },
+        { name: 'Pretendard', data: fonts.pretendard,  style: 'normal', weight: 700 },
+      ],
+    } as any
   );
 
-  // satori without height → auto-fits to content, no clipping, no whitespace
-  const svg = await satori(jsx, {
-    width: W,
-    fonts: [
-      { name: 'GasoekOne',  data: fonts.gasoekOne,  style: 'normal', weight: 400 },
-      { name: 'Pretendard', data: fonts.pretendard,  style: 'normal', weight: 700 },
-    ],
-  });
-
-  const buffer = await sharp(Buffer.from(svg)).png().toBuffer();
+  const buffer = Buffer.from(await imageResponse.arrayBuffer());
   res.setHeader('Content-Type', 'image/png');
   res.setHeader('Cache-Control', 'no-cache, no-store, max-age=0');
   res.end(buffer);
