@@ -546,7 +546,20 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
   ]);
 
   const toB64 = (ab: ArrayBuffer) => Buffer.from(ab).toString('base64');
-  res.setHeader('Content-Type', 'application/json');
+  const imgs = [ab1, ab2, ab3, ab4].map(toB64);
+
   res.setHeader('Cache-Control', 'no-cache, no-store, max-age=0');
-  res.end(JSON.stringify({ images: [ab1, ab2, ab3, ab4].map(toB64) }));
+
+  if (searchParams.get('format') === 'json') {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ images: imgs }));
+  } else {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.end(`<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+body{margin:0;background:#e7e2d2;display:flex;flex-direction:column;align-items:center}
+img{display:block;width:400px}
+</style></head><body>
+${imgs.map(b => `<img src="data:image/png;base64,${b}">`).join('\n')}
+</body></html>`);
+  }
 }
