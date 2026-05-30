@@ -494,55 +494,59 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
 
   const fonts = loadFonts();
   const W = 400;
-  const H = 3200;
+  const fontOpts = [
+    { name: 'GasoekOne',  data: fonts.gasoekOne,  style: 'normal' as const, weight: 400 },
+    { name: 'Pretendard', data: fonts.pretendard,  style: 'normal' as const, weight: 700 },
+  ];
 
-  const imageResponse = new ImageResponse(
-    (
+  const render = (children: any, height: number) =>
+    new ImageResponse(
       <div style={{ width: W, background: C.bg, display: 'flex', flexDirection: 'column', padding: 22, gap: 18 }}>
+        {children}
+      </div>,
+      { width: W, height, fonts: fontOpts }
+    ).arrayBuffer();
 
-        {/* Title */}
-        <div style={{ textAlign: 'center', padding: '8px 0 4px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-          <div style={{ fontFamily: DSP, fontWeight: 900, fontSize: 56, color: '#fff', textShadow: `5px 6px 0 ${C.redDark}`, lineHeight: 1.02, display: 'flex', alignItems: 'center' }}>
-            <span>GUIDE</span><span style={{ color: C.red }}>&</span><span>PROGRESS</span>
-          </div>
-          <div style={{ fontFamily: BDY, fontWeight: 800, color: C.muted, fontSize: 13 }}>청춘회생록 · 플레이어 시스템 가이드</div>
+  const [ab1, ab2, ab3, ab4] = await Promise.all([
+    // ① 타이틀 · TIME · STRESS/AFFECTION
+    render([
+      <div key="title" style={{ textAlign: 'center', padding: '8px 0 4px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontFamily: DSP, fontWeight: 900, fontSize: 56, color: '#fff', textShadow: `5px 6px 0 ${C.redDark}`, lineHeight: 1.02, display: 'flex', alignItems: 'center' }}>
+          <span>GUIDE</span><span style={{ color: C.red }}>&</span><span>PROGRESS</span>
         </div>
+        <div style={{ fontFamily: BDY, fontWeight: 800, color: C.muted, fontSize: 13 }}>청춘회생록 · 플레이어 시스템 가이드</div>
+      </div>,
+      <TimeSystem key="time" timeSlot={timeSlot} affection={affection} />,
+      <div key="row1" style={{ display: 'flex', flexDirection: 'row', gap: 18 }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><StressSection stress={stress} /></div>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><AffectionSection affection={affection} /></div>
+      </div>,
+    ], 700),
 
-        <TimeSystem timeSlot={timeSlot} affection={affection} />
-        <StatSection stats={stats} />
+    // ② STATS
+    render(<StatSection key="stats" stats={stats} />, 700),
 
-        <div style={{ display: 'flex', flexDirection: 'row', gap: 18 }}>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><StressSection stress={stress} /></div>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><AffectionSection affection={affection} /></div>
-        </div>
+    // ③ WEATHER · JUDGE
+    render([
+      <WeatherGuide key="weather" weather={weather} />,
+      <EventJudge key="judge" stats={stats} />,
+    ], 1200),
 
-        <WeatherGuide weather={weather} />
-        <EventJudge stats={stats} />
+    // ④ CLUB/DM · TIMELINE
+    render([
+      <div key="row2" style={{ display: 'flex', flexDirection: 'row', gap: 18 }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><ClubGuide club={club} /></div>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><DMGuide affection={affection} /></div>
+      </div>,
+      <Timeline key="timeline" date={date} />,
+      <div key="footer" style={{ textAlign: 'center', fontFamily: BDY, color: C.muted, fontSize: 12, padding: '8px 0 4px' }}>
+        청춘회생록 · 시스템 가이드 + 진행도
+      </div>,
+    ], 880),
+  ]);
 
-        <div style={{ display: 'flex', flexDirection: 'row', gap: 18 }}>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><ClubGuide club={club} /></div>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><DMGuide affection={affection} /></div>
-        </div>
-
-        <Timeline date={date} />
-
-        <div style={{ textAlign: 'center', fontFamily: BDY, color: C.muted, fontSize: 12, padding: '8px 0 4px' }}>
-          청춘회생록 · 시스템 가이드 + 진행도
-        </div>
-      </div>
-    ),
-    {
-      width: W,
-      height: H,
-      fonts: [
-        { name: 'GasoekOne', data: fonts.gasoekOne,  style: 'normal', weight: 400 },
-        { name: 'Pretendard', data: fonts.pretendard, style: 'normal', weight: 700 },
-      ],
-    }
-  );
-
-  const buffer = Buffer.from(await imageResponse.arrayBuffer());
-  res.setHeader('Content-Type', 'image/png');
+  const toB64 = (ab: ArrayBuffer) => Buffer.from(ab).toString('base64');
+  res.setHeader('Content-Type', 'application/json');
   res.setHeader('Cache-Control', 'no-cache, no-store, max-age=0');
-  res.end(buffer);
+  res.end(JSON.stringify({ images: [ab1, ab2, ab3, ab4].map(toB64) }));
 }
