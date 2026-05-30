@@ -487,7 +487,8 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
   };
 
   const fonts = loadFonts();
-  const W = 980;
+  const W = 700;
+  const H = 4100;
 
   const imageResponse = new ImageResponse(
     (
@@ -526,6 +527,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
     ),
     {
       width: W,
+      height: H,
       fonts: [
         { name: 'GasoekOne', data: fonts.gasoekOne,  style: 'normal', weight: 400 },
         { name: 'Pretendard', data: fonts.pretendard, style: 'normal', weight: 700 },
