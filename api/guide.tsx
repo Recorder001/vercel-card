@@ -60,18 +60,21 @@ const TIME_NODES  = [
   { key: '새벽', emoji: '🌌', gated: true  },
 ];
 const EVENTS = [
-  { date: '05.15', name: '1학기\n중간고사', color: '#e63b46', year: 2026 },
-  { date: '06.09', name: '체육대회',       color: '#2e9e5b', year: 2026 },
-  { date: '07.24', name: '1학기\n기말고사', color: '#e63b46', year: 2026 },
-  { date: '08.01', name: '여름방학',       color: '#f4a72a', year: 2026 },
-  { date: '08.23', name: '미오 생일',      color: '#e85a9b', year: 2026 },
-  { date: '09.14', name: '문화제',         color: '#9340d4', year: 2026 },
-  { date: '10.17', name: '2학기\n중간고사', color: '#e63b46', year: 2026 },
-  { date: '10.23', name: '수학여행',       color: '#1d9e88', year: 2026 },
-  { date: '12.12', name: '2학기\n기말고사', color: '#e63b46', year: 2026 },
-  { date: '12.22', name: '겨울방학',       color: '#f4a72a', year: 2026 },
-  { date: '02.20', name: '3학기\n기말고사', color: '#e63b46', year: 2027 },
-  { date: '03.30', name: '졸업식',         color: '#3a82c8', year: 2027 },
+  { date: '05.15-19', name: '1학기\n중간고사', color: '#e63b46', year: 2026 },
+  { date: '06.09',    name: '체육대회',        color: '#2e9e5b', year: 2026 },
+  { date: '07.24-28', name: '1학기\n기말고사', color: '#e63b46', year: 2026 },
+  { date: '08.01',    name: '여름방학',        color: '#f4a72a', year: 2026 },
+  { date: '08.23',    name: 'ⓒ 생일',         color: '#e85a9b', year: 2026 },
+  { date: '09.01',    name: '2학기 개학',      color: '#534ab7', year: 2026 },
+  { date: '09.14-15', name: '문화제',          color: '#9340d4', year: 2026 },
+  { date: '10.17',    name: '2학기\n중간고사', color: '#e63b46', year: 2026 },
+  { date: '10.23-25', name: '수학여행',        color: '#1d9e88', year: 2026 },
+  { date: '12.12-16', name: '2학기\n기말고사', color: '#e63b46', year: 2026 },
+  { date: '12.22',    name: '겨울방학',        color: '#f4a72a', year: 2026 },
+  { date: '01.01',    name: '3학기 개학',      color: '#534ab7', year: 2027 },
+  { date: '02.20-24', name: '3학기\n기말고사', color: '#e63b46', year: 2027 },
+  { date: '03.01',    name: '봄방학',          color: '#f4a72a', year: 2027 },
+  { date: '03.30',    name: '졸업식',          color: '#3a82c8', year: 2027 },
 ];
 
 // ── Shared components ─────────────────────────────────────────────────
@@ -421,10 +424,11 @@ function DMGuide({ affection }: { affection: number }) {
 
 // ── TIMELINE section ──────────────────────────────────────────────────
 function Timeline({ date }: { date: string }) {
+  // 15 events, 4-per-row snake → 4 rows (last row has 3 events ending at x=152)
   const COLS = [56, 152, 248, 344];
-  const ROWS = [80, 190, 300];
-  const SVG_W = 400, SVG_H = 360;
-  const TW = 320, TH = 288;
+  const ROWS = [80, 180, 280, 380];
+  const SVG_W = 400, SVG_H = 440;
+  const TW = 400, TH = 440;
   const s = (v: number) => Math.round(v * TW / SVG_W);
 
   const pos = (i: number) => {
@@ -445,10 +449,12 @@ function Timeline({ date }: { date: string }) {
       </div>
       <div style={{ position: 'relative', width: TW, height: TH, display: 'flex', alignSelf: 'center' }}>
         <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} width={TW} height={TH} style={{ position: 'absolute', top: 0, left: 0 }}>
-          <path d="M56 80 H344 C384 80 384 190 344 190 H56 C16 190 16 300 56 300 H344" fill="none" stroke={C.line} strokeWidth="4" strokeLinecap="round" />
-          <polygon points="194,74 207,80 194,86" fill={C.muted} />
-          <polygon points="207,184 194,190 207,196" fill={C.muted} />
-          <polygon points="194,294 207,300 194,306" fill={C.muted} />
+          {/* snake path: 4 rows, last row ends at x=152 (event 14) */}
+          <path d="M56 80 H344 C384 80 384 180 344 180 H56 C16 180 16 280 56 280 H344 C384 280 384 380 344 380 H152" fill="none" stroke={C.line} strokeWidth="4" strokeLinecap="round" />
+          <polygon points="193,74 206,80 193,86"   fill={C.muted} />
+          <polygon points="207,174 194,180 207,186" fill={C.muted} />
+          <polygon points="193,274 206,280 193,286" fill={C.muted} />
+          <polygon points="261,374 248,380 261,386" fill={C.muted} />
           {EVENTS.map((e, i) => {
             const { x, y } = pos(i);
             return <circle key={i} cx={x} cy={y} r={12.5} fill={e.color} stroke={C.ink} strokeWidth={2.5} />;
@@ -463,9 +469,9 @@ function Timeline({ date }: { date: string }) {
           const yr = e.year !== 2026 ? "'27 " : '';
           const nameLines = e.name.split('\n');
           return [
-            <div key={`d${i}`} style={{ position: 'absolute', left: s(x), top: s(y) - 25, transform: 'translateX(-50%)', fontFamily: BDY, fontSize: 11, fontWeight: 700, color: C.muted, whiteSpace: 'nowrap' }}>{`${yr}${e.date}`}</div>,
+            <div key={`d${i}`} style={{ position: 'absolute', left: s(x), top: s(y) - 26, transform: 'translateX(-50%)', fontFamily: BDY, fontSize: 10, fontWeight: 700, color: C.muted, whiteSpace: 'nowrap' }}>{`${yr}${e.date}`}</div>,
             ...nameLines.map((l, j) => (
-              <div key={`n${i}${j}`} style={{ position: 'absolute', left: s(x), top: s(y) + 11 + j * 11, transform: 'translateX(-50%)', fontFamily: BDY, fontSize: 12, fontWeight: 900, color: C.ink, whiteSpace: 'nowrap' }}>{l}</div>
+              <div key={`n${i}${j}`} style={{ position: 'absolute', left: s(x), top: s(y) + 13 + j * 12, transform: 'translateX(-50%)', fontFamily: BDY, fontSize: 11, fontWeight: 900, color: C.ink, whiteSpace: 'nowrap' }}>{l}</div>
             )),
           ];
         })}
