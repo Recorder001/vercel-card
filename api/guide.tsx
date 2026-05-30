@@ -293,8 +293,8 @@ function WeatherGuide({ weather }: { weather: string }) {
           <div style={{ fontFamily: BDY, fontSize: 12, color: C.muted }}>미오 감정 부정 편향</div>
         </div>
       </div>
-      <div style={{ marginTop: 12, fontFamily: BDY, fontSize: 13, color: C.ink, background: '#eef1f6', border: `2px solid ${C.line}`, borderRadius: 10, padding: '8px 12px', fontWeight: 700 }}>
-        🌧 장마 · 6/30 ~ 7/30 매일 비 고정  |  현재 날씨 <span style={{ color: C.red, fontWeight: 900 }}>{weather}</span>
+      <div style={{ marginTop: 12, fontFamily: BDY, fontSize: 13, color: C.ink, background: '#eef1f6', border: `2px solid ${C.line}`, borderRadius: 10, padding: '8px 12px', fontWeight: 700, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+        <span>🌧 장마 · 6/30 ~ 7/30 매일 비 고정  |  현재 날씨 </span><span style={{ color: C.red, fontWeight: 900 }}>{weather}</span>
       </div>
     </SCard>
   );
@@ -383,8 +383,8 @@ function ClubGuide({ club }: { club: string }) {
       <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginBottom: 12 }}>
         {sports.map(t => <Tag key={t} t={t} />)}
       </div>
-      <div style={{ fontFamily: BDY, fontSize: 12, color: C.muted, fontWeight: 700, borderTop: `1px solid ${C.line}`, paddingTop: 10 }}>
-        가입 시 <span style={{ color: C.ink, fontWeight: 900 }}>저녁 타임에 동아리 활동 추가</span> · 관련 스탯(체력/예술) 상승 가능
+      <div style={{ fontFamily: BDY, fontSize: 12, color: C.muted, fontWeight: 700, borderTop: `1px solid ${C.line}`, paddingTop: 10, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+        <span>가입 시 </span><span style={{ color: C.ink, fontWeight: 900 }}>저녁 타임에 동아리 활동 추가</span><span> · 관련 스탯(체력/예술) 상승 가능</span>
       </div>
     </SCard>
   );
@@ -404,7 +404,7 @@ function DMGuide({ affection }: { affection: number }) {
       <div style={{ marginTop: 14, padding: '10px 14px', borderRadius: 10, fontFamily: BDY, fontWeight: 800, background: unlocked ? '#e8f6ee' : '#f0ece0', border: `2px solid ${unlocked ? C.good : C.line}`, color: unlocked ? C.good : C.muted, display: 'flex', flexDirection: 'column', gap: 3 }}>
         <div>{unlocked ? '🔓 선디엠 해금됨' : '🔒 선디엠 잠김'}</div>
         <div style={{ fontSize: 12, fontWeight: 600, color: C.muted }}>
-          호감도 {DM_UNLOCK}%↑ + 밤·새벽 타임 + lonely · conflicted · nostalgic 감정 시 미오가 먼저 연락
+          {`호감도 ${DM_UNLOCK}%↑ + 밤·새벽 타임 + lonely · conflicted · nostalgic 감정 시 미오가 먼저 연락`}
         </div>
       </div>
     </SCard>
@@ -495,8 +495,8 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
 
         {/* Title */}
         <div style={{ textAlign: 'center', padding: '8px 0 4px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-          <div style={{ fontFamily: DSP, fontWeight: 900, fontSize: 56, color: '#fff', textShadow: `5px 6px 0 ${C.redDark}`, lineHeight: 1.02 }}>
-            GUIDE<span style={{ color: C.red }}>&</span>PROGRESS
+          <div style={{ fontFamily: DSP, fontWeight: 900, fontSize: 56, color: '#fff', textShadow: `5px 6px 0 ${C.redDark}`, lineHeight: 1.02, display: 'flex', alignItems: 'center' }}>
+            <span>GUIDE</span><span style={{ color: C.red }}>&</span><span>PROGRESS</span>
           </div>
           <div style={{ fontFamily: BDY, fontWeight: 800, color: C.muted, fontSize: 13 }}>청춘회생록 · 플레이어 시스템 가이드</div>
         </div>
