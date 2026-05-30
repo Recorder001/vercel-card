@@ -113,10 +113,10 @@ function Bar({ value, color, height = 18, ticks = [] }: { value: number; color: 
 
 function GradeScale({ color, marks, pt, compact }: { color: string; marks: {at:number; label:string}[]; pt: number; compact?: boolean }) {
   const pct = Math.min(100, pt);
-  const mt = compact ? 10 : 20;
-  const mb = compact ? 16 : 28;
-  const youTop = compact ? -12 : -18;
-  const lblTop = compact ? 14 : 18;
+  const mt = compact ? 4 : 20;
+  const mb = compact ? 10 : 28;
+  const youTop = compact ? -11 : -18;
+  const lblTop = compact ? 13 : 18;
   return (
     <div style={{ position: 'relative', marginTop: mt, marginBottom: mb, display: 'flex', flexDirection: 'column' }}>
       <div style={{ position: 'absolute', left: `${pct}%`, top: youTop, transform: 'translateX(-50%)', color: C.red, fontFamily: DSP, fontSize: 11, whiteSpace: 'nowrap' }}>▼YOU</div>
@@ -309,7 +309,7 @@ function JudgeSplit({ stats }: { stats: Record<string, number> }) {
   const sum   = stats.art + stats.social;
   const bonus = sum >= 200 ? '×2.0' : sum >= 150 ? '×1.5' : sum >= 100 ? '×1.25' : sum >= 50 ? '×1.1' : '×1.0';
   const col   = (k: string) => STAT_DEFS.find(d => d.key === k)!.color;
-  const sub   = (t: string) => <div style={{ fontFamily: DSP, fontSize: 14, color: C.ink, margin: '2px 0 3px' }}>{t}</div>;
+  const sub   = (t: string) => <div style={{ fontFamily: DSP, fontSize: 14, color: C.ink, margin: '0 0 2px' }}>{t}</div>;
 
   const details = [
     { title: '📚 시험 — 커트라인 (학업 기준)', lines: ['1학기 중간 20pt↑ · 기말 40pt↑ · 2학기 중간 60pt↑ · 기말 80pt↑ · 3학기 100pt', '커트 미달 = FAIL → 미오 부정감정 · 진로 압박↑ · 스트레스 +20%'] },
@@ -332,7 +332,7 @@ function JudgeSplit({ stats }: { stats: Record<string, number> }) {
           <Chip color={col('fitness')}>체력 {stats.fitness}pt</Chip>
           <GradeScale compact color={col('fitness')} marks={[{at:40,label:'하위권'},{at:60,label:'동상'},{at:80,label:'은상'},{at:100,label:'우승'}]} pt={stats.fitness} />
 
-          <div style={{ height: 1, background: C.line, margin: '5px 0 8px' }} />
+          <div style={{ height: 1, background: C.line, margin: '2px 0 4px' }} />
 
           {sub('🎭 문화제 · 예술+사교')}
           <div style={{ display: 'flex', flexDirection: 'row', gap: 8, marginBottom: 2 }}>
@@ -341,7 +341,7 @@ function JudgeSplit({ stats }: { stats: Record<string, number> }) {
           </div>
           <GradeScale compact color={col('art')}    marks={[{at:50,label:'예술 50'},{at:100,label:'예술 100'}]} pt={stats.art} />
           <GradeScale compact color={col('social')} marks={[{at:50,label:'사교 50'},{at:100,label:'사교 100'}]} pt={stats.social} />
-          <div style={{ fontFamily: BDY, fontSize: 12, color: C.ink, background: '#f3ecfb', border: '2px solid #d9c4f2', borderRadius: 8, padding: '5px 10px', marginBottom: 8, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ fontFamily: BDY, fontSize: 12, color: C.ink, background: '#f3ecfb', border: '2px solid #d9c4f2', borderRadius: 8, padding: '4px 9px', marginTop: 2, marginBottom: 4, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
             <span>합산 </span><span style={{ fontWeight: 900 }}>{sum}</span><span> → 호감도 보너스 </span><span style={{ color: '#9340d4', fontWeight: 900 }}>{bonus}</span>
           </div>
 
@@ -506,7 +506,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
   const GAP = 20;
   const PAD = 24;
   const W = 1000;
-  const H = 2000;
+  const H = 2060;
   const COL = Math.floor((W - PAD * 2 - GAP) / 2);
 
   const col = (children: any) => (
