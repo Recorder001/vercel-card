@@ -535,5 +535,8 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
     }
   );
 
-  return imageResponse;
+  const buffer = Buffer.from(await imageResponse.arrayBuffer());
+  res.setHeader('Content-Type', 'image/png');
+  res.setHeader('Cache-Control', 'no-cache, no-store, max-age=0');
+  res.end(buffer);
 }
