@@ -487,8 +487,8 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
   };
 
   const fonts = loadFonts();
-  const W = 700;
-  const H = 4100;
+  const W = 400;
+  const H = 5500;
 
   const imageResponse = new ImageResponse(
     (
