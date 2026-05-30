@@ -168,9 +168,9 @@ function TimeSystem({ timeSlot, affection }: { timeSlot: string; affection: numb
           );
         })}
       </div>
-      <div style={{ fontFamily: BDY, fontSize: 12, color: C.muted, fontWeight: 700, textAlign: 'center', borderTop: `1px solid ${C.line}`, paddingTop: 10, marginTop: 8 }}>
-        1 타임 = 4 턴 · 완료 시 자동 전환  |  새벽: 호감도 {DAWN_UNLOCK}%↑ 해금
-        {!dawnUnlocked && <span style={{ color: C.red }}> ({DAWN_UNLOCK - affection}pt 남음)</span>}
+      <div style={{ fontFamily: BDY, fontSize: 12, color: C.muted, fontWeight: 700, textAlign: 'center', borderTop: `1px solid ${C.line}`, paddingTop: 10, marginTop: 8, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+        <span>{`1 타임 = 4 턴 · 완료 시 자동 전환  |  새벽: 호감도 ${DAWN_UNLOCK}%↑ 해금`}</span>
+        {!dawnUnlocked && <span style={{ color: C.red }}>{` (${DAWN_UNLOCK - affection}pt 남음)`}</span>}
       </div>
     </SCard>
   );
@@ -200,7 +200,7 @@ function StatBar({ def, pt }: { def: typeof STAT_DEFS[0]; pt: number }) {
           ))
         )}
       </div>
-      <div style={{ fontFamily: BDY, fontSize: 12, color: C.muted, fontWeight: 600 }}>↑ {def.how}</div>
+      <div style={{ fontFamily: BDY, fontSize: 12, color: C.muted, fontWeight: 600 }}>{`↑ ${def.how}`}</div>
     </div>
   );
 }
@@ -229,8 +229,8 @@ function StressSection({ stress }: { stress: number }) {
       <Bar value={stress} color="#f47b20" height={20} ticks={[50, 80]} />
       <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', fontFamily: BDY, fontWeight: 800, fontSize: 11, color: C.red, marginTop: 3 }}>100% ▶ 번아웃</div>
       <div style={{ fontFamily: BDY, fontSize: 13, color: C.ink, marginTop: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <div>· 스탯 증가량 <span style={{ fontWeight: 900 }}>× 2 pt</span> 만큼 동반 상승</div>
-        <div>· 100% 도달 시 <span style={{ fontWeight: 900, color: C.red }}>번아웃 — 전체 스탯 −20pt</span> + 0%로 리셋</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}><span>· 스탯 증가량 </span><span style={{ fontWeight: 900 }}>× 2 pt</span><span> 만큼 동반 상승</span></div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}><span>· 100% 도달 시 </span><span style={{ fontWeight: 900, color: C.red }}>번아웃 — 전체 스탯 −20pt</span><span> + 0%로 리셋</span></div>
         <div>· 휴식 · 놀이 · 미오와 긍정 상호작용으로 감소</div>
       </div>
     </SCard>
@@ -252,10 +252,10 @@ function AffectionSection({ affection }: { affection: number }) {
       <div style={{ position: 'relative', marginTop: 22, display: 'flex', flexDirection: 'column' }}>
         <Bar value={affection} color={C.red} height={20} ticks={[DM_UNLOCK, DAWN_UNLOCK]} />
         <div style={{ position: 'absolute', left: `${DM_UNLOCK}%`, top: -18, transform: 'translateX(-50%)', fontFamily: BDY, fontSize: 10, fontWeight: 800, color: dm ? C.good : C.muted, whiteSpace: 'nowrap' }}>
-          {dm ? '✓' : '·'} {DM_UNLOCK}%
+          {`${dm ? '✓' : '·'} ${DM_UNLOCK}%`}
         </div>
         <div style={{ position: 'absolute', left: `${DAWN_UNLOCK}%`, top: -18, transform: 'translateX(-50%)', fontFamily: BDY, fontSize: 10, fontWeight: 800, color: dn ? C.good : C.muted, whiteSpace: 'nowrap' }}>
-          {dn ? '✓' : '·'} {DAWN_UNLOCK}%
+          {`${dn ? '✓' : '·'} ${DAWN_UNLOCK}%`}
         </div>
       </div>
       <div style={{ display: 'flex', flexDirection: 'row', gap: 8, marginTop: 16 }}>
@@ -283,13 +283,13 @@ function WeatherGuide({ weather }: { weather: string }) {
         <div style={{ flex: 1, border: `2px solid ${pos ? C.red : '#bfe3cb'}`, borderRadius: 12, padding: 14, background: pos ? '#fdeae8' : '#eef8f0', display: 'flex', flexDirection: 'column', gap: 4 }}>
           <div style={{ fontFamily: BDY, fontWeight: 900, fontSize: 16, color: '#2e9e5b' }}>☀️ ❄️ 긍정 날씨</div>
           <div style={{ fontFamily: BDY, fontSize: 14, color: C.ink, fontWeight: 800 }}>맑음 / 눈</div>
-          <div style={{ fontFamily: BDY, fontSize: 13, color: C.ink }}>스탯 <span style={{ color: '#2e9e5b', fontWeight: 900 }}>+2~3pt</span> · 스트레스 <span style={{ fontWeight: 900 }}>×2pt</span></div>
+          <div style={{ fontFamily: BDY, fontSize: 13, color: C.ink, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}><span>스탯 </span><span style={{ color: '#2e9e5b', fontWeight: 900 }}>+2~3pt</span><span> · 스트레스 </span><span style={{ fontWeight: 900 }}>×2pt</span></div>
           <div style={{ fontFamily: BDY, fontSize: 12, color: C.muted }}>미오 감정 긍정 편향</div>
         </div>
         <div style={{ flex: 1, border: `2px solid ${neg ? C.red : '#cfd3da'}`, borderRadius: 12, padding: 14, background: neg ? '#fdeae8' : '#f2f3f6', display: 'flex', flexDirection: 'column', gap: 4 }}>
           <div style={{ fontFamily: BDY, fontWeight: 900, fontSize: 16, color: '#5b6470' }}>☁️ 🌧 ⛈ 부정 날씨</div>
           <div style={{ fontFamily: BDY, fontSize: 14, color: C.ink, fontWeight: 800 }}>흐림 / 비 / 뇌우</div>
-          <div style={{ fontFamily: BDY, fontSize: 13, color: C.ink }}>스탯 <span style={{ fontWeight: 900 }}>+1pt 고정</span> · 스트레스 <span style={{ color: C.red, fontWeight: 900 }}>+5pt 고정</span></div>
+          <div style={{ fontFamily: BDY, fontSize: 13, color: C.ink, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}><span>스탯 </span><span style={{ fontWeight: 900 }}>+1pt 고정</span><span> · 스트레스 </span><span style={{ color: C.red, fontWeight: 900 }}>+5pt 고정</span></div>
           <div style={{ fontFamily: BDY, fontSize: 12, color: C.muted }}>미오 감정 부정 편향</div>
         </div>
       </div>
@@ -334,9 +334,8 @@ function EventJudge({ stats }: { stats: Record<string, number> }) {
       </div>
       <GradeScale color={col('art')}    marks={[{at:50,label:'예술 50'},{at:100,label:'예술 100'}]} pt={stats.art} />
       <GradeScale color={col('social')} marks={[{at:50,label:'사교 50'},{at:100,label:'사교 100'}]} pt={stats.social} />
-      <div style={{ fontFamily: BDY, fontSize: 13, color: C.ink, background: '#f3ecfb', border: '2px solid #d9c4f2', borderRadius: 10, padding: '8px 12px', marginBottom: 18 }}>
-        예술 + 사교 합산 <span style={{ fontWeight: 900 }}>{sum}</span> → 호감도 보너스 <span style={{ color: '#9340d4', fontWeight: 900 }}>{bonus}</span>
-        <span style={{ color: C.muted }}>  (50:×1.1 / 100:×1.25 / 150:×1.5 / 200:×2.0)</span>
+      <div style={{ fontFamily: BDY, fontSize: 13, color: C.ink, background: '#f3ecfb', border: '2px solid #d9c4f2', borderRadius: 10, padding: '8px 12px', marginBottom: 18, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+        <span>예술 + 사교 합산 </span><span style={{ fontWeight: 900 }}>{sum}</span><span> → 호감도 보너스 </span><span style={{ color: '#9340d4', fontWeight: 900 }}>{bonus}</span><span style={{ color: C.muted }}>  (50:×1.1 / 100:×1.25 / 150:×1.5 / 200:×2.0)</span>
       </div>
 
       {sub('🚌 수학여행 · 재주')}
@@ -397,8 +396,8 @@ function DMGuide({ affection }: { affection: number }) {
   return (
     <SCard en="DM" ko="DM 시스템" accent={C.red}>
       <div style={{ fontFamily: BDY, fontSize: 13, color: C.ink, display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <div><span style={{ fontWeight: 900 }}>!디엠 내용</span> 입력 → 미오에게 메시지 전송</div>
-        <div><span style={{ fontWeight: 900 }}>!디엠 {'{'}}스탬프코드{'}'}</span> → 스탬프 전송</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}><span style={{ fontWeight: 900 }}>!디엠 내용</span><span> 입력 → 미오에게 메시지 전송</span></div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}><span style={{ fontWeight: 900 }}>!디엠 {'{'}}스탬프코드{'}'}</span><span> → 스탬프 전송</span></div>
         <div style={{ color: C.muted }}>angry · lol · shy · thumbsup · ignore · heart · pout</div>
         <div style={{ color: C.muted }}>읽씹 여부는 미오의 성격·감정·호감도로 판정</div>
       </div>
