@@ -493,11 +493,11 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
   };
 
   const fonts = loadFonts();
-  const COL = 432;
   const GAP = 20;
   const PAD = 24;
-  const W = PAD * 2 + COL * 3 + GAP * 2;  // 1376 → 정사각형
-  const H = W;
+  const W = 1500;
+  const H = W;                                  // 정사각형 1:1
+  const COL = Math.floor((W - PAD * 2 - GAP * 2) / 3);
 
   const col = (children: any) => (
     <div style={{ width: COL, display: 'flex', flexDirection: 'column', gap: 18 }}>{children}</div>
@@ -516,20 +516,20 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
         </div>
 
         {/* 3열 컬럼 */}
-        <div style={{ display: 'flex', flexDirection: 'row', gap: GAP, alignItems: 'flex-start' }}>
+        <div style={{ display: 'flex', flexDirection: 'row', gap: GAP, alignItems: 'flex-start', justifyContent: 'center' }}>
           {col([
             <TimeSystem key="time" timeSlot={timeSlot} affection={affection} />,
             <StatSection key="stats" stats={stats} />,
+            <AffectionSection key="aff" affection={affection} />,
+          ])}
+          {col([
             <StressSection key="stress" stress={stress} />,
+            <WeatherGuide key="weather" weather={weather} />,
+            <ClubGuide key="club" club={club} />,
+            <DMGuide key="dm" affection={affection} />,
           ])}
           {col([
             <EventJudge key="judge" stats={stats} />,
-            <WeatherGuide key="weather" weather={weather} />,
-          ])}
-          {col([
-            <AffectionSection key="aff" affection={affection} />,
-            <ClubGuide key="club" club={club} />,
-            <DMGuide key="dm" affection={affection} />,
             <Timeline key="timeline" date={date} />,
             <div key="footer" style={{ textAlign: 'center', fontFamily: BDY, color: C.muted, fontSize: 12, padding: '4px 0' }}>
               청춘회생록 · 시스템 가이드 + 진행도
