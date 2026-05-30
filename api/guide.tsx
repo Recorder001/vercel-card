@@ -75,13 +75,13 @@ const EVENTS = [
 ];
 
 // ── Shared components ─────────────────────────────────────────────────
-function SCard({ en, ko, accent, children, py }: { en: string; ko: string; accent: string; children: any; py?: number }) {
+function SCard({ en, ko, accent, children, py, grow }: { en: string; ko: string; accent: string; children: any; py?: number; grow?: boolean }) {
   return (
-    <div style={{ background: C.card, border: `3px solid ${C.ink}`, borderRadius: 16, overflow: 'hidden', boxShadow: '5px 5px 0 rgba(0,0,0,0.18)', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ background: C.panel, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 10, padding: '9px 16px' }}>
-        <div style={{ width: 12, height: 22, background: accent, flexShrink: 0 }} />
-        <span style={{ fontFamily: DSP, color: '#fff', fontSize: 21, lineHeight: 1 }}>{en}</span>
-        <span style={{ fontFamily: BDY, fontWeight: 800, color: '#b6afa0', fontSize: 14 }}>{ko}</span>
+    <div style={{ flex: grow ? 1 : undefined, background: C.card, border: `3px solid ${C.ink}`, borderRadius: 16, overflow: 'hidden', boxShadow: '5px 5px 0 rgba(0,0,0,0.18)', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ background: C.panel, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 14px' }}>
+        <div style={{ width: 11, height: 22, background: accent, flexShrink: 0 }} />
+        <span style={{ fontFamily: DSP, color: '#fff', fontSize: 19, lineHeight: 1, whiteSpace: 'nowrap', flexShrink: 0 }}>{en}</span>
+        <span style={{ fontFamily: BDY, fontWeight: 800, color: '#b6afa0', fontSize: 14, whiteSpace: 'nowrap', flexShrink: 0 }}>{ko}</span>
       </div>
       <div style={{ padding: `${py ?? 18}px 18px`, display: 'flex', flexDirection: 'column' }}>
         {children}
@@ -92,7 +92,7 @@ function SCard({ en, ko, accent, children, py }: { en: string; ko: string; accen
 
 function Chip({ color, big, children }: { color: string; big?: boolean; children: any }) {
   return (
-    <div style={{ background: color, color: '#fff', fontFamily: BDY, fontWeight: 900, fontSize: big ? 15 : 13, padding: big ? '4px 13px' : '2px 10px', borderRadius: 7, display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+    <div style={{ background: color, color: '#fff', fontFamily: BDY, fontWeight: 900, fontSize: big ? 18 : 15, padding: big ? '4px 14px' : '3px 11px', borderRadius: 7, display: 'flex', alignSelf: 'flex-start', alignItems: 'center', whiteSpace: 'nowrap' }}>
       {children}
     </div>
   );
@@ -113,14 +113,12 @@ function Bar({ value, color, height = 18, ticks = [] }: { value: number; color: 
 
 function GradeScale({ color, marks, pt, compact }: { color: string; marks: {at:number; label:string}[]; pt: number; compact?: boolean }) {
   const pct = Math.min(100, pt);
-  const mt = compact ? 4 : 20;
-  const mb = compact ? 10 : 28;
-  const youTop = compact ? -11 : -18;
-  const lblTop = compact ? 13 : 18;
+  const mt = compact ? 4 : 12;
+  const mb = compact ? 12 : 28;
+  const lblTop = compact ? 15 : 20;
   return (
     <div style={{ position: 'relative', marginTop: mt, marginBottom: mb, display: 'flex', flexDirection: 'column' }}>
-      <div style={{ position: 'absolute', left: `${pct}%`, top: youTop, transform: 'translateX(-50%)', color: C.red, fontFamily: DSP, fontSize: 11, whiteSpace: 'nowrap' }}>▼YOU</div>
-      <div style={{ position: 'relative', height: 14, borderRadius: 7, background: '#ddd6c4', border: `2px solid ${C.ink}`, display: 'flex' }}>
+      <div style={{ position: 'relative', height: 16, borderRadius: 8, background: '#ddd6c4', border: `2px solid ${C.ink}`, display: 'flex' }}>
         <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${pct}%`, background: color, borderRadius: 5 }} />
         {marks.filter(m => m.at > 0 && m.at < 100).map((m, i) => (
           <div key={i} style={{ position: 'absolute', top: 0, bottom: 0, left: `${m.at}%`, width: 2, background: C.ink }} />
@@ -130,7 +128,7 @@ function GradeScale({ color, marks, pt, compact }: { color: string; marks: {at:n
         const active = pt >= m.at && m.at > 0;
         const tform = m.at <= 4 ? 'none' : m.at >= 96 ? 'translateX(-100%)' : 'translateX(-50%)';
         return (
-          <div key={i} style={{ position: 'absolute', left: `${m.at}%`, top: lblTop, transform: tform, fontFamily: BDY, fontSize: 10, fontWeight: 800, color: active ? color : C.muted, whiteSpace: 'nowrap' }}>
+          <div key={i} style={{ position: 'absolute', left: `${m.at}%`, top: lblTop, transform: tform, fontFamily: BDY, fontSize: 12, fontWeight: 800, color: active ? color : C.muted, whiteSpace: 'nowrap' }}>
             {m.label}
           </div>
         );
@@ -152,27 +150,27 @@ function TimeSystem({ timeSlot, affection }: { timeSlot: string; affection: numb
             <div key={n.key} style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               {isCur && (
                 <div style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 4 }}>
-                  <div style={{ background: C.red, color: '#fff', fontFamily: DSP, fontSize: 11, padding: '2px 8px', borderRadius: 4 }}>HERE</div>
-                  <div style={{ color: C.red, fontSize: 9 }}>▼</div>
+                  <div style={{ background: C.red, color: '#fff', fontFamily: DSP, fontSize: 13, padding: '2px 8px', borderRadius: 4 }}>HERE</div>
+                  <div style={{ color: C.red, fontSize: 11 }}>▼</div>
                 </div>
               )}
               <div style={{ border: `3px solid ${isCur ? C.red : locked ? '#a09585' : C.ink}`, borderRadius: 10, background: locked ? '#cdc7b8' : isCur ? '#fde7e4' : '#fff', opacity: locked ? 0.65 : 1, textAlign: 'center', padding: '8px 4px 6px', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                <div style={{ fontSize: 20, lineHeight: 1 }}>{locked ? '🔒' : n.emoji}</div>
-                <div style={{ fontFamily: BDY, fontWeight: 900, fontSize: 12, color: isCur ? C.red : C.ink, marginTop: 4 }}>{n.key}</div>
+                <div style={{ fontSize: 24, lineHeight: 1 }}>{locked ? '🔒' : n.emoji}</div>
+                <div style={{ fontFamily: BDY, fontWeight: 900, fontSize: 14, color: isCur ? C.red : C.ink, marginTop: 4 }}>{n.key}</div>
                 {n.gated && (
-                  <div style={{ fontFamily: BDY, fontSize: 9, fontWeight: 800, color: locked ? C.red : C.good }}>
+                  <div style={{ fontFamily: BDY, fontSize: 11, fontWeight: 800, color: locked ? C.red : C.good }}>
                     {locked ? `${DAWN_UNLOCK}%↑` : '✓해금'}
                   </div>
                 )}
               </div>
               {i < TIME_NODES.length - 1 && (
-                <div style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%)', color: C.muted, fontSize: 15, fontWeight: 900 }}>›</div>
+                <div style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%)', color: C.muted, fontSize: 18, fontWeight: 900 }}>›</div>
               )}
             </div>
           );
         })}
       </div>
-      <div style={{ fontFamily: BDY, fontSize: 12, color: C.muted, fontWeight: 700, textAlign: 'center', borderTop: `1px solid ${C.line}`, paddingTop: 10, marginTop: 8, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+      <div style={{ fontFamily: BDY, fontSize: 14, color: C.muted, fontWeight: 700, textAlign: 'center', borderTop: `1px solid ${C.line}`, paddingTop: 10, marginTop: 8, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
         <span>{`1 타임 = 4 턴 · 완료 시 자동 전환  |  새벽: 호감도 ${DAWN_UNLOCK}%↑ 해금`}</span>
         {!dawnUnlocked && <span style={{ color: C.red }}>{` (${DAWN_UNLOCK - affection}pt 남음)`}</span>}
       </div>
@@ -188,23 +186,23 @@ function StatBar({ def, pt }: { def: typeof STAT_DEFS[0]; pt: number }) {
     <div style={{ marginBottom: 20, display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 9, marginBottom: 6 }}>
         <Chip color={def.color}>{def.label}</Chip>
-        <span style={{ fontFamily: BDY, fontWeight: 900, color: C.ink, fontSize: 15 }}>{RANKS[def.label][ri]}</span>
-        <span style={{ fontFamily: BDY, fontWeight: 800, color: C.muted, fontSize: 12 }}>R{ri + 1}</span>
-        <span style={{ marginLeft: 'auto', fontFamily: DSP, fontSize: 22, color: def.color }}>
+        <span style={{ fontFamily: BDY, fontWeight: 900, color: C.ink, fontSize: 18 }}>{RANKS[def.label][ri]}</span>
+        <span style={{ fontFamily: BDY, fontWeight: 800, color: C.muted, fontSize: 14 }}>R{ri + 1}</span>
+        <span style={{ marginLeft: 'auto', fontFamily: DSP, fontSize: 26, color: def.color }}>
           {max ? 'MAX' : `${pt}pt`}
         </span>
       </div>
       <div style={{ position: 'relative', paddingBottom: 22, display: 'flex', flexDirection: 'column' }}>
         <Bar value={pt} color={def.color} height={18} ticks={[20, 40, 60, 80]} />
         {max ? (
-          <div style={{ position: 'absolute', left: 0, top: 22, fontFamily: BDY, fontSize: 9, fontWeight: 800, color: def.color, whiteSpace: 'nowrap' }}>{RANKS[def.label][5]}</div>
+          <div style={{ position: 'absolute', left: 0, top: 22, fontFamily: BDY, fontSize: 11, fontWeight: 800, color: def.color, whiteSpace: 'nowrap' }}>{RANKS[def.label][5]}</div>
         ) : (
           RANKS[def.label].slice(0, 5).map((name, i) => (
-            <div key={i} style={{ position: 'absolute', left: `${i * 20 + 10}%`, top: 22, transform: 'translateX(-50%)', fontFamily: BDY, fontSize: 9, fontWeight: 800, color: pt >= i * 20 ? def.color : C.muted, whiteSpace: 'nowrap' }}>{name}</div>
+            <div key={i} style={{ position: 'absolute', left: `${i * 20 + 10}%`, top: 22, transform: 'translateX(-50%)', fontFamily: BDY, fontSize: 11, fontWeight: 800, color: pt >= i * 20 ? def.color : C.muted, whiteSpace: 'nowrap' }}>{name}</div>
           ))
         )}
       </div>
-      <div style={{ fontFamily: BDY, fontSize: 12, color: C.muted, fontWeight: 600 }}>{`↑ ${def.how}`}</div>
+      <div style={{ fontFamily: BDY, fontSize: 14, color: C.muted, fontWeight: 600 }}>{`↑ ${def.how}`}</div>
     </div>
   );
 }
@@ -213,7 +211,7 @@ function StatSection({ stats }: { stats: Record<string, number> }) {
   return (
     <SCard en="STATS" ko="스탯 시스템" accent={C.red}>
       {STAT_DEFS.map(d => <StatBar key={d.key} def={d} pt={stats[d.key]} />)}
-      <div style={{ fontFamily: BDY, fontSize: 12, color: C.muted, fontWeight: 700, borderTop: `1px solid ${C.line}`, paddingTop: 10 }}>
+      <div style={{ fontFamily: BDY, fontSize: 14, color: C.muted, fontWeight: 700, borderTop: `1px solid ${C.line}`, paddingTop: 10 }}>
         0~100pt · 20pt당 1랭크 · 스탯 상승 시 스트레스도 ×2 동반 상승
       </div>
     </SCard>
@@ -223,16 +221,16 @@ function StatSection({ stats }: { stats: Record<string, number> }) {
 // ── STRESS section ────────────────────────────────────────────────────
 function StressSection({ stress }: { stress: number }) {
   return (
-    <SCard en="STRESS" ko="스트레스" accent="#f47b20">
+    <SCard en="STRESS" ko="스트레스" accent="#f47b20" grow>
       <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 7 }}>
-        <span style={{ fontFamily: BDY, fontWeight: 900, fontSize: 16, color: C.ink }}>🔥 스트레스</span>
-        <span style={{ marginLeft: 'auto', fontFamily: DSP, fontSize: 24, color: stress >= 80 ? C.red : '#f47b20' }}>
-          {stress}<span style={{ fontFamily: BDY, fontSize: 13, color: C.muted }}> / 100</span>
+        <span style={{ fontFamily: BDY, fontWeight: 900, fontSize: 19, color: C.ink }}>🔥 스트레스</span>
+        <span style={{ marginLeft: 'auto', fontFamily: DSP, fontSize: 28, color: stress >= 80 ? C.red : '#f47b20' }}>
+          {stress}<span style={{ fontFamily: BDY, fontSize: 16, color: C.muted }}> / 100</span>
         </span>
       </div>
       <Bar value={stress} color="#f47b20" height={20} ticks={[50, 80]} />
-      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', fontFamily: BDY, fontWeight: 800, fontSize: 11, color: C.red, marginTop: 3 }}>100% ▶ 번아웃</div>
-      <div style={{ fontFamily: BDY, fontSize: 13, color: C.ink, marginTop: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', fontFamily: BDY, fontWeight: 800, fontSize: 13, color: C.red, marginTop: 3 }}>100% ▶ 번아웃</div>
+      <div style={{ fontFamily: BDY, fontSize: 16, color: C.ink, marginTop: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}><span>· 스탯 증가량 </span><span style={{ fontWeight: 900 }}>× 2 pt</span><span> 만큼 동반 상승</span></div>
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}><span>· 100% 도달 시 </span><span style={{ fontWeight: 900, color: C.red }}>번아웃 — 전체 스탯 −20pt</span><span> + 0%로 리셋</span></div>
         <div>· 휴식 · 놀이 · 미오와 긍정 상호작용으로 감소</div>
@@ -246,19 +244,19 @@ function AffectionSection({ affection }: { affection: number }) {
   const dm = affection >= DM_UNLOCK;
   const dn = affection >= DAWN_UNLOCK;
   return (
-    <SCard en="AFFECTION" ko="호감도" accent={C.red}>
+    <SCard en="AFFECTION" ko="호감도" accent={C.red} grow>
       <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 7 }}>
-        <span style={{ fontFamily: BDY, fontWeight: 900, fontSize: 16, color: C.ink }}>❤️ 호감도</span>
-        <span style={{ marginLeft: 'auto', fontFamily: DSP, fontSize: 24, color: C.red }}>
-          {affection}<span style={{ fontFamily: BDY, fontSize: 13, color: C.muted }}> / 100</span>
+        <span style={{ fontFamily: BDY, fontWeight: 900, fontSize: 19, color: C.ink }}>❤️ 호감도</span>
+        <span style={{ marginLeft: 'auto', fontFamily: DSP, fontSize: 28, color: C.red }}>
+          {affection}<span style={{ fontFamily: BDY, fontSize: 16, color: C.muted }}> / 100</span>
         </span>
       </div>
       <div style={{ position: 'relative', marginTop: 22, display: 'flex', flexDirection: 'column' }}>
         <Bar value={affection} color={C.red} height={20} ticks={[DM_UNLOCK, DAWN_UNLOCK]} />
-        <div style={{ position: 'absolute', left: `${DM_UNLOCK}%`, top: -18, transform: 'translateX(-50%)', fontFamily: BDY, fontSize: 10, fontWeight: 800, color: dm ? C.good : C.muted, whiteSpace: 'nowrap' }}>
+        <div style={{ position: 'absolute', left: `${DM_UNLOCK}%`, top: -18, transform: 'translateX(-50%)', fontFamily: BDY, fontSize: 12, fontWeight: 800, color: dm ? C.good : C.muted, whiteSpace: 'nowrap' }}>
           {`${dm ? '✓' : '·'} ${DM_UNLOCK}%`}
         </div>
-        <div style={{ position: 'absolute', left: `${DAWN_UNLOCK}%`, top: -18, transform: 'translateX(-50%)', fontFamily: BDY, fontSize: 10, fontWeight: 800, color: dn ? C.good : C.muted, whiteSpace: 'nowrap' }}>
+        <div style={{ position: 'absolute', left: `${DAWN_UNLOCK}%`, top: -18, transform: 'translateX(-50%)', fontFamily: BDY, fontSize: 12, fontWeight: 800, color: dn ? C.good : C.muted, whiteSpace: 'nowrap' }}>
           {`${dn ? '✓' : '·'} ${DAWN_UNLOCK}%`}
         </div>
       </div>
@@ -267,9 +265,9 @@ function AffectionSection({ affection }: { affection: number }) {
           { unlocked: dm, title: `${dm ? '🔓' : '🔒'} 50% · 선디엠`, desc: '미오가 먼저 DM 전송' },
           { unlocked: dn, title: `${dn ? '🔓' : '🔒'} 70% · 새벽 해금${!dn ? ` (${DAWN_UNLOCK - affection}pt 남음)` : ''}`, desc: '새벽 타임 · 옥상 개방' },
         ].map((b, i) => (
-          <div key={i} style={{ flex: 1, background: b.unlocked ? '#e8f6ee' : '#f0ece0', border: `2px solid ${b.unlocked ? C.good : C.line}`, borderRadius: 9, padding: '7px 10px', fontFamily: BDY, fontSize: 13, fontWeight: 800, color: b.unlocked ? C.good : C.muted, display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <div key={i} style={{ flex: 1, background: b.unlocked ? '#e8f6ee' : '#f0ece0', border: `2px solid ${b.unlocked ? C.good : C.line}`, borderRadius: 9, padding: '7px 10px', fontFamily: BDY, fontSize: 16, fontWeight: 800, color: b.unlocked ? C.good : C.muted, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <div>{b.title}</div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: C.muted }}>{b.desc}</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: C.muted }}>{b.desc}</div>
           </div>
         ))}
       </div>
@@ -285,19 +283,19 @@ function WeatherGuide({ weather }: { weather: string }) {
     <SCard en="WEATHER" ko="날씨" accent="#3a82c8">
       <div style={{ display: 'flex', flexDirection: 'row', gap: 14 }}>
         <div style={{ flex: 1, border: `2px solid ${pos ? C.red : '#bfe3cb'}`, borderRadius: 12, padding: 14, background: pos ? '#fdeae8' : '#eef8f0', display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <div style={{ fontFamily: BDY, fontWeight: 900, fontSize: 16, color: '#2e9e5b' }}>☀️ ❄️ 긍정 날씨</div>
-          <div style={{ fontFamily: BDY, fontSize: 14, color: C.ink, fontWeight: 800 }}>맑음 / 눈</div>
-          <div style={{ fontFamily: BDY, fontSize: 13, color: C.ink, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}><span>스탯 </span><span style={{ color: '#2e9e5b', fontWeight: 900 }}>+2~3pt</span><span> · 스트레스 </span><span style={{ fontWeight: 900 }}>×2pt</span></div>
-          <div style={{ fontFamily: BDY, fontSize: 12, color: C.muted }}>미오 감정 긍정 편향</div>
+          <div style={{ fontFamily: BDY, fontWeight: 900, fontSize: 19, color: '#2e9e5b' }}>☀️ ❄️ 긍정 날씨</div>
+          <div style={{ fontFamily: BDY, fontSize: 17, color: C.ink, fontWeight: 800 }}>맑음 / 눈</div>
+          <div style={{ fontFamily: BDY, fontSize: 16, color: C.ink, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}><span>스탯 </span><span style={{ color: '#2e9e5b', fontWeight: 900 }}>+2~3pt</span><span> · 스트레스 </span><span style={{ fontWeight: 900 }}>×2pt</span></div>
+          <div style={{ fontFamily: BDY, fontSize: 14, color: C.muted }}>미오 감정 긍정 편향</div>
         </div>
         <div style={{ flex: 1, border: `2px solid ${neg ? C.red : '#cfd3da'}`, borderRadius: 12, padding: 14, background: neg ? '#fdeae8' : '#f2f3f6', display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <div style={{ fontFamily: BDY, fontWeight: 900, fontSize: 16, color: '#5b6470' }}>☁️ 🌧 ⛈ 부정 날씨</div>
-          <div style={{ fontFamily: BDY, fontSize: 14, color: C.ink, fontWeight: 800 }}>흐림 / 비 / 뇌우</div>
-          <div style={{ fontFamily: BDY, fontSize: 13, color: C.ink, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}><span>스탯 </span><span style={{ fontWeight: 900 }}>+1pt 고정</span><span> · 스트레스 </span><span style={{ color: C.red, fontWeight: 900 }}>+5pt 고정</span></div>
-          <div style={{ fontFamily: BDY, fontSize: 12, color: C.muted }}>미오 감정 부정 편향</div>
+          <div style={{ fontFamily: BDY, fontWeight: 900, fontSize: 19, color: '#5b6470' }}>☁️ 🌧 ⛈ 부정 날씨</div>
+          <div style={{ fontFamily: BDY, fontSize: 17, color: C.ink, fontWeight: 800 }}>흐림 / 비 / 뇌우</div>
+          <div style={{ fontFamily: BDY, fontSize: 16, color: C.ink, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}><span>스탯 </span><span style={{ fontWeight: 900 }}>+1pt 고정</span><span> · 스트레스 </span><span style={{ color: C.red, fontWeight: 900 }}>+5pt 고정</span></div>
+          <div style={{ fontFamily: BDY, fontSize: 14, color: C.muted }}>미오 감정 부정 편향</div>
         </div>
       </div>
-      <div style={{ marginTop: 12, fontFamily: BDY, fontSize: 13, color: C.ink, background: '#eef1f6', border: `2px solid ${C.line}`, borderRadius: 10, padding: '8px 12px', fontWeight: 700, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+      <div style={{ marginTop: 12, fontFamily: BDY, fontSize: 16, color: C.ink, background: '#eef1f6', border: `2px solid ${C.line}`, borderRadius: 10, padding: '8px 12px', fontWeight: 700, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
         <span>🌧 장마 · 6/30 ~ 7/30 매일 비 고정  |  현재 날씨 </span><span style={{ color: C.red, fontWeight: 900 }}>{weather}</span>
       </div>
     </SCard>
@@ -309,7 +307,7 @@ function JudgeSplit({ stats }: { stats: Record<string, number> }) {
   const sum   = stats.art + stats.social;
   const bonus = sum >= 200 ? '×2.0' : sum >= 150 ? '×1.5' : sum >= 100 ? '×1.25' : sum >= 50 ? '×1.1' : '×1.0';
   const col   = (k: string) => STAT_DEFS.find(d => d.key === k)!.color;
-  const sub   = (t: string) => <div style={{ fontFamily: DSP, fontSize: 14, color: C.ink, margin: '0 0 2px' }}>{t}</div>;
+  const sub   = (t: string) => <div style={{ fontFamily: DSP, fontSize: 17, color: C.ink, margin: '0 0 2px' }}>{t}</div>;
 
   const details = [
     { title: '📚 시험 — 커트라인 (학업 기준)', lines: ['1학기 중간 20pt↑ · 기말 40pt↑ · 2학기 중간 60pt↑ · 기말 80pt↑ · 3학기 100pt', '커트 미달 = FAIL → 미오 부정감정 · 진로 압박↑ · 스트레스 +20%'] },
@@ -341,7 +339,7 @@ function JudgeSplit({ stats }: { stats: Record<string, number> }) {
           </div>
           <GradeScale compact color={col('art')}    marks={[{at:50,label:'예술 50'},{at:100,label:'예술 100'}]} pt={stats.art} />
           <GradeScale compact color={col('social')} marks={[{at:50,label:'사교 50'},{at:100,label:'사교 100'}]} pt={stats.social} />
-          <div style={{ fontFamily: BDY, fontSize: 12, color: C.ink, background: '#f3ecfb', border: '2px solid #d9c4f2', borderRadius: 8, padding: '4px 9px', marginTop: 2, marginBottom: 4, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ fontFamily: BDY, fontSize: 14, color: C.ink, background: '#f3ecfb', border: '2px solid #d9c4f2', borderRadius: 8, padding: '4px 9px', marginTop: 2, marginBottom: 4, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
             <span>합산 </span><span style={{ fontWeight: 900 }}>{sum}</span><span> → 호감도 보너스 </span><span style={{ color: '#9340d4', fontWeight: 900 }}>{bonus}</span>
           </div>
 
@@ -352,12 +350,12 @@ function JudgeSplit({ stats }: { stats: Record<string, number> }) {
 
         {/* 우: 판정 상세 */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8, borderLeft: `2px solid ${C.line}`, paddingLeft: 20 }}>
-          <div style={{ fontFamily: DSP, fontSize: 15, color: C.ink, marginBottom: 4 }}>📋 판정 상세</div>
+          <div style={{ fontFamily: DSP, fontSize: 18, color: C.ink, marginBottom: 4 }}>📋 판정 상세</div>
           {details.map((r, i) => (
             <div key={i} style={{ padding: '8px 10px', background: '#faf8f2', border: `1.5px solid ${C.line}`, borderRadius: 8, display: 'flex', flexDirection: 'column', gap: 3 }}>
-              <div style={{ fontFamily: BDY, fontWeight: 900, fontSize: 12, color: C.ink }}>{r.title}</div>
+              <div style={{ fontFamily: BDY, fontWeight: 900, fontSize: 14, color: C.ink }}>{r.title}</div>
               {r.lines.map((l, j) => (
-                <div key={j} style={{ fontFamily: BDY, fontSize: 11, color: C.ink, lineHeight: 1.6 }}>{l}</div>
+                <div key={j} style={{ fontFamily: BDY, fontSize: 13, color: C.ink, lineHeight: 1.6 }}>{l}</div>
               ))}
             </div>
           ))}
@@ -374,26 +372,26 @@ function ClubGuide({ club }: { club: string }) {
   const Tag = ({ t }: { t: string }) => {
     const active = club === t;
     return (
-      <div style={{ background: active ? '#ffe4e1' : '#fff', border: `1.5px solid ${active ? C.red : C.line}`, borderRadius: 6, padding: '2px 8px', fontFamily: BDY, fontWeight: 700, fontSize: 12, color: active ? C.red : C.ink }}>
+      <div style={{ background: active ? '#ffe4e1' : '#fff', border: `1.5px solid ${active ? C.red : C.line}`, borderRadius: 6, padding: '2px 8px', fontFamily: BDY, fontWeight: 700, fontSize: 14, color: active ? C.red : C.ink }}>
         {t}
       </div>
     );
   };
   return (
-    <SCard en="CLUB" ko="동아리 시스템" accent="#2e9e5b">
+    <SCard en="CLUB" ko="동아리 시스템" accent="#2e9e5b" grow>
       <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-        <span style={{ fontFamily: BDY, fontWeight: 900, color: C.ink, fontSize: 15 }}>현재 : </span>
+        <span style={{ fontFamily: BDY, fontWeight: 900, color: C.ink, fontSize: 18 }}>현재 : </span>
         <Chip color="#2e9e5b" big>{club}</Chip>
       </div>
-      <div style={{ fontFamily: BDY, fontWeight: 900, color: '#9340d4', fontSize: 13, marginBottom: 6 }}>🎨 문화부 (15)</div>
+      <div style={{ fontFamily: BDY, fontWeight: 900, color: '#9340d4', fontSize: 16, marginBottom: 6 }}>🎨 문화부 (15)</div>
       <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginBottom: 12 }}>
         {culture.map(t => <Tag key={t} t={t} />)}
       </div>
-      <div style={{ fontFamily: BDY, fontWeight: 900, color: '#f47b20', fontSize: 13, marginBottom: 6 }}>💪 운동부 (13)</div>
+      <div style={{ fontFamily: BDY, fontWeight: 900, color: '#f47b20', fontSize: 16, marginBottom: 6 }}>💪 운동부 (13)</div>
       <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginBottom: 12 }}>
         {sports.map(t => <Tag key={t} t={t} />)}
       </div>
-      <div style={{ fontFamily: BDY, fontSize: 12, color: C.muted, fontWeight: 700, borderTop: `1px solid ${C.line}`, paddingTop: 10, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+      <div style={{ fontFamily: BDY, fontSize: 14, color: C.muted, fontWeight: 700, borderTop: `1px solid ${C.line}`, paddingTop: 10, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
         <span>가입 시 </span><span style={{ color: C.ink, fontWeight: 900 }}>저녁 타임에 동아리 활동 추가</span><span> · 관련 스탯(체력/예술) 상승 가능</span>
       </div>
     </SCard>
@@ -404,16 +402,16 @@ function ClubGuide({ club }: { club: string }) {
 function DMGuide({ affection }: { affection: number }) {
   const unlocked = affection >= DM_UNLOCK;
   return (
-    <SCard en="DM" ko="DM 시스템" accent={C.red}>
-      <div style={{ fontFamily: BDY, fontSize: 13, color: C.ink, display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}><span style={{ fontWeight: 900 }}>!디엠 내용</span><span> 입력 → 미오에게 메시지 전송</span></div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}><span style={{ fontWeight: 900 }}>!디엠 {'{'}}스탬프코드{'}'}</span><span> → 스탬프 전송</span></div>
+    <SCard en="DM" ko="DM 시스템" accent={C.red} grow>
+      <div style={{ fontFamily: BDY, fontSize: 16, color: C.ink, display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}><span style={{ fontWeight: 900 }}>/디엠 내용</span><span> 입력 → 미오에게 메시지 전송</span></div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}><span style={{ fontWeight: 900 }}>{'/디엠 {스탬프코드}'}</span><span> → 스탬프 전송</span></div>
         <div style={{ color: C.muted }}>angry · lol · shy · thumbsup · ignore · heart · pout</div>
         <div style={{ color: C.muted }}>읽씹 여부는 미오의 성격·감정·호감도로 판정</div>
       </div>
       <div style={{ marginTop: 14, padding: '10px 14px', borderRadius: 10, fontFamily: BDY, fontWeight: 800, background: unlocked ? '#e8f6ee' : '#f0ece0', border: `2px solid ${unlocked ? C.good : C.line}`, color: unlocked ? C.good : C.muted, display: 'flex', flexDirection: 'column', gap: 3 }}>
         <div>{unlocked ? '🔓 선디엠 해금됨' : '🔒 선디엠 잠김'}</div>
-        <div style={{ fontSize: 12, fontWeight: 600, color: C.muted }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: C.muted }}>
           {`호감도 ${DM_UNLOCK}%↑ + 밤·새벽 타임 + lonely · conflicted · nostalgic 감정 시 미오가 먼저 연락`}
         </div>
       </div>
@@ -442,8 +440,8 @@ function Timeline({ date }: { date: string }) {
   return (
     <SCard en="TIMELINE" ko="주요 이벤트" accent="#534ab7">
       <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 12, gap: 6 }}>
-        <span style={{ fontFamily: DSP, fontSize: 13, color: C.muted }}>📅</span>
-        <span style={{ fontFamily: DSP, fontSize: 16, color: C.ink }}>{date}</span>
+        <span style={{ fontFamily: DSP, fontSize: 16, color: C.muted }}>📅</span>
+        <span style={{ fontFamily: DSP, fontSize: 19, color: C.ink }}>{date}</span>
       </div>
       <div style={{ position: 'relative', width: TW, height: TH, display: 'flex', alignSelf: 'center' }}>
         <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} width={TW} height={TH} style={{ position: 'absolute', top: 0, left: 0 }}>
@@ -459,20 +457,20 @@ function Timeline({ date }: { date: string }) {
           <circle cx={hx} cy={hy} r={7} fill={C.red} stroke="#fff" strokeWidth={2.5} />
           <circle cx={hx} cy={hy} r={10.5} fill="none" stroke={C.red} strokeWidth={1.5} strokeDasharray="3 3" />
         </svg>
-        <div style={{ position: 'absolute', left: s(hx), top: s(hy) - 32, transform: 'translateX(-50%)', fontFamily: DSP, fontSize: 11, color: C.red, whiteSpace: 'nowrap' }}>HERE</div>
+        <div style={{ position: 'absolute', left: s(hx), top: s(hy) - 32, transform: 'translateX(-50%)', fontFamily: DSP, fontSize: 13, color: C.red, whiteSpace: 'nowrap' }}>HERE</div>
         {EVENTS.flatMap((e, i) => {
           const { x, y } = pos(i);
           const yr = e.year !== 2026 ? "'27 " : '';
           const nameLines = e.name.split('\n');
           return [
-            <div key={`d${i}`} style={{ position: 'absolute', left: s(x), top: s(y) - 25, transform: 'translateX(-50%)', fontFamily: BDY, fontSize: 9, fontWeight: 700, color: C.muted, whiteSpace: 'nowrap' }}>{`${yr}${e.date}`}</div>,
+            <div key={`d${i}`} style={{ position: 'absolute', left: s(x), top: s(y) - 25, transform: 'translateX(-50%)', fontFamily: BDY, fontSize: 11, fontWeight: 700, color: C.muted, whiteSpace: 'nowrap' }}>{`${yr}${e.date}`}</div>,
             ...nameLines.map((l, j) => (
-              <div key={`n${i}${j}`} style={{ position: 'absolute', left: s(x), top: s(y) + 11 + j * 11, transform: 'translateX(-50%)', fontFamily: BDY, fontSize: 10, fontWeight: 900, color: C.ink, whiteSpace: 'nowrap' }}>{l}</div>
+              <div key={`n${i}${j}`} style={{ position: 'absolute', left: s(x), top: s(y) + 11 + j * 11, transform: 'translateX(-50%)', fontFamily: BDY, fontSize: 12, fontWeight: 900, color: C.ink, whiteSpace: 'nowrap' }}>{l}</div>
             )),
           ];
         })}
       </div>
-      <div style={{ textAlign: 'center', fontFamily: BDY, fontSize: 12, color: C.muted, fontWeight: 700, marginTop: 6 }}>
+      <div style={{ textAlign: 'center', fontFamily: BDY, fontSize: 14, color: C.muted, fontWeight: 700, marginTop: 6 }}>
         2026.3 입학 → 2027.3 졸업 · 빨간 점이 현재 위치
       </div>
     </SCard>
@@ -506,7 +504,6 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
   const GAP = 20;
   const PAD = 24;
   const W = 1000;
-  const H = 2200;
   const COL = Math.floor((W - PAD * 2 - GAP) / 2);
 
   const col = (children: any) => (
@@ -515,14 +512,14 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
 
   const imageResponse = new ImageResponse(
     (
-      <div style={{ width: W, height: H, background: C.bg, display: 'flex', flexDirection: 'column', padding: PAD, gap: 18 }}>
+      <div style={{ width: W, background: C.bg, display: 'flex', flexDirection: 'column', padding: PAD, gap: 18 }}>
 
         {/* 헤더 */}
         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18, padding: '4px 0 2px' }}>
           <div style={{ fontFamily: DSP, fontWeight: 900, fontSize: 48, color: '#fff', textShadow: `5px 6px 0 ${C.redDark}`, lineHeight: 1, display: 'flex', alignItems: 'center' }}>
             <span>GUIDE</span><span style={{ color: C.red }}>&</span><span>PROGRESS</span>
           </div>
-          <div style={{ fontFamily: BDY, fontWeight: 800, color: C.muted, fontSize: 14 }}>청춘회생록 · 플레이어 시스템 가이드</div>
+          <div style={{ fontFamily: BDY, fontWeight: 800, color: C.muted, fontSize: 17 }}>청춘회생록 · 플레이어 시스템 가이드</div>
         </div>
 
         {/* 상단 2열: 좌 TIME/STATS/STRESS+AFF/WEATHER  우 AFF/CLUB+DM/TIMELINE */}
@@ -548,14 +545,14 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
         {/* 하단 풀폭: JUDGE (그래프 | 판정 상세) */}
         <JudgeSplit stats={stats} />
 
-        <div style={{ textAlign: 'center', fontFamily: BDY, color: C.muted, fontSize: 12, padding: '4px 0' }}>
+        <div style={{ textAlign: 'center', fontFamily: BDY, color: C.muted, fontSize: 14, padding: '4px 0' }}>
           청춘회생록 · 시스템 가이드 + 진행도
         </div>
       </div>
     ),
     {
       width: W,
-      height: H,
+      height: undefined, // satori auto-fits height to content → no clipping, no whitespace
       fonts: [
         { name: 'GasoekOne',  data: fonts.gasoekOne,  style: 'normal', weight: 400 },
         { name: 'Pretendard', data: fonts.pretendard,  style: 'normal', weight: 700 },
