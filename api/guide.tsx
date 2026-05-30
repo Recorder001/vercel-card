@@ -300,58 +300,64 @@ function WeatherGuide({ weather }: { weather: string }) {
   );
 }
 
-// ── EVENT JUDGE section ───────────────────────────────────────────────
-function EventJudge({ stats }: { stats: Record<string, number> }) {
+// ── EVENT JUDGE section (그래프 + 판정 상세 분리) ─────────────────────
+function JudgeSplit({ stats }: { stats: Record<string, number> }) {
   const sum   = stats.art + stats.social;
   const bonus = sum >= 200 ? '×2.0' : sum >= 150 ? '×1.5' : sum >= 100 ? '×1.25' : sum >= 50 ? '×1.1' : '×1.0';
   const col   = (k: string) => STAT_DEFS.find(d => d.key === k)!.color;
-  const sub   = (t: string) => <div style={{ fontFamily: DSP, fontSize: 16, color: C.ink, margin: '4px 0 6px' }}>{t}</div>;
+  const sub   = (t: string) => <div style={{ fontFamily: DSP, fontSize: 15, color: C.ink, margin: '4px 0 6px' }}>{t}</div>;
 
   const details = [
-    { title: '📚 시험 — 커트라인 (학업 기준)', lines: ['1학기 중간 20pt↑  ·  1학기 기말 40pt↑  ·  2학기 중간 60pt↑  ·  2학기 기말 80pt↑  ·  3학기 기말 100pt', '커트 미달 = FAIL → 미오 부정감정 · 진로 압박↑ · 스트레스 +20%'] },
-    { title: '💪 체육대회 (06/09) — 체력 랭크 = 등수', lines: ['100pt 우승  /  80pt↑ 은상  /  60pt↑ 동상  /  40pt↑ 하위권  /  20pt 미만 꼴지'] },
-    { title: '🎭 문화제 (09/14~15) — 예술 + 사교 합산', lines: ['50~99: ×1.1  /  100~149: ×1.25  /  150~199: ×1.5  /  200: ×2.0  (호감도 증가량 배율)'] },
-    { title: '🚌 수학여행 (10/23~25) — 재주 스탯 기준', lines: ['0~19 — 대화X · 잠만 잠', '20~39 — 디엠 가능', '40~59 — 통화 가능', '60~79 — 미오 방에서 만남', '80~99 — 숙소 탈출', '100 — 음주가무'] },
-    { title: '🎓 졸업식 (03/30) — 누적 결과 → 엔딩 분기', lines: ['모든 시험 PASS + 사교 MAX — ⓤ와 같은 대학', '예술 MAX — 예체능 대학', '체력 MAX + 재주 MAX — 운동선수 진로', '학업 MAX — 명문대 진학'] },
+    { title: '📚 시험 — 커트라인 (학업 기준)', lines: ['1학기 중간 20pt↑ · 기말 40pt↑ · 2학기 중간 60pt↑ · 기말 80pt↑ · 3학기 100pt', '커트 미달 = FAIL → 미오 부정감정 · 진로 압박↑ · 스트레스 +20%'] },
+    { title: '💪 체육대회 (06/09) — 체력 랭크 = 등수', lines: ['100pt 우승 / 80pt↑ 은상 / 60pt↑ 동상 / 40pt↑ 하위권 / 20pt 미만 꼴지'] },
+    { title: '🎭 문화제 (09/14~15) — 예술+사교 합산', lines: ['50~99:×1.1 / 100~149:×1.25 / 150~199:×1.5 / 200:×2.0'] },
+    { title: '🚌 수학여행 (10/23~25) — 재주 스탯 기준', lines: ['0~19 대화X · 잠만 잠 / 20~39 디엠 가능 / 40~59 통화 가능', '60~79 미오 방에서 만남 / 80~99 숙소 탈출 / 100 음주가무'] },
+    { title: '🎓 졸업식 (03/30) — 누적 결과 → 엔딩 분기', lines: ['시험 PASS+사교MAX → ⓤ와 같은 대학 / 예술MAX → 예체능 대학', '체력MAX+재주MAX → 운동선수 / 학업MAX → 명문대'] },
   ];
 
   return (
     <SCard en="JUDGE" ko="이벤트별 판정" accent="#9340d4">
-      {sub('📚 시험 · 학업')}
-      <Chip color={col('study')}>학업 {stats.study}pt</Chip>
-      <GradeScale color={col('study')} marks={[{at:20,label:'1학기 중간'},{at:40,label:'1학기 기말'},{at:60,label:'2학기 중간'},{at:80,label:'2학기 기말'},{at:100,label:'3학기 기말'}]} pt={stats.study} />
+      <div style={{ display: 'flex', flexDirection: 'row', gap: 24 }}>
+        {/* 좌: 그래프 */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {sub('📚 시험 · 학업')}
+          <Chip color={col('study')}>학업 {stats.study}pt</Chip>
+          <GradeScale color={col('study')} marks={[{at:20,label:'중간1'},{at:40,label:'기말1'},{at:60,label:'중간2'},{at:80,label:'기말2'},{at:100,label:'3학기'}]} pt={stats.study} />
 
-      {sub('💪 체육대회 · 체력')}
-      <Chip color={col('fitness')}>체력 {stats.fitness}pt</Chip>
-      <GradeScale color={col('fitness')} marks={[{at:40,label:'하위권'},{at:60,label:'동상'},{at:80,label:'은상'},{at:100,label:'우승'}]} pt={stats.fitness} />
+          {sub('💪 체육대회 · 체력')}
+          <Chip color={col('fitness')}>체력 {stats.fitness}pt</Chip>
+          <GradeScale color={col('fitness')} marks={[{at:40,label:'하위권'},{at:60,label:'동상'},{at:80,label:'은상'},{at:100,label:'우승'}]} pt={stats.fitness} />
 
-      <div style={{ height: 1, background: C.line, margin: '12px 0 16px' }} />
+          <div style={{ height: 1, background: C.line, margin: '10px 0 14px' }} />
 
-      {sub('🎭 문화제 · 예술 + 사교')}
-      <div style={{ display: 'flex', flexDirection: 'row', gap: 8, marginBottom: 4 }}>
-        <Chip color={col('art')}>예술 {stats.art}pt</Chip>
-        <Chip color={col('social')}>사교 {stats.social}pt</Chip>
-      </div>
-      <GradeScale color={col('art')}    marks={[{at:50,label:'예술 50'},{at:100,label:'예술 100'}]} pt={stats.art} />
-      <GradeScale color={col('social')} marks={[{at:50,label:'사교 50'},{at:100,label:'사교 100'}]} pt={stats.social} />
-      <div style={{ fontFamily: BDY, fontSize: 13, color: C.ink, background: '#f3ecfb', border: '2px solid #d9c4f2', borderRadius: 10, padding: '8px 12px', marginBottom: 18, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
-        <span>예술 + 사교 합산 </span><span style={{ fontWeight: 900 }}>{sum}</span><span> → 호감도 보너스 </span><span style={{ color: '#9340d4', fontWeight: 900 }}>{bonus}</span><span style={{ color: C.muted }}>  (50:×1.1 / 100:×1.25 / 150:×1.5 / 200:×2.0)</span>
-      </div>
-
-      {sub('🚌 수학여행 · 재주')}
-      <Chip color={col('skill')}>재주 {stats.skill}pt</Chip>
-      <GradeScale color={col('skill')} marks={[{at:20,label:'디엠 가능'},{at:40,label:'통화 가능'},{at:60,label:'방에서 만남'},{at:80,label:'숙소 탈출'},{at:100,label:'음주가무'}]} pt={stats.skill} />
-
-      <div style={{ marginTop: 20, borderTop: `2px solid ${C.line}`, paddingTop: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <div style={{ fontFamily: DSP, fontSize: 14, color: C.ink }}>📋 판정 상세</div>
-        {details.map((r, i) => (
-          <div key={i} style={{ padding: '8px 10px', background: '#faf8f2', border: `1.5px solid ${C.line}`, borderRadius: 8, display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <div style={{ fontFamily: BDY, fontWeight: 900, fontSize: 12, color: C.ink }}>{r.title}</div>
-            {r.lines.map((l, j) => (
-              <div key={j} style={{ fontFamily: BDY, fontSize: 11, color: C.ink, lineHeight: 1.6 }}>{l}</div>
-            ))}
+          {sub('🎭 문화제 · 예술+사교')}
+          <div style={{ display: 'flex', flexDirection: 'row', gap: 8, marginBottom: 4 }}>
+            <Chip color={col('art')}>예술 {stats.art}pt</Chip>
+            <Chip color={col('social')}>사교 {stats.social}pt</Chip>
           </div>
-        ))}
+          <GradeScale color={col('art')}    marks={[{at:50,label:'예술 50'},{at:100,label:'예술 100'}]} pt={stats.art} />
+          <GradeScale color={col('social')} marks={[{at:50,label:'사교 50'},{at:100,label:'사교 100'}]} pt={stats.social} />
+          <div style={{ fontFamily: BDY, fontSize: 12, color: C.ink, background: '#f3ecfb', border: '2px solid #d9c4f2', borderRadius: 10, padding: '7px 11px', marginBottom: 14, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+            <span>합산 </span><span style={{ fontWeight: 900 }}>{sum}</span><span> → 호감도 보너스 </span><span style={{ color: '#9340d4', fontWeight: 900 }}>{bonus}</span>
+          </div>
+
+          {sub('🚌 수학여행 · 재주')}
+          <Chip color={col('skill')}>재주 {stats.skill}pt</Chip>
+          <GradeScale color={col('skill')} marks={[{at:20,label:'디엠'},{at:40,label:'통화'},{at:60,label:'방에서'},{at:80,label:'탈출'},{at:100,label:'음주'}]} pt={stats.skill} />
+        </div>
+
+        {/* 우: 판정 상세 */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8, borderLeft: `2px solid ${C.line}`, paddingLeft: 20 }}>
+          <div style={{ fontFamily: DSP, fontSize: 15, color: C.ink, marginBottom: 4 }}>📋 판정 상세</div>
+          {details.map((r, i) => (
+            <div key={i} style={{ padding: '8px 10px', background: '#faf8f2', border: `1.5px solid ${C.line}`, borderRadius: 8, display: 'flex', flexDirection: 'column', gap: 3 }}>
+              <div style={{ fontFamily: BDY, fontWeight: 900, fontSize: 12, color: C.ink }}>{r.title}</div>
+              {r.lines.map((l, j) => (
+                <div key={j} style={{ fontFamily: BDY, fontSize: 11, color: C.ink, lineHeight: 1.6 }}>{l}</div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
     </SCard>
   );
@@ -496,8 +502,8 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
   const GAP = 20;
   const PAD = 24;
   const W = 1000;
-  const H = 1900;
-  const COL = Math.floor((W - PAD * 2 - GAP) / 2);  // ~476
+  const H = 2200;
+  const COL = Math.floor((W - PAD * 2 - GAP) / 2);
 
   const col = (children: any) => (
     <div style={{ width: COL, display: 'flex', flexDirection: 'column', gap: 18 }}>{children}</div>
@@ -515,9 +521,8 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
           <div style={{ fontFamily: BDY, fontWeight: 800, color: C.muted, fontSize: 14 }}>청춘회생록 · 플레이어 시스템 가이드</div>
         </div>
 
-        {/* 2열 */}
+        {/* 상단 2열: 좌 TIME/STATS/STRESS+AFF/WEATHER  우 AFF/CLUB+DM/TIMELINE */}
         <div style={{ display: 'flex', flexDirection: 'row', gap: GAP, alignItems: 'flex-start' }}>
-          {/* 좌: TIME · STATS · STRESS+AFFECTION · WEATHER */}
           {col([
             <TimeSystem key="time" timeSlot={timeSlot} affection={affection} />,
             <StatSection key="stats" stats={stats} />,
@@ -527,18 +532,20 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
             </div>,
             <WeatherGuide key="weather" weather={weather} />,
           ])}
-          {/* 우: JUDGE · CLUB+DM · TIMELINE */}
           {col([
-            <EventJudge key="judge" stats={stats} />,
             <div key="cd" style={{ display: 'flex', flexDirection: 'row', gap: 14 }}>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><ClubGuide club={club} /></div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><DMGuide affection={affection} /></div>
             </div>,
             <Timeline key="timeline" date={date} />,
-            <div key="footer" style={{ textAlign: 'center', fontFamily: BDY, color: C.muted, fontSize: 12, padding: '4px 0' }}>
-              청춘회생록 · 시스템 가이드 + 진행도
-            </div>,
           ])}
+        </div>
+
+        {/* 하단 풀폭: JUDGE (그래프 | 판정 상세) */}
+        <JudgeSplit stats={stats} />
+
+        <div style={{ textAlign: 'center', fontFamily: BDY, color: C.muted, fontSize: 12, padding: '4px 0' }}>
+          청춘회생록 · 시스템 가이드 + 진행도
         </div>
       </div>
     ),
