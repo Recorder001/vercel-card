@@ -75,7 +75,7 @@ const EVENTS = [
 ];
 
 // ── Shared components ─────────────────────────────────────────────────
-function SCard({ en, ko, accent, children }: { en: string; ko: string; accent: string; children: any }) {
+function SCard({ en, ko, accent, children, py }: { en: string; ko: string; accent: string; children: any; py?: number }) {
   return (
     <div style={{ background: C.card, border: `3px solid ${C.ink}`, borderRadius: 16, overflow: 'hidden', boxShadow: '5px 5px 0 rgba(0,0,0,0.18)', display: 'flex', flexDirection: 'column' }}>
       <div style={{ background: C.panel, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 10, padding: '9px 16px' }}>
@@ -83,7 +83,7 @@ function SCard({ en, ko, accent, children }: { en: string; ko: string; accent: s
         <span style={{ fontFamily: DSP, color: '#fff', fontSize: 21, lineHeight: 1 }}>{en}</span>
         <span style={{ fontFamily: BDY, fontWeight: 800, color: '#b6afa0', fontSize: 14 }}>{ko}</span>
       </div>
-      <div style={{ padding: 18, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ padding: `${py ?? 18}px 18px`, display: 'flex', flexDirection: 'column' }}>
         {children}
       </div>
     </div>
@@ -320,7 +320,7 @@ function JudgeSplit({ stats }: { stats: Record<string, number> }) {
   ];
 
   return (
-    <SCard en="JUDGE" ko="이벤트별 판정" accent="#9340d4">
+    <SCard en="JUDGE" ko="이벤트별 판정" accent="#9340d4" py={10}>
       <div style={{ display: 'flex', flexDirection: 'row', gap: 24 }}>
         {/* 좌: 그래프 */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
