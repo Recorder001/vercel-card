@@ -460,9 +460,9 @@ function DMGuide({ affection }: { affection: number }) {
 function Timeline({ date }: { date: string }) {
   // 15 events, 4-per-row snake → 4 rows (last row has 3 events ending at x=152)
   const COLS = [56, 152, 248, 344];
-  const ROWS = [80, 180, 280, 380];
-  const SVG_W = 400, SVG_H = 440;
-  const TW = 400, TH = 440;
+  const ROWS = [80, 168, 256, 344];
+  const SVG_W = 400, SVG_H = 404;
+  const TW = 400, TH = 404;
   const s = (v: number) => Math.round(v * TW / SVG_W);
 
   const pos = (i: number) => {
@@ -476,19 +476,19 @@ function Timeline({ date }: { date: string }) {
   const hy = A.y + (B.y - A.y) * HERE_FRAC;
 
   return (
-    <SCard en="TIMELINE" ko="주요 이벤트" accent="#534ab7">
-      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 12, gap: 6 }}>
+    <SCard en="TIMELINE" ko="주요 이벤트" accent="#534ab7" py={8}>
+      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 10, gap: 6 }}>
         <span style={{ fontFamily: DSP, fontSize: 16, color: C.muted }}>📅</span>
         <span style={{ fontFamily: DSP, fontSize: 19, color: C.ink }}>{date}</span>
       </div>
       <div style={{ position: 'relative', width: TW, height: TH, display: 'flex', alignSelf: 'center' }}>
         <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} width={TW} height={TH} style={{ position: 'absolute', top: 0, left: 0 }}>
           {/* snake path: 4 rows, last row ends at x=152 (event 14) */}
-          <path d="M56 80 H344 C384 80 384 180 344 180 H56 C16 180 16 280 56 280 H344 C384 280 384 380 344 380 H152" fill="none" stroke={C.line} strokeWidth="4" strokeLinecap="round" />
-          <polygon points="193,74 206,80 193,86"   fill={C.muted} />
-          <polygon points="207,174 194,180 207,186" fill={C.muted} />
-          <polygon points="193,274 206,280 193,286" fill={C.muted} />
-          <polygon points="261,374 248,380 261,386" fill={C.muted} />
+          <path d="M56 80 H344 C384 80 384 168 344 168 H56 C16 168 16 256 56 256 H344 C384 256 384 344 344 344 H152" fill="none" stroke={C.line} strokeWidth="4" strokeLinecap="round" />
+          <polygon points="193,74 206,80 193,86"     fill={C.muted} />
+          <polygon points="207,162 194,168 207,174"  fill={C.muted} />
+          <polygon points="193,250 206,256 193,262"  fill={C.muted} />
+          <polygon points="261,338 248,344 261,350"  fill={C.muted} />
           {EVENTS.map((e, i) => {
             const { x, y } = pos(i);
             return <circle key={i} cx={x} cy={y} r={12.5} fill={e.color} stroke={C.ink} strokeWidth={2.5} />;
@@ -510,7 +510,7 @@ function Timeline({ date }: { date: string }) {
           ];
         })}
       </div>
-      <div style={{ textAlign: 'center', fontFamily: BDY, fontSize: 14, color: C.muted, fontWeight: 700, marginTop: 6 }}>
+      <div style={{ textAlign: 'center', fontFamily: BDY, fontSize: 14, color: C.muted, fontWeight: 700, marginTop: 4 }}>
         2026.3 입학 → 2027.3 졸업 · 빨간 점이 현재 위치
       </div>
     </SCard>
