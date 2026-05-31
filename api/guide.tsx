@@ -378,9 +378,9 @@ function DMGuide() {
 // ── TIMELINE section ──────────────────────────────────────────────────
 function Timeline() {
   const COLS = [56, 152, 248, 344];
-  const ROWS = [35, 105, 175, 245];
-  const SVG_W = 400, SVG_H = 300;
-  const TW = 400, TH = 300;
+  const ROWS = [45, 115, 185, 255];
+  const SVG_W = 400, SVG_H = 310;
+  const TW = 400, TH = 310;
   const s = (v: number) => Math.round(v * TW / SVG_W);
 
   const pos = (i: number) => {
@@ -394,11 +394,11 @@ function Timeline() {
     <SCard en="TIMELINE" ko="주요 이벤트" accent="#534ab7" py={6}>
       <div style={{ position: 'relative', width: TW, height: TH, display: 'flex', alignSelf: 'center' }}>
         <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} width={TW} height={TH} style={{ position: 'absolute', top: 0, left: 0 }}>
-          <path d="M56 35 H344 C384 35 384 105 344 105 H56 C16 105 16 175 56 175 H344 C384 175 384 245 344 245 H152" fill="none" stroke={C.line} strokeWidth="4" strokeLinecap="round" />
-          <polygon points="193,29 206,35 193,41"    fill={C.muted} />
-          <polygon points="207,99 194,105 207,111"  fill={C.muted} />
-          <polygon points="193,169 206,175 193,181" fill={C.muted} />
-          <polygon points="261,239 248,245 261,251" fill={C.muted} />
+          <path d="M56 45 H344 C384 45 384 115 344 115 H56 C16 115 16 185 56 185 H344 C384 185 384 255 344 255 H152" fill="none" stroke={C.line} strokeWidth="4" strokeLinecap="round" />
+          <polygon points="193,39 206,45 193,51"    fill={C.muted} />
+          <polygon points="207,109 194,115 207,121" fill={C.muted} />
+          <polygon points="193,179 206,185 193,191" fill={C.muted} />
+          <polygon points="261,249 248,255 261,261" fill={C.muted} />
           {EVENTS.map((e, i) => {
             const { x, y } = pos(i);
             return <circle key={i} cx={x} cy={y} r={12.5} fill={e.color} stroke={C.ink} strokeWidth={2.5} />;
