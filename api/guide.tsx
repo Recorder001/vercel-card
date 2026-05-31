@@ -246,7 +246,7 @@ function AffectionSection() {
 // ── WEATHER section ───────────────────────────────────────────────────
 function WeatherGuide() {
   return (
-    <SCard en="WEATHER" ko="날씨" accent="#3a82c8">
+    <SCard en="WEATHER" ko="날씨" accent="#3a82c8" py={32}>
       <div style={{ display: 'flex', flexDirection: 'row', gap: 14 }}>
         <div style={{ flex: 1, border: `2px solid #bfe3cb`, borderRadius: 12, padding: 14, background: '#eef8f0', display: 'flex', flexDirection: 'column', gap: 4 }}>
           <div style={{ fontFamily: BDY, fontWeight: 900, fontSize: 19, color: '#2e9e5b' }}>☀️ ❄️ 긍정 날씨</div>
@@ -443,7 +443,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
 async function _handler(_req: IncomingMessage, res: ServerResponse) {
   const fonts = loadFonts();
-  const W = 1000, H = 2050, GAP = 20, PAD = 24;
+  const W = 1000, H = 2000, GAP = 20, PAD = 24;
   const COL = Math.floor((W - PAD * 2 - GAP) / 2);
 
   const col = (children: any) => (
