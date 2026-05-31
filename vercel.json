@@ -4,6 +4,6 @@
     "api/card.tsx":     { "includeFiles": "api/{fonts,characters,미오통합,assets}/**" },
     "api/dm.tsx":       { "includeFiles": "api/{fonts,characters,미오통합,assets}/**" },
     "api/portrait.tsx": { "includeFiles": "api/{fonts,characters,미오통합,assets}/**" },
-    "api/guide.tsx":    { "includeFiles": "api/{fonts/**,yoga.wasm}" }
+    "api/guide.tsx":    { "includeFiles": "api/fonts/**" }
   }
 }
