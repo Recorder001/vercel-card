@@ -1,4 +1,4 @@
-import { ImageResponse } from '@vercel/og';
+import satori, { init } from 'satori';
 import type { IncomingMessage, ServerResponse } from 'http';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -17,6 +17,13 @@ function loadFonts(): FontCache {
     gasoekOne:  toAB(fs.readFileSync(path.join(FONTS, 'GasoekOne.ttf'))),
   };
   return fontCache;
+}
+
+let satoriReady = false;
+async function ensureSatori() {
+  if (satoriReady) return;
+  await init(fs.readFileSync(path.join(__dirname, 'yoga.wasm')));
+  satoriReady = true;
 }
 
 function clamp(val: string | null, def = 0): number {
@@ -506,6 +513,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
     skill:   clamp(searchParams.get('skill')),
   };
 
+  await ensureSatori();
   const fonts = loadFonts();
   const GAP = 20;
   const PAD = 24;
@@ -517,7 +525,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
     <div style={{ width: COL, display: 'flex', flexDirection: 'column', gap: 18 }}>{children}</div>
   );
 
-  const imageResponse = new ImageResponse(
+  const svg = await satori(
     (
       <div style={{ width: W, height: H, background: C.bg, display: 'flex', flexDirection: 'column', padding: PAD, gap: 18 }}>
 
@@ -559,7 +567,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
     ),
     {
       width: W,
-      height: 2600,
+      height: H,
       fonts: [
         { name: 'GasoekOne',  data: fonts.gasoekOne,  style: 'normal', weight: 400 },
         { name: 'Pretendard', data: fonts.pretendard,  style: 'normal', weight: 700 },
@@ -567,8 +575,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
     }
   );
 
-  const buffer = Buffer.from(await imageResponse.arrayBuffer());
-  res.setHeader('Content-Type', 'image/png');
+  res.setHeader('Content-Type', 'image/svg+xml');
   res.setHeader('Cache-Control', 'no-cache, no-store, max-age=0');
-  res.end(buffer);
+  res.end(svg);
 }
