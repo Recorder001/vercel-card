@@ -26,6 +26,31 @@ async function ensureSatori() {
   satoriReady = true;
 }
 
+const UFE0F = /️/g;
+const U200D = '‍';
+function toCodePoint(s: string): string {
+  const r: string[] = [];
+  let p = 0;
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    if (p) { r.push((65536 + ((p - 55296) << 10) + (c - 56320)).toString(16)); p = 0; }
+    else if (c >= 55296 && c <= 56319) { p = c; }
+    else { r.push(c.toString(16)); }
+  }
+  return r.join('-');
+}
+async function loadAdditionalAsset(code: string, text: string): Promise<string> {
+  if (code !== 'emoji') return text;
+  const key = text.indexOf(U200D) < 0 ? text.replace(UFE0F, '') : text;
+  const cp = toCodePoint(key);
+  try {
+    const res = await fetch(`https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/${cp}.svg`);
+    if (!res.ok) return text;
+    const svg = await res.text();
+    return `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
+  } catch { return text; }
+}
+
 function clamp(val: string | null, def = 0): number {
   const n = parseInt(val ?? String(def));
   return Math.min(100, Math.max(0, isNaN(n) ? def : n));
@@ -85,9 +110,9 @@ const EVENTS = [
 ];
 
 // ── Shared components ─────────────────────────────────────────────────
-function SCard({ en, ko, accent, children, py, grow }: { en: string; ko: string; accent: string; children: any; py?: number; grow?: boolean }) {
+function SCard({ en, ko, accent, children, py }: { en: string; ko: string; accent: string; children: any; py?: number }) {
   return (
-    <div style={{ ...(grow ? { flex: 1 } : {}), background: C.card, border: `3px solid ${C.ink}`, borderRadius: 16, overflow: 'hidden', boxShadow: '5px 5px 0 rgba(0,0,0,0.18)', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ background: C.card, border: `3px solid ${C.ink}`, borderRadius: 16, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
       <div style={{ background: C.panel, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8, padding: '9px 14px' }}>
         <div style={{ width: 11, height: 22, background: accent, flexShrink: 0 }} />
         <span style={{ fontFamily: DSP, color: '#fff', fontSize: 19, lineHeight: 1, whiteSpace: 'nowrap', flexShrink: 0 }}>{en}</span>
@@ -152,18 +177,19 @@ function TimeSystem({ timeSlot, affection }: { timeSlot: string; affection: numb
   const dawnUnlocked = affection >= DAWN_UNLOCK;
   return (
     <SCard en="TIME" ko="타임 시스템" accent="#3a82c8">
-      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 4, paddingTop: 34, paddingBottom: 4 }}>
-        {TIME_NODES.map((n, i) => {
+      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 0, paddingTop: 14, paddingBottom: 4 }}>
+        {TIME_NODES.flatMap((n, i) => {
           const isCur  = n.key === timeSlot;
           const locked = n.gated && !dawnUnlocked;
-          return (
-            <div key={n.key} style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          const node = (
+            <div key={n.key} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
               {isCur && (
-                <div style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 4 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 4 }}>
                   <div style={{ background: C.red, color: '#fff', fontFamily: DSP, fontSize: 13, padding: '2px 8px', borderRadius: 4 }}>HERE</div>
-                  <div style={{ color: C.red, fontSize: 11 }}>▼</div>
+                  <div style={{ color: C.red, fontSize: 11, display: 'flex' }}>▼</div>
                 </div>
               )}
+              {!isCur && <div style={{ height: 28 }} />}
               <div style={{ border: `3px solid ${isCur ? C.red : locked ? '#a09585' : C.ink}`, borderRadius: 10, background: locked ? '#cdc7b8' : isCur ? '#fde7e4' : '#fff', opacity: locked ? 0.65 : 1, textAlign: 'center', padding: '8px 4px 6px', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
                 <div style={{ fontSize: 24, lineHeight: 1 }}>{locked ? '🔒' : n.emoji}</div>
                 <div style={{ fontFamily: BDY, fontWeight: 900, fontSize: 14, color: isCur ? C.red : C.ink, marginTop: 4 }}>{n.key}</div>
@@ -173,11 +199,12 @@ function TimeSystem({ timeSlot, affection }: { timeSlot: string; affection: numb
                   </div>
                 )}
               </div>
-              {i < TIME_NODES.length - 1 && (
-                <div style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%)', color: C.muted, fontSize: 18, fontWeight: 900 }}>›</div>
-              )}
             </div>
           );
+          if (i < TIME_NODES.length - 1) {
+            return [node, <div key={`sep-${i}`} style={{ width: 10, height: 2, background: C.muted, flexShrink: 0, marginTop: 14 }} />];
+          }
+          return [node];
         })}
       </div>
       <div style={{ fontFamily: BDY, fontSize: 14, color: C.muted, fontWeight: 700, textAlign: 'center', borderTop: `1px solid ${C.line}`, paddingTop: 10, marginTop: 8, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
@@ -231,7 +258,7 @@ function StatSection({ stats }: { stats: Record<string, number> }) {
 // ── STRESS section ────────────────────────────────────────────────────
 function StressSection({ stress }: { stress: number }) {
   return (
-    <SCard en="STRESS" ko="스트레스" accent="#f47b20" grow>
+    <SCard en="STRESS" ko="스트레스" accent="#f47b20">
       <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 7 }}>
         <span style={{ fontFamily: BDY, fontWeight: 900, fontSize: 19, color: C.ink }}>🔥 스트레스</span>
         <span style={{ marginLeft: 'auto', fontFamily: DSP, fontSize: 28, color: stress >= 80 ? C.red : '#f47b20' }}>
@@ -254,7 +281,7 @@ function AffectionSection({ affection }: { affection: number }) {
   const dm = affection >= DM_UNLOCK;
   const dn = affection >= DAWN_UNLOCK;
   return (
-    <SCard en="AFFECTION" ko="호감도" accent={C.red} grow>
+    <SCard en="AFFECTION" ko="호감도" accent={C.red}>
       <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 7 }}>
         <span style={{ fontFamily: BDY, fontWeight: 900, fontSize: 19, color: C.ink }}>❤️ 호감도</span>
         <span style={{ marginLeft: 'auto', fontFamily: DSP, fontSize: 28, color: C.red }}>
@@ -388,7 +415,7 @@ function ClubGuide({ club }: { club: string }) {
     );
   };
   return (
-    <SCard en="CLUB" ko="동아리 시스템" accent="#2e9e5b" grow>
+    <SCard en="CLUB" ko="동아리 시스템" accent="#2e9e5b">
       <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 }}>
         <span style={{ fontFamily: BDY, fontWeight: 900, color: C.ink, fontSize: 18 }}>현재 : </span>
         <Chip color="#2e9e5b" big>{club}</Chip>
@@ -412,7 +439,7 @@ function ClubGuide({ club }: { club: string }) {
 function DMGuide({ affection }: { affection: number }) {
   const unlocked = affection >= DM_UNLOCK;
   return (
-    <SCard en="DM" ko="DM 시스템" accent={C.red} grow>
+    <SCard en="DM" ko="DM 시스템" accent={C.red}>
       <div style={{ fontFamily: BDY, fontSize: 16, color: C.ink, display: 'flex', flexDirection: 'column', gap: 4 }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}><span style={{ fontWeight: 900 }}>/디엠 내용</span><span> 입력 → 미오에게 메시지 전송</span></div>
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}><span style={{ fontWeight: 900 }}>{'/디엠 {스탬프코드}'}</span><span> → 스탬프 전송</span></div>
@@ -543,14 +570,14 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
             <TimeSystem key="time" timeSlot={timeSlot} affection={affection} />,
             <StatSection key="stats" stats={stats} />,
             <div key="sa" style={{ display: 'flex', flexDirection: 'row', gap: 14 }}>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><StressSection stress={stress} /></div>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><AffectionSection affection={affection} /></div>
+              <div style={{ flex: 1, display: 'flex' }}><StressSection stress={stress} /></div>
+              <div style={{ flex: 1, display: 'flex' }}><AffectionSection affection={affection} /></div>
             </div>,
           ])}
           {col([
             <div key="cd" style={{ display: 'flex', flexDirection: 'row', gap: 14 }}>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><ClubGuide club={club} /></div>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}><DMGuide affection={affection} /></div>
+              <div style={{ flex: 1, display: 'flex' }}><ClubGuide club={club} /></div>
+              <div style={{ flex: 1, display: 'flex' }}><DMGuide affection={affection} /></div>
             </div>,
             <Timeline key="timeline" date={date} />,
             <WeatherGuide key="weather" weather={weather} />,
@@ -572,6 +599,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
         { name: 'GasoekOne',  data: fonts.gasoekOne,  style: 'normal', weight: 400 },
         { name: 'Pretendard', data: fonts.pretendard,  style: 'normal', weight: 700 },
       ],
+      loadAdditionalAsset,
     }
   );
 
