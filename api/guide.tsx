@@ -56,7 +56,7 @@ const EVENTS = [
   { date: '06.09',    name: '체육대회',        color: '#2e9e5b', year: 2026 },
   { date: '07.24-28', name: '1학기\n기말고사', color: '#e63b46', year: 2026 },
   { date: '08.01',    name: '여름방학',        color: '#f4a72a', year: 2026 },
-  { date: '08.23',    name: 'ⓒ 생일',         color: '#e85a9b', year: 2026 },
+  { date: '08.23',    name: '미오 생일',        color: '#e85a9b', year: 2026 },
   { date: '09.01',    name: '2학기 개학',      color: '#534ab7', year: 2026 },
   { date: '09.14-15', name: '문화제',          color: '#9340d4', year: 2026 },
   { date: '10.17',    name: '2학기\n중간고사', color: '#e63b46', year: 2026 },
@@ -278,7 +278,7 @@ function JudgeSplit() {
     { title: '💪 체육대회 (06/09) — 체력 랭크 = 등수', lines: ['100pt 우승 / 80pt↑ 은상 / 60pt↑ 동상 / 40pt↑ 하위권 / 20pt 미만 꼴지'] },
     { title: '🎭 문화제 (09/14~15) — 예술+사교 합산', lines: ['50~99: ×1.1 / 100~149: ×1.25 / 150~199: ×1.5 / 200: ×2.0'] },
     { title: '🚌 수학여행 (10/23~25) — 재주 스탯 기준', lines: ['0~19 대화X · 잠만 잠 / 20~39 디엠 가능 / 40~59 통화 가능', '60~79 미오 방에서 만남 / 80~99 숙소 탈출 / 100 음주가무'] },
-    { title: '🎓 졸업식 (03/30) — 누적 결과 → 엔딩 분기', lines: ['시험 PASS+사교MAX → ⓤ와 같은 대학 / 예술MAX → 예체능 대학', '체력MAX+재주MAX → 운동선수 / 학업MAX → 명문대'] },
+    { title: '🎓 졸업식 (03/30) — 누적 결과 → 엔딩 분기', lines: ['시험 PASS+사교MAX → 유저와 같은 대학 / 예술MAX → 예체능 대학', '체력MAX+재주MAX → 운동선수 / 학업MAX → 명문대'] },
   ];
 
   return (
@@ -378,9 +378,9 @@ function DMGuide() {
 // ── TIMELINE section ──────────────────────────────────────────────────
 function Timeline() {
   const COLS = [56, 152, 248, 344];
-  const ROWS = [65, 135, 205, 275];
-  const SVG_W = 400, SVG_H = 330;
-  const TW = 400, TH = 330;
+  const ROWS = [35, 105, 175, 245];
+  const SVG_W = 400, SVG_H = 300;
+  const TW = 400, TH = 300;
   const s = (v: number) => Math.round(v * TW / SVG_W);
 
   const pos = (i: number) => {
@@ -394,11 +394,11 @@ function Timeline() {
     <SCard en="TIMELINE" ko="주요 이벤트" accent="#534ab7" py={6}>
       <div style={{ position: 'relative', width: TW, height: TH, display: 'flex', alignSelf: 'center' }}>
         <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} width={TW} height={TH} style={{ position: 'absolute', top: 0, left: 0 }}>
-          <path d="M56 65 H344 C384 65 384 135 344 135 H56 C16 135 16 205 56 205 H344 C384 205 384 275 344 275 H152" fill="none" stroke={C.line} strokeWidth="4" strokeLinecap="round" />
-          <polygon points="193,59 206,65 193,71"    fill={C.muted} />
-          <polygon points="207,129 194,135 207,141" fill={C.muted} />
-          <polygon points="193,199 206,205 193,211" fill={C.muted} />
-          <polygon points="261,269 248,275 261,281" fill={C.muted} />
+          <path d="M56 35 H344 C384 35 384 105 344 105 H56 C16 105 16 175 56 175 H344 C384 175 384 245 344 245 H152" fill="none" stroke={C.line} strokeWidth="4" strokeLinecap="round" />
+          <polygon points="193,29 206,35 193,41"    fill={C.muted} />
+          <polygon points="207,99 194,105 207,111"  fill={C.muted} />
+          <polygon points="193,169 206,175 193,181" fill={C.muted} />
+          <polygon points="261,239 248,245 261,251" fill={C.muted} />
           {EVENTS.map((e, i) => {
             const { x, y } = pos(i);
             return <circle key={i} cx={x} cy={y} r={12.5} fill={e.color} stroke={C.ink} strokeWidth={2.5} />;
