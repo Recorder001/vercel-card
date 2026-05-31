@@ -510,6 +510,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
   const GAP = 20;
   const PAD = 24;
   const W = 1000;
+  const H = 2600;
   const COL = Math.floor((W - PAD * 2 - GAP) / 2);
 
   const col = (children: any) => (
@@ -518,7 +519,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
 
   const imageResponse = new ImageResponse(
     (
-      <div style={{ width: W, background: C.bg, display: 'flex', flexDirection: 'column', padding: PAD, gap: 18 }}>
+      <div style={{ width: W, height: H, background: C.bg, display: 'flex', flexDirection: 'column', padding: PAD, gap: 18 }}>
 
         {/* 헤더 */}
         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18, padding: '4px 0 2px' }}>
@@ -558,12 +559,12 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
     ),
     {
       width: W,
-      height: undefined, // override @vercel/og's 630 default → satori auto-fits height to content
+      height: 2600,
       fonts: [
         { name: 'GasoekOne',  data: fonts.gasoekOne,  style: 'normal', weight: 400 },
         { name: 'Pretendard', data: fonts.pretendard,  style: 'normal', weight: 700 },
       ],
-    } as any
+    }
   );
 
   const buffer = Buffer.from(await imageResponse.arrayBuffer());
