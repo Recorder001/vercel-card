@@ -443,7 +443,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
 async function _handler(_req: IncomingMessage, res: ServerResponse) {
   const fonts = loadFonts();
-  const W = 1000, H = 1980, GAP = 20, PAD = 24;
+  const W = 1000, H = 1930, GAP = 20, PAD = 24;
   const COL = Math.floor((W - PAD * 2 - GAP) / 2);
 
   const col = (children: any) => (
@@ -455,11 +455,17 @@ async function _handler(_req: IncomingMessage, res: ServerResponse) {
       <div style={{ width: W, height: H, background: C.bg, display: 'flex', flexDirection: 'column', padding: PAD, gap: 18 }}>
 
         {/* 헤더 */}
-        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18, padding: '4px 0 2px' }}>
-          <div style={{ fontFamily: DSP, fontWeight: 900, fontSize: 48, color: '#fff', lineHeight: 1, display: 'flex', alignItems: 'center' }}>
-            <span>GUIDE</span><span style={{ color: C.red }}>&</span><span>SYSTEM</span>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '6px 0 4px' }}>
+          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <span style={{ fontFamily: DSP, fontSize: 64, color: C.ink, lineHeight: 1, letterSpacing: -1, textShadow: `0 3px 0 #b9b29e, 0 5px 0 #b9b29e, 0 7px 8px rgba(0,0,0,0.28)` }}>GUIDE</span>
+            <span style={{ fontFamily: DSP, fontSize: 64, color: C.red, lineHeight: 1, letterSpacing: -1, margin: '0 4px', textShadow: `0 3px 0 ${C.redDark}, 0 5px 0 ${C.redDark}, 0 7px 8px rgba(0,0,0,0.3)` }}>&</span>
+            <span style={{ fontFamily: DSP, fontSize: 64, color: '#fff', lineHeight: 1, letterSpacing: -1, textShadow: `0 3px 0 ${C.red}, 0 5px 0 ${C.redDark}, 0 7px 9px rgba(0,0,0,0.32)` }}>SYSTEM</span>
           </div>
-          <div style={{ fontFamily: BDY, fontWeight: 800, color: C.muted, fontSize: 17 }}>청춘회생록 · 플레이어 시스템 가이드</div>
+          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 28, height: 3, background: C.red, borderRadius: 2 }} />
+            <span style={{ fontFamily: BDY, fontWeight: 900, color: C.ink, fontSize: 16, letterSpacing: 4 }}>청춘회생록 · 플레이어 시스템 가이드</span>
+            <div style={{ width: 28, height: 3, background: C.red, borderRadius: 2 }} />
+          </div>
         </div>
 
         {/* 2열 */}
