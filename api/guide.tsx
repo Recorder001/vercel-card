@@ -105,7 +105,7 @@ function GradeBar({ color, marks, compact }: { color: string; marks: {at:number;
         ))}
       </div>
       {marks.map((m, i) => {
-        const tform = m.at <= 4 ? 'none' : m.at >= 96 ? 'translateX(-100%)' : 'translateX(-50%)';
+        const tform = m.at <= 4 ? undefined : m.at >= 96 ? 'translateX(-100%)' : 'translateX(-50%)';
         return (
           <div key={i} style={{ position: 'absolute', left: `${m.at}%`, top: lblTop, transform: tform, fontFamily: BDY, fontSize: 12, fontWeight: 800, color, whiteSpace: 'nowrap' }}>
             {m.label}
@@ -164,7 +164,7 @@ function StatBar({ def }: { def: typeof STAT_DEFS[0] }) {
         </div>
         {rankNames.map((name, i) => {
           const at = i * 20;
-          const tform = i === 0 ? 'none' : i === 5 ? 'translateX(-100%)' : 'translateX(-50%)';
+          const tform = i === 0 ? undefined : i === 5 ? 'translateX(-100%)' : 'translateX(-50%)';
           return (
             <div key={i} style={{ position: 'absolute', left: `${at}%`, top: 22, transform: tform, fontFamily: BDY, fontSize: 11, fontWeight: 800, color: def.color, whiteSpace: 'nowrap' }}>{name}</div>
           );
