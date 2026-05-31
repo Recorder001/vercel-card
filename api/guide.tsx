@@ -1,16 +1,21 @@
 import { ImageResponse } from '@vercel/og';
+import type { IncomingMessage, ServerResponse } from 'http';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import path from 'path';
 
-export const config = { runtime: 'edge' };
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const FONTS = path.join(__dirname, 'fonts');
 
 type FontCache = { pretendard: ArrayBuffer; gasoekOne: ArrayBuffer };
 let fontCache: FontCache | null = null;
-async function loadFonts(base: string): Promise<FontCache> {
+function toAB(b: Buffer): ArrayBuffer { return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer; }
+function loadFonts(): FontCache {
   if (fontCache) return fontCache;
-  const [gasoekOne, pretendard] = await Promise.all([
-    fetch(new URL('/fonts/GasoekOne.ttf', base)).then(r => r.arrayBuffer()),
-    fetch(new URL('/fonts/Pretendard-Bold.woff', base)).then(r => r.arrayBuffer()),
-  ]);
-  fontCache = { gasoekOne, pretendard };
+  fontCache = {
+    pretendard: toAB(fs.readFileSync(path.join(FONTS, 'Pretendard-Bold.woff'))),
+    gasoekOne:  toAB(fs.readFileSync(path.join(FONTS, 'GasoekOne.ttf'))),
+  };
   return fontCache;
 }
 
@@ -479,13 +484,13 @@ function Timeline({ date }: { date: string }) {
 }
 
 // ── Handler ───────────────────────────────────────────────────────────
-export default async function handler(request: Request): Promise<Response> {
-  try { return await _handler(request); }
-  catch (e: any) { return new Response('ERROR: ' + String(e?.message || e), { status: 500 }); }
+export default async function handler(req: IncomingMessage, res: ServerResponse) {
+  try { return await _handler(req, res); }
+  catch (e: any) { res.statusCode = 500; res.end('ERROR: ' + String(e?.message || e)); }
 }
 
-async function _handler(request: Request): Promise<Response> {
-  const { searchParams } = new URL(request.url);
+async function _handler(req: IncomingMessage, res: ServerResponse) {
+  const { searchParams } = new URL(req.url!, 'http://localhost');
 
   const timeSlot  = searchParams.get('timeslot') || '아침';
   const date      = searchParams.get('date')     || '2026.06.06';
@@ -501,7 +506,7 @@ async function _handler(request: Request): Promise<Response> {
     skill:   clamp(searchParams.get('skill')),
   };
 
-  const fonts = await loadFonts(request.url);
+  const fonts = loadFonts();
   const GAP = 20;
   const PAD = 24;
   const W = 1000;
@@ -554,7 +559,7 @@ async function _handler(request: Request): Promise<Response> {
     ),
     {
       width: W,
-      height: H,
+      height: 2600,
       fonts: [
         { name: 'GasoekOne',  data: fonts.gasoekOne,  style: 'normal', weight: 400 },
         { name: 'Pretendard', data: fonts.pretendard,  style: 'normal', weight: 700 },
@@ -562,11 +567,8 @@ async function _handler(request: Request): Promise<Response> {
     }
   );
 
-  const buffer = await imageResponse.arrayBuffer();
-  return new Response(buffer, {
-    headers: {
-      'Content-Type': 'image/png',
-      'Cache-Control': 'no-cache, no-store, max-age=0',
-    },
-  });
+  const buffer = Buffer.from(await imageResponse.arrayBuffer());
+  res.setHeader('Content-Type', 'image/png');
+  res.setHeader('Cache-Control', 'no-cache, no-store, max-age=0');
+  res.end(buffer);
 }
