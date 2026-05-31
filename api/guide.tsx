@@ -460,9 +460,9 @@ function DMGuide({ affection }: { affection: number }) {
 function Timeline({ date }: { date: string }) {
   // 15 events, 4-per-row snake → 4 rows (last row has 3 events ending at x=152)
   const COLS = [56, 152, 248, 344];
-  const ROWS = [70, 148, 226, 304];
-  const SVG_W = 400, SVG_H = 360;
-  const TW = 400, TH = 360;
+  const ROWS = [65, 135, 205, 275];
+  const SVG_W = 400, SVG_H = 330;
+  const TW = 400, TH = 330;
   const s = (v: number) => Math.round(v * TW / SVG_W);
 
   const pos = (i: number) => {
@@ -484,11 +484,11 @@ function Timeline({ date }: { date: string }) {
       <div style={{ position: 'relative', width: TW, height: TH, display: 'flex', alignSelf: 'center' }}>
         <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} width={TW} height={TH} style={{ position: 'absolute', top: 0, left: 0 }}>
           {/* snake path: 4 rows, last row ends at x=152 (event 14) */}
-          <path d="M56 70 H344 C384 70 384 148 344 148 H56 C16 148 16 226 56 226 H344 C384 226 384 304 344 304 H152" fill="none" stroke={C.line} strokeWidth="4" strokeLinecap="round" />
-          <polygon points="193,64 206,70 193,76"     fill={C.muted} />
-          <polygon points="207,142 194,148 207,154"  fill={C.muted} />
-          <polygon points="193,220 206,226 193,232"  fill={C.muted} />
-          <polygon points="261,298 248,304 261,310"  fill={C.muted} />
+          <path d="M56 65 H344 C384 65 384 135 344 135 H56 C16 135 16 205 56 205 H344 C384 205 384 275 344 275 H152" fill="none" stroke={C.line} strokeWidth="4" strokeLinecap="round" />
+          <polygon points="193,59 206,65 193,71"     fill={C.muted} />
+          <polygon points="207,129 194,135 207,141"  fill={C.muted} />
+          <polygon points="193,199 206,205 193,211"  fill={C.muted} />
+          <polygon points="261,269 248,275 261,281"  fill={C.muted} />
           {EVENTS.map((e, i) => {
             const { x, y } = pos(i);
             return <circle key={i} cx={x} cy={y} r={12.5} fill={e.color} stroke={C.ink} strokeWidth={2.5} />;
@@ -497,7 +497,6 @@ function Timeline({ date }: { date: string }) {
           <circle cx={hx} cy={hy} r={7} fill={C.red} stroke="#fff" strokeWidth={2.5} />
           <circle cx={hx} cy={hy} r={10.5} fill="none" stroke={C.red} strokeWidth={1.5} strokeDasharray="3 3" />
         </svg>
-        <div style={{ position: 'absolute', left: s(hx), top: s(hy) - 32, transform: 'translateX(-50%)', fontFamily: DSP, fontSize: 13, color: C.red, whiteSpace: 'nowrap' }}>HERE</div>
         {EVENTS.flatMap((e, i) => {
           const { x, y } = pos(i);
           const yr = e.year !== 2026 ? "'27 " : '';
@@ -545,7 +544,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
   const GAP = 20;
   const PAD = 24;
   const W = 1000;
-  const H = 2600;
+  const H = 2350;
   const COL = Math.floor((W - PAD * 2 - GAP) / 2);
 
   const col = (children: any) => (
