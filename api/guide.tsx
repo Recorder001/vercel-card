@@ -519,7 +519,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
 
   const imageResponse = new ImageResponse(
     (
-      <div style={{ width: W, height: H, background: C.bg, display: 'flex', flexDirection: 'column', padding: PAD, gap: 18 }}>
+      <div style={{ width: W, height: H, background: C.bg, display: 'flex', flexDirection: 'column', padding: PAD, gap: 18, transform: 'scale(0.5)', transformOrigin: '0% 0%' }}>
 
         {/* 헤더 */}
         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18, padding: '4px 0 2px' }}>
@@ -558,8 +558,8 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
       </div>
     ),
     {
-      width: W,
-      height: 2600,
+      width: Math.round(W / 2),
+      height: Math.round(H / 2),
       fonts: [
         { name: 'GasoekOne',  data: fonts.gasoekOne,  style: 'normal', weight: 400 },
         { name: 'Pretendard', data: fonts.pretendard,  style: 'normal', weight: 700 },
