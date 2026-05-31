@@ -1,8 +1,8 @@
 {
   "alias": ["vercel-card-mu.vercel.app"],
   "functions": {
-    "api/*.tsx": {
-      "includeFiles": "api/{fonts,characters,미오통합,assets}/**"
-    }
+    "api/card.tsx":     { "includeFiles": "api/{fonts,characters,미오통합,assets}/**" },
+    "api/dm.tsx":       { "includeFiles": "api/{fonts,characters,미오통합,assets}/**" },
+    "api/portrait.tsx": { "includeFiles": "api/{fonts,characters,미오통합,assets}/**" }
   }
 }
