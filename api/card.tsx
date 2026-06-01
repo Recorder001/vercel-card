@@ -306,7 +306,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
                   <span style={{
                     fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 28,
                     color: TOKENS.ink, lineHeight: 1, display: 'flex', alignItems: 'baseline',
-                  }}>{parseFloat(affection.toFixed(1))}<span style={{ fontSize: 15, opacity: 0.6 }}>%</span></span>
+                  }}>{parseFloat(affection.toFixed(2))}<span style={{ fontSize: 15, opacity: 0.6 }}>%</span></span>
                 </div>
                 <div style={{
                   height: 18, background: '#E2D6B8', display: 'flex',
@@ -332,7 +332,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
                   <span style={{
                     fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 28,
                     color: TOKENS.ink, lineHeight: 1, display: 'flex', alignItems: 'baseline',
-                  }}>{parseFloat(stress.toFixed(1))}<span style={{ fontSize: 15, opacity: 0.6 }}>%</span></span>
+                  }}>{parseFloat(stress.toFixed(2))}<span style={{ fontSize: 15, opacity: 0.6 }}>%</span></span>
                 </div>
                 <div style={{
                   height: 18, background: '#E2D6B8', display: 'flex',

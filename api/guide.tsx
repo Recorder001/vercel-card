@@ -223,7 +223,7 @@ function StressSection({ stress }: { stress: number }) {
       <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 7 }}>
         <span style={{ fontFamily: BDY, fontWeight: 900, fontSize: 16, color: C.ink }}>🔥 스트레스</span>
         <span style={{ marginLeft: 'auto', fontFamily: DSP, fontSize: 24, color: stress >= 80 ? C.red : '#f47b20' }}>
-          {parseFloat(stress.toFixed(1))}<span style={{ fontFamily: BDY, fontSize: 13, color: C.muted }}> / 100</span>
+          {parseFloat(stress.toFixed(2))}<span style={{ fontFamily: BDY, fontSize: 13, color: C.muted }}> / 100</span>
         </span>
       </div>
       <Bar value={stress} color="#f47b20" height={20} ticks={[50, 80]} />
@@ -246,7 +246,7 @@ function AffectionSection({ affection }: { affection: number }) {
       <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 7 }}>
         <span style={{ fontFamily: BDY, fontWeight: 900, fontSize: 16, color: C.ink }}>❤️ 호감도</span>
         <span style={{ marginLeft: 'auto', fontFamily: DSP, fontSize: 24, color: C.red }}>
-          {parseFloat(affection.toFixed(1))}<span style={{ fontFamily: BDY, fontSize: 13, color: C.muted }}> / 100</span>
+          {parseFloat(affection.toFixed(2))}<span style={{ fontFamily: BDY, fontSize: 13, color: C.muted }}> / 100</span>
         </span>
       </div>
       <div style={{ position: 'relative', marginTop: 22, display: 'flex', flexDirection: 'column' }}>
