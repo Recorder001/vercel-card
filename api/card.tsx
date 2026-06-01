@@ -38,7 +38,7 @@ function renderThought(text: string) {
 }
 
 function clamp(val: string | null): number {
-  const n = parseInt(val ?? '0');
+  const n = parseFloat(val ?? '0');
   return Math.min(100, Math.max(0, isNaN(n) ? 0 : n));
 }
 
@@ -306,7 +306,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
                   <span style={{
                     fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 28,
                     color: TOKENS.ink, lineHeight: 1, display: 'flex', alignItems: 'baseline',
-                  }}>{affection}<span style={{ fontSize: 15, opacity: 0.6 }}>%</span></span>
+                  }}>{parseFloat(affection.toFixed(2))}<span style={{ fontSize: 15, opacity: 0.6 }}>%</span></span>
                 </div>
                 <div style={{
                   height: 18, background: '#E2D6B8', display: 'flex',
@@ -332,7 +332,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
                   <span style={{
                     fontFamily: TOKENS.display, fontStyle: 'italic', fontSize: 28,
                     color: TOKENS.ink, lineHeight: 1, display: 'flex', alignItems: 'baseline',
-                  }}>{stress}<span style={{ fontSize: 15, opacity: 0.6 }}>%</span></span>
+                  }}>{parseFloat(stress.toFixed(2))}<span style={{ fontSize: 15, opacity: 0.6 }}>%</span></span>
                 </div>
                 <div style={{
                   height: 18, background: '#E2D6B8', display: 'flex',
