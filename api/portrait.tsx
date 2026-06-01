@@ -78,6 +78,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
   const timeslot = searchParams.get('timeslot') || '점심';
   const location = searchParams.get('location') || '';
   const turn     = Number(searchParams.get('turn') ?? 1);
+  const slot     = searchParams.get('slot') || '';
 
   const u_name   = searchParams.get('u_name')   || '-';
   const u_club   = searchParams.get('u_club')   || '-';
@@ -89,7 +90,8 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
 
   const w       = WEATHER[weather] || WEATHER.sunny;
   const tIcon   = TIMESLOT[timeslot] || '🏙';
-  const turnSlot = turn % 4 === 0 ? 4 : turn % 4;
+  const turnSlot = slot && slot !== 'fix' ? Number(slot) : (turn % 4 === 0 ? 4 : turn % 4);
+  const isFixed  = slot === 'fix';
   const fonts   = loadFonts();
   const charSrc = img || loadCharExpr(expr);
   const bgSrc   = bg ? loadBg(bg) : null;
@@ -162,7 +164,7 @@ async function _handler(req: IncomingMessage, res: ServerResponse) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 18, padding: '0 22px', flex: 1 }}>
             {date && <span style={{ display: 'flex', gap: 6 }}>📅 <b>{date}</b></span>}
             {date && <span style={{ opacity: 0.4, display: 'flex' }}>·</span>}
-            <span style={{ display: 'flex', gap: 6 }}>{tIcon} {timeslot} <span style={{ opacity: 0.55, fontSize: 22, display: 'flex', alignSelf: 'center' }}>({turnSlot}/4)</span></span>
+            <span style={{ display: 'flex', gap: 6 }}>{tIcon} {timeslot} <span style={{ opacity: 0.55, fontSize: 22, display: 'flex', alignSelf: 'center' }}>{isFixed ? '(고정됨)' : `(${turnSlot}/4)`}</span></span>
             <span style={{ opacity: 0.4, display: 'flex' }}>·</span>
             <span style={{ display: 'flex', gap: 6 }}>{w.icon} {w.label}</span>
             {location && <span style={{ opacity: 0.4, display: 'flex' }}>·</span>}
