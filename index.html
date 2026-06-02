@@ -203,6 +203,33 @@
   .dm-feats li{color:#e9e1d2;font-weight:700;font-size:14px;padding:8px 0 8px 22px;position:relative;border-bottom:1px dashed #38332c}
   .dm-feats li::before{content:"";position:absolute;left:0;top:10px;width:6px;height:6px;background:var(--red);transform:rotate(45deg)}
 
+  /* ===== ^ 연산자 시각 설명 ===== */
+  .caret-box{background:#0d0b09;border:2px solid #3a352e;border-left:4px solid var(--yellow);padding:18px 16px;margin-top:22px}
+  .caret-box .cb-title{font-size:10px;font-weight:900;letter-spacing:2.5px;color:var(--yellow);text-transform:uppercase;margin-bottom:14px}
+  .caret-diagram{display:flex;align-items:center;gap:12px}
+  .cb-before{flex:1;min-width:0}
+  .cb-section-label{font-size:9.5px;font-weight:900;color:#666;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+  .cb-field{background:#f5efe0;border-radius:10px;padding:9px 12px;display:flex;align-items:flex-start;gap:6px}
+  .cb-field .cmd{color:var(--red);font-weight:900;font-size:12px;flex-shrink:0;padding-top:1px}
+  .cb-field .msg{font-size:12px;font-weight:700;color:#1a1614;line-height:1.7;word-break:break-all}
+  .cb-caret{display:inline-block;background:var(--red);color:#fff;font-weight:900;font-size:10px;padding:1px 5px;border-radius:3px;margin:0 2px;vertical-align:middle;line-height:1.4}
+  .cb-mid{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px}
+  .cb-mid .arr{font-size:22px;color:var(--red);line-height:1}
+  .cb-mid .note{font-size:9px;font-weight:800;color:#555;letter-spacing:.5px;white-space:nowrap}
+  .cb-after{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;align-items:flex-end}
+  .cb-after .cb-section-label{text-align:right}
+  .cb-bub{background:#fafaf5;color:#1a1a1a;border:2px solid #1a1a1a;padding:6px 13px;font-size:12.5px;font-weight:800;max-width:100%}
+  .cb-bub.b-open{border-radius:27px 27px 0 27px}
+  .cb-bub.b-mid{border-radius:27px 0 0 27px}
+  .cb-bub.b-close{border-radius:27px 0 27px 27px}
+  .cb-read{font-size:9.5px;color:#888888;font-weight:700;margin-top:3px}
+  @media(max-width:640px){
+    .caret-diagram{flex-direction:column;gap:10px}
+    .cb-before,.cb-after{width:100%}
+    .cb-mid{flex-direction:row;justify-content:center}
+    .cb-mid .arr{transform:rotate(90deg)}
+  }
+
   /* phone — 크림 채팅 톤 */
   .phone{background:var(--paper);border:3px solid #000;max-width:360px;margin:0 auto;position:relative;
     box-shadow:0 18px 40px rgba(0,0,0,.5);overflow:hidden;display:flex;flex-direction:column;height:560px}
@@ -559,8 +586,34 @@
           <li>아래 입력창에 텍스트 → 전송</li>
           <li>😊 버튼 → 스탬프 7종 선택 전송</li>
           <li>연속 전송 시 버블 자동 병합</li>
+          <li><b style="color:var(--yellow)">^</b> 구분자로 한 줄에 여러 버블 분리 전송</li>
           <li>실제 작동 — 직접 쳐서 보내보기</li>
         </ul>
+
+        <!-- ^ 연산자 시각 다이어그램 -->
+        <div class="caret-box reveal">
+          <div class="cb-title">^ 연산자 — 한 줄로 여러 버블</div>
+          <div class="caret-diagram">
+            <div class="cb-before">
+              <div class="cb-section-label">이렇게 입력하면</div>
+              <div class="cb-field">
+                <span class="cmd">/디엠</span>
+                <span class="msg">잠깐만<span class="cb-caret">^</span>그거 어디 있어<span class="cb-caret">^</span>빨리 줘</span>
+              </div>
+            </div>
+            <div class="cb-mid">
+              <div class="arr">→</div>
+              <div class="note">분리 전송</div>
+            </div>
+            <div class="cb-after">
+              <div class="cb-section-label">이렇게 전송됩니다</div>
+              <div class="cb-bub b-open">잠깐만</div>
+              <div class="cb-bub b-mid">그거 어디 있어</div>
+              <div class="cb-bub b-close">빨리 줘</div>
+              <div class="cb-read">읽음</div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="reveal">
         <div class="phone">
@@ -801,7 +854,9 @@
     input.addEventListener('input',()=>sendBtn.disabled=input.value.trim()==='');
     function fire(){
       const v=input.value.trim();if(!v)return;
-      sendText(v); input.value='';sendBtn.disabled=true;
+      const parts=v.split('^').map(s=>s.trim()).filter(Boolean);
+      parts.forEach((p,i)=>setTimeout(()=>sendText(p),i*60));
+      input.value='';sendBtn.disabled=true;
       tray.classList.remove('open');stampBtn.classList.remove('on'); input.focus();
     }
     sendBtn.addEventListener('click',fire);
