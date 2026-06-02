@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Mate | 청춘회상록</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gothic+A1:wght@400;500;700;800;900&family=Nanum+Pen+Script&family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#e8e2d4;
+    --cream-2:#efe9dc;
+    --paper:#f4f0e6;
+    --ink:#1a1817;
+    --panel:#1e1b19;
+    --panel-2:#15110f;
+    --red:#e03c31;
+    --red-deep:#c2261c;
+    --orange:#f08a3c;
+    --purple:#8b5cf6;
+    --yellow:#f2c14e;
+    --blue:#4a9fd8;
+    --green:#5bb56a;
+    --line:#cbc2ad;
+    --memo:#fdf6c9;
+    --hl:#fff27a;
+    --r-big:20px;
+    --r-cut:7px;
+  }
+  /* ===== jagged clip-path variants (각진/불규칙) ===== */
+  /* 살짝 비뚤어진 사각형들 — 모서리마다 미세하게 어긋남 */
+  .clip-a{clip-path:polygon(1% 3%, 99% 0%, 100% 96%, 2% 100%)}
+  .clip-b{clip-path:polygon(0% 2%, 98% 1%, 100% 98%, 1% 99%)}
+  .clip-c{clip-path:polygon(2% 0%, 100% 4%, 98% 100%, 0% 95%)}
+  .clip-notch{clip-path:polygon(0 0, 92% 0, 100% 22%, 100% 100%, 8% 100%, 0 80%)}
+  .clip-chip{clip-path:polygon(6% 0, 100% 0, 94% 100%, 0 100%)}
+  .clip-tab{clip-path:polygon(0 0,100% 0,100% 70%,90% 100%,0 100%)}
+
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  body{
+    font-family:'Gothic A1',sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+    overflow-x:hidden;
+    background-image:repeating-linear-gradient(0deg, transparent, transparent 38px, rgba(0,0,0,.025) 38px, rgba(0,0,0,.025) 39px);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+
+  /* ===== LAYERED panel system =====
+     실제 패널 뒤에 어긋난 색 판을 깔아서 겹친 느낌 */
+  .layer{position:relative}
+  .layer::before{
+    content:"";position:absolute;inset:0;z-index:0;
+    transform:translate(10px,12px) rotate(-.6deg);
+  }
+  .layer.l-red::before{background:var(--red-deep)}
+  .layer.l-line::before{background:var(--line)}
+  .layer.l-ink::before{background:#000}
+  .layer.l-yellow::before{background:var(--yellow)}
+  .layer>*{position:relative;z-index:1}
+
+  /* skewed tag chip (각짐) */
+  .tag{
+    display:inline-block;font-weight:900;color:#fff;padding:6px 16px;
+    transform:skewX(-8deg);letter-spacing:.5px;
+  }
+  .tag>span{display:inline-block;transform:skewX(8deg)}
+
+  /* ===== HEADER ===== */
+  header{background:var(--panel);color:#fff;position:relative;border-bottom:5px solid var(--red)}
+  header .bar{height:60px;display:flex;align-items:center;justify-content:space-between}
+  .brand{font-family:'Archivo Black';font-size:20px;letter-spacing:1px;display:flex;align-items:center;gap:9px}
+  .brand .dot{width:13px;height:13px;background:var(--red);transform:rotate(45deg)}
+  nav a{color:#cfc8b8;text-decoration:none;font-weight:700;font-size:13px;margin-left:18px;transition:.2s}
+  nav a:hover{color:var(--red)}
+  @media(max-width:760px){nav{display:none}}
+
+  /* ===== HERO ===== */
+  .hero{position:relative;background:var(--panel);color:#fff;padding:70px 0 104px;overflow:hidden}
+  .hero::before{content:"";position:absolute;top:-40%;right:-12%;width:560px;height:560px;
+    background:radial-gradient(circle, rgba(224,60,49,.34), transparent 60%)}
+  .hero .slash{position:absolute;top:0;right:0;width:46%;height:100%;background:var(--red);
+    clip-path:polygon(28% 0,100% 0,100% 100%,8% 100%);opacity:.92}
+  .hero-inner{position:relative;z-index:2}
+  .eyebrow{display:inline-block;background:var(--red);color:#fff;font-weight:900;padding:7px 15px;
+    font-size:12px;letter-spacing:3px;transform:skewX(-8deg);margin-bottom:16px;clip-path:polygon(5% 0,100% 0,95% 100%,0 100%)}
+  .eyebrow>span{display:inline-block;transform:skewX(8deg)}
+  .hero h1{font-family:'Black Han Sans';font-size:clamp(50px,12vw,116px);line-height:.9;letter-spacing:-1px;
+    text-shadow:5px 5px 0 var(--red-deep)}
+  .hero h1 .jp{display:block;font-size:clamp(18px,4vw,32px);color:#e7ddc6;text-shadow:none;letter-spacing:5px;margin-top:10px}
+  .hero .lead{max-width:560px;margin-top:24px;font-size:16px;line-height:1.8;color:#ddd5c4;font-weight:500}
+  .hero .cta{margin-top:30px;display:flex;gap:12px;flex-wrap:wrap}
+  .btn{font-weight:900;text-decoration:none;padding:14px 26px;font-size:15px;transition:.15s;
+    transform:skewX(-7deg);display:inline-block;clip-path:polygon(6% 0,100% 0,94% 100%,0 100%)}
+  .btn>span{display:inline-block;transform:skewX(7deg)}
+  .btn.primary{background:var(--red);color:#fff;box-shadow:5px 5px 0 var(--red-deep)}
+  .btn.ghost{background:#2c2722;color:#fff;box-shadow:5px 5px 0 #000}
+  .btn:active,.btn:hover{transform:skewX(-7deg) translate(-2px,-2px)}
+
+  /* turn strip (각진, 레이어드) */
+  .turnstrip{position:relative;z-index:2;margin-top:46px;background:#000;border:2px solid #3a352e;
+    display:flex;align-items:center;gap:14px;padding:13px 18px;flex-wrap:wrap;font-weight:800;font-size:13px;color:#e7ddc6;
+    clip-path:polygon(0 0,97% 0,100% 30%,100% 100%,3% 100%,0 70%)}
+  .turnstrip .turn{background:var(--red);color:#fff;padding:5px 14px;font-family:'Archivo Black';transform:skewX(-8deg);
+    clip-path:polygon(8% 0,100% 0,92% 100%,0 100%)}
+  .turnstrip .turn b{display:inline-block;transform:skewX(8deg)}
+  .turnstrip .sep{color:#555}
+
+  /* ===== SECTION ===== */
+  section{padding:160px 0;position:relative;isolation:isolate}
+  .sec-head{display:flex;align-items:flex-end;gap:14px;margin:40px 0 54px;flex-wrap:wrap}
+  .sec-head .big{font-family:'Archivo Black';font-size:clamp(38px,9vw,68px);line-height:.82;color:var(--ink);
+    -webkit-text-stroke:2px var(--ink);text-shadow:4px 4px 0 #fff, 6px 6px 0 var(--line);transform:skewX(-3deg);
+    padding:.12em .1em .18em}
+  .sec-head .ko{font-family:'Black Han Sans';font-size:19px;color:var(--red);padding-bottom:5px}
+
+  /* card (각진 + 레이어드 내장) */
+  .panel{background:var(--paper);border:3px solid var(--ink);padding:28px}
+  .panel.dark{background:var(--panel);color:#f0e9da;border-color:#000}
+  .panel h3{font-family:'Black Han Sans';font-size:22px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .panel p{line-height:1.85;font-weight:500;font-size:15px}
+  .panel.dark p{color:#cfc8b8}
+
+  .about-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:34px;align-items:stretch}
+  .about-grid .layer{display:flex}
+  .about-grid .layer>.panel{flex:1}
+  @media(max-width:820px){.about-grid{grid-template-columns:1fr;gap:54px}}
+
+  .memo{background:var(--memo);padding:16px 18px;margin-top:16px;font-family:'Nanum Pen Script';
+    font-size:23px;line-height:1.5;color:#3a3a3a;transform:rotate(-1.2deg);box-shadow:3px 4px 8px rgba(0,0,0,.15);
+    background-image:linear-gradient(transparent 29px, rgba(0,0,0,.06) 30px);background-size:100% 31px;
+    clip-path:polygon(1% 4%,99% 0,100% 95%,2% 100%)}
+  .memo .hl{background:linear-gradient(transparent 55%, var(--hl) 55%)}
+
+  /* ===== CHARACTER ===== */
+  .char-wrap{display:grid;grid-template-columns:1fr 1.1fr;background:var(--panel);border:3px solid #000;overflow:hidden;
+    clip-path:polygon(0 1%,99% 0,100% 99%,1% 100%)}
+  @media(max-width:820px){.char-wrap{grid-template-columns:1fr}}
+  .char-visual{background:linear-gradient(160deg,#3a2420,#1c1512);position:relative;min-height:360px;
+    display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+  .char-visual::before{content:"";position:absolute;inset:0;
+    background-image:repeating-linear-gradient(45deg, rgba(224,60,49,.08) 0 14px, transparent 14px 28px)}
+  .char-bigname{position:absolute;bottom:14px;left:16px;font-family:'Black Han Sans';font-size:72px;color:#fff;
+    text-shadow:4px 4px 0 var(--red-deep);line-height:.8;z-index:3}
+  .char-eyes{position:relative;z-index:2;margin-bottom:54px;display:flex;gap:28px}
+  .eye{width:42px;height:56px;background:radial-gradient(circle at 50% 60%,#ff5a4d,#9c1810);border-radius:50% 50% 48% 48%;
+    box-shadow:0 0 22px rgba(224,60,49,.8), inset 0 -8px 12px rgba(0,0,0,.4);position:relative}
+  .eye::after{content:"";position:absolute;top:14px;left:50%;transform:translateX(-50%);width:9px;height:16px;background:#1a0606;border-radius:50%}
+  .char-tag{position:absolute;top:16px;right:16px;background:var(--red);color:#fff;font-family:'Archivo Black';
+    padding:6px 16px;letter-spacing:1px;z-index:3;transform:skewX(-8deg);clip-path:polygon(8% 0,100% 0,92% 100%,0 100%)}
+  .char-tag b{display:inline-block;transform:skewX(8deg)}
+  .char-info{padding:30px}
+  .char-info h2{font-family:'Black Han Sans';font-size:36px;margin-bottom:3px;color:#efe7d7}
+  .char-info .sub{color:var(--red);font-weight:900;letter-spacing:1px;margin-bottom:20px}
+  .stat-row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px dashed #4a443a;font-size:14px}
+  .stat-row .k{color:#a59c89;font-weight:700;white-space:nowrap}
+  .stat-row .v{font-weight:800;color:#f4ecdc;text-align:right}
+  .quote{margin-top:22px;background:#000;border-left:4px solid var(--red);padding:13px 16px;font-weight:800;font-size:16px;color:#fff;
+    clip-path:polygon(0 0,100% 0,98% 100%,0% 100%)}
+  .quote small{display:block;color:#9c9484;font-weight:500;margin-top:5px;font-size:12px}
+
+  /* ===== SYSTEM ===== */
+  .sys-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:30px 22px}
+  @media(max-width:820px){.sys-grid{grid-template-columns:1fr 1fr;gap:26px 18px}}
+  @media(max-width:520px){.sys-grid{grid-template-columns:1fr}}
+  .sys-card{background:var(--panel);border:3px solid #000;padding:22px;color:#e9e1d2;position:relative;
+    transition:.18s}
+  .sys-card .accent{position:absolute;top:0;left:0;width:7px;height:100%}
+  .sys-card .label{font-family:'Archivo Black';font-size:14px;letter-spacing:1px;margin-bottom:5px}
+  .sys-card .ko{font-weight:900;font-size:12px;color:#a59c89;margin-bottom:12px}
+  .sys-card ul{list-style:none}
+  .sys-card li{font-size:13.5px;line-height:1.85;font-weight:600;color:#d3cab8;padding-left:15px;position:relative}
+  .sys-card li::before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;background:var(--red);transform:rotate(45deg)}
+  /* odd cards clipped one way, even the other → 불규칙 */
+  .sys-card:nth-child(odd){clip-path:polygon(0 2%,99% 0,100% 98%,1% 100%)}
+  .sys-card:nth-child(even){clip-path:polygon(1% 0,100% 3%,98% 100%,0 96%)}
+
+  /* ===== DM SHOWCASE (인터랙티브) ===== */
+  .dm-zone{background:var(--panel-2);border-top:5px solid var(--red);border-bottom:5px solid var(--red);padding:140px 0;position:relative;overflow:hidden}
+  .dm-zone::before{content:"";position:absolute;inset:0;opacity:.5;
+    background-image:repeating-linear-gradient(135deg, rgba(224,60,49,.05) 0 18px, transparent 18px 36px)}
+  .dm-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:40px;align-items:center;position:relative}
+  .dm-grid>*{min-width:0}
+  @media(max-width:820px){.dm-grid{grid-template-columns:1fr;gap:34px}}
+  .dm-zone .sec-head .big{color:#fff;-webkit-text-stroke:2px #fff;text-shadow:4px 4px 0 var(--red-deep),6px 6px 0 #000}
+  .dm-zone .sec-head .ko{color:#f2c14e}
+  .dm-copy p{color:#cfc8b8;line-height:1.85;font-weight:500;font-size:15px;margin-bottom:16px}
+  .dm-feats{list-style:none;margin-top:18px}
+  .dm-feats li{color:#e9e1d2;font-weight:700;font-size:14px;padding:8px 0 8px 22px;position:relative;border-bottom:1px dashed #38332c}
+  .dm-feats li::before{content:"✉";position:absolute;left:0;color:var(--red)}
+
+  /* phone — 크림 채팅 톤 */
+  .phone{background:var(--paper);border:3px solid #000;max-width:360px;margin:0 auto;position:relative;
+    box-shadow:0 18px 40px rgba(0,0,0,.5);overflow:hidden;display:flex;flex-direction:column;height:560px}
+  /* head */
+  .ph-head{background:#171311;color:#fff;display:flex;align-items:center;gap:11px;padding:12px 14px;
+    position:relative;border-bottom:3px solid var(--red);flex-shrink:0}
+  .ph-head::after{content:"";position:absolute;top:0;right:0;border-top:18px solid var(--red);border-left:18px solid transparent}
+  .ph-ava{width:38px;height:38px;border-radius:50%;flex-shrink:0;overflow:hidden;
+    background:radial-gradient(circle at 50% 42%,#3a2a1e,#15100c);display:flex;align-items:center;justify-content:center}
+  .ph-ava .ce{width:6px;height:8px;background:#f5b942;border-radius:50%;margin:0 1px;box-shadow:0 0 5px #f5b942;display:inline-block}
+  .ph-ava img{width:100%;height:100%;object-fit:cover}
+  .ph-name{font-weight:900;color:#fff;font-size:15px;line-height:1.15}
+  .ph-name small{display:block;color:#a8a092;font-size:11px;font-weight:600}
+  /* feed */
+  .ph-feed{flex:1;overflow-y:auto;padding:16px 14px 8px;display:flex;flex-direction:column;gap:13px;-webkit-overflow-scrolling:touch}
+  .ph-feed::-webkit-scrollbar{width:4px}.ph-feed::-webkit-scrollbar-thumb{background:#cabda6}
+  .grp{display:flex;flex-direction:column;max-width:84%;animation:pop .2s cubic-bezier(.16,1,.3,1)}
+  @keyframes pop{from{opacity:0;transform:translate(-8px,6px)}to{opacity:1;transform:none}}
+  /* 미오(좌) */
+  .grp.recv{align-self:flex-start}
+  .grp.recv .who{font-weight:900;font-size:13px;color:#2a2520;margin:0 0 5px 2px}
+  .recv-line{display:flex;align-items:flex-end;gap:8px}
+  .recv-line .mini{width:34px;height:34px;border-radius:50%;flex-shrink:0;overflow:hidden;align-self:flex-end;
+    background:radial-gradient(circle at 50% 42%,#2a1d14,#100b08);display:flex;align-items:center;justify-content:center}
+  .recv-line .mini .ce{width:5px;height:7px;background:#e0392e;border-radius:50%;margin:0 1px;box-shadow:0 0 4px #e0392e;display:inline-block}
+  .recv-line .mini img{width:100%;height:100%;object-fit:cover}
+  .stack{display:flex;flex-direction:column;gap:4px}
+  /* 나(우) */
+  .grp.send{align-self:flex-end}
+  .grp.send .stack{align-items:flex-end}
+  /* 버블 본체 */
+  .bub{font-size:14.5px;font-weight:800;line-height:1.4;padding:9px 15px;width:fit-content;max-width:100%;word-break:break-word}
+  .recv .bub{background:#1c1816;color:#f4efe4}
+  .send .bub{background:#fbf8f0;color:#1a1614;border:2px solid #1a1614}
+  /* === 버블 4종: only(알약)/open(아래뾰족)/middle(위아래뾰족)/close(위뾰족) === */
+  .bub{border-radius:var(--r-big)}
+  /* recv = 좌측, 꼬리(각짐)는 왼쪽 모서리에 */
+  .recv .bub.only{border-radius:var(--r-big)}
+  .recv .bub.open{border-bottom-left-radius:var(--r-cut)}
+  .recv .bub.middle{border-top-left-radius:var(--r-cut);border-bottom-left-radius:var(--r-cut)}
+  .recv .bub.close{border-top-left-radius:var(--r-cut)}
+  /* send = 우측, 꼬리(각짐)는 오른쪽 모서리에 */
+  .send .bub.only{border-radius:var(--r-big)}
+  .send .bub.open{border-bottom-right-radius:var(--r-cut)}
+  .send .bub.middle{border-top-right-radius:var(--r-cut);border-bottom-right-radius:var(--r-cut)}
+  .send .bub.close{border-top-right-radius:var(--r-cut)}
+  /* time / read */
+  .grp .time{font-size:10px;color:var(--muted, #9c9486);font-weight:700;margin-top:3px}
+  .recv .time{margin-left:42px}
+  .send .stack .time{text-align:right}
+  .send .read{font-size:10px;color:#9c9486;font-weight:700;text-align:right;margin-top:2px}
+  /* 스탬프 (배경없이 실제 이미지 얹힘) */
+  .grp.stamp .bub{background:none;border:none;padding:0;border-radius:0}
+  .grp.stamp .emo{display:block;width:104px;height:auto;filter:drop-shadow(2px 4px 5px rgba(0,0,0,.18))}
+  /* tray */
+  .ph-tray{background:var(--paper-2);border-top:2px solid var(--line);padding:9px 10px;display:none;gap:8px;
+    overflow-x:auto;flex-shrink:0;-webkit-overflow-scrolling:touch}
+  .ph-tray.open{display:flex}
+  .ph-tray .st{flex-shrink:0;width:52px;height:52px;border-radius:13px;background:#fff;border:2px solid var(--line);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.12s;overflow:hidden;padding:3px}
+  .ph-tray .st img{width:100%;height:100%;object-fit:contain}
+  .ph-tray .st:active{transform:scale(.88);border-color:var(--red)}
+  /* input */
+  .ph-input{background:#171311;padding:9px 10px;display:flex;align-items:center;gap:8px;position:relative;
+    border-top:3px solid var(--red);flex-shrink:0}
+  .ph-input::before{content:"";position:absolute;bottom:0;right:0;border-bottom:11px solid var(--red);border-left:11px solid transparent;pointer-events:none;z-index:0}
+  .ic-btn{width:38px;height:38px;flex-shrink:0;background:#2a2420;color:#e4dccb;border:none;font-size:18px;cursor:pointer;
+    border-radius:11px;display:flex;align-items:center;justify-content:center;transition:.12s}
+  .ic-btn:active,.ic-btn.on{background:var(--red);color:#fff}
+  .ph-input>*{position:relative;z-index:1}
+  .fld{flex:1;min-width:0;background:#fbf8f0;display:flex;align-items:center;padding:0 5px 0 12px;border-radius:12px}
+  .fld .cmd{color:var(--red);font-weight:900;font-size:13px;margin-right:6px;flex-shrink:0}
+  .fld input{flex:1;min-width:0;background:transparent;border:none;outline:none;color:#1a1614;font-family:'Gothic A1';
+    font-size:14px;font-weight:700;padding:10px 0}
+  .fld input::placeholder{color:#b0a895;font-weight:600}
+  .snd{width:42px;height:38px;flex-shrink:0;background:var(--red);color:#fff;border:none;font-weight:900;font-size:17px;
+    cursor:pointer;border-radius:11px;transition:.12s}
+  .snd:active{transform:scale(.92)}.snd:disabled{background:#4a423a;color:#7a7264}
+
+  /* ===== STATS ===== */
+  .stats-panel{background:var(--cream-2);border:3px solid var(--ink);padding:32px;
+    display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center;clip-path:polygon(0 1%,100% 0,99% 100%,1% 99%)}
+  @media(max-width:780px){.stats-panel{grid-template-columns:1fr;gap:28px;padding:24px}}
+  .radar-box{display:flex;justify-content:center}
+  .radar-box svg{max-width:100%;height:auto}
+  .stat-item{margin-bottom:18px}
+  .chip{display:inline-block;color:#fff;font-weight:900;font-size:13px;padding:4px 12px;transform:skewX(-8deg);margin-bottom:6px;
+    clip-path:polygon(8% 0,100% 0,92% 100%,0 100%)}
+  .chip>span{display:inline-block;transform:skewX(8deg)}
+  .stat-item .desc{font-weight:600;font-size:13.5px;color:#5a5343;margin-top:2px}
+  .stat-item .ranks{font-size:11.5px;color:#8a8270;margin-top:3px;font-weight:600;line-height:1.5}
+
+  /* ===== TIMELINE ===== */
+  .tl{display:flex;overflow-x:auto;padding:26px 4px 10px;-webkit-overflow-scrolling:touch}
+  .tl-item{min-width:140px;text-align:center;position:relative;padding-top:32px}
+  .tl-item::before{content:"";position:absolute;top:15px;left:0;right:0;height:3px;background:var(--line)}
+  .tl-item .node{position:absolute;top:5px;left:50%;transform:translateX(-50%) rotate(8deg);width:20px;height:20px;border:3px solid var(--ink);background:var(--red);z-index:2;
+    clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+  .tl-item .date{font-family:'Archivo Black';font-size:12px;color:var(--red)}
+  .tl-item .ev{font-weight:800;font-size:14px;margin-top:3px;color:var(--ink)}
+
+  /* ===== END CTA ===== */
+  .endcta{background:var(--panel);color:#fff;text-align:center;padding:110px 0;position:relative;overflow:hidden;border-top:5px solid var(--red)}
+  .endcta::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(224,60,49,.3),transparent 55%)}
+  .endcta h2{position:relative;font-family:'Black Han Sans';font-size:clamp(30px,7vw,56px);text-shadow:4px 4px 0 var(--red-deep);line-height:1.2}
+  .endcta p{position:relative;color:#cfc8b8;margin:16px auto 26px;max-width:520px;font-weight:500;line-height:1.8;font-size:15px}
+
+  footer{background:#000;color:#766e60;text-align:center;padding:24px;font-size:12.5px;font-weight:600}
+  footer b{color:var(--red)}
+
+  /* 딱딱하게 — 버벅임이 아니라 한 박자에 탁 꽂히는 단호함 */
+  .reveal{opacity:0;transform:translateY(12px);
+    transition:transform .26s cubic-bezier(.16,1,.3,1), opacity .2s linear}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ===== MOBILE tuning ===== */
+  @media(max-width:600px){
+    .wrap{padding:0 16px}
+    section{padding:130px 0}
+    .dm-zone{padding:110px 0}
+    .hero{padding:46px 0 60px}
+    .hero .slash{width:60%;opacity:.8}
+    .panel{padding:22px}
+    .char-info{padding:24px}
+    .stat-row{flex-direction:column;gap:2px;align-items:flex-start}
+    .stat-row .v{text-align:left}
+    .turnstrip{font-size:12px;gap:9px;padding:12px 14px}
+    .layer::before{transform:translate(7px,8px) rotate(-.6deg)}
+    .sec-head{margin-bottom:30px}
+    .char-bigname{font-size:56px}
+    .phone{max-width:100%}
+
+    /* ===== DM 섹션 모바일 최적화 ===== */
+    .dm-grid{gap:26px}
+    .dm-copy{order:1}            /* 설명 카피 위로 */
+    .dm-grid>.reveal{order:2}    /* 폰은 아래로 */
+    .dm-copy p{font-size:14px;margin-bottom:12px}
+    .dm-feats li{font-size:13px;padding:7px 0 7px 22px}
+    /* 폰을 화면 높이에 맞춰 진짜 앱처럼 */
+    .phone{width:100%;max-width:100%;height:62dvh;max-height:520px;min-height:400px;border-width:2.5px}
+    .ph-feed{padding:14px 12px 6px;gap:11px}
+    .grp{max-width:88%}
+    .bub{font-size:15px;padding:9px 14px}        /* 손가락 터치 가독성 */
+    .ph-head{padding:11px 13px}
+    .ph-name{font-size:14px}
+    /* 입력 영역 — 손가락에 맞게 키움 */
+    .ph-input{padding:10px}
+    .ic-btn{width:42px;height:42px;font-size:19px}
+    .fld input{font-size:16px;padding:11px 0}    /* 16px=iOS 자동확대 방지 */
+    .fld .cmd{font-size:13px}
+    .snd{width:46px;height:42px;font-size:18px}
+    .ph-tray{padding:10px}
+    .ph-tray .st{width:56px;height:56px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <div class="brand"><span class="dot"></span>MATE</div>
+    <nav>
+      <a href="#about">소개</a><a href="#char">캐릭터</a><a href="#system">시스템</a>
+      <a href="#dm">DM</a><a href="#stats">스탯</a><a href="#timeline">타임라인</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="slash"></div>
+  <div class="wrap hero-inner">
+    <div class="eyebrow"><span>SCHOOL × GROWTH × 純愛</span></div>
+    <h1 class="reveal">MATE<span class="jp">— 青春回想録 —</span></h1>
+    <p class="lead reveal">전교 상위권이 하위권을 1:1로 맡아 졸업까지 함께하는 <b style="color:#fff">메이트 제도</b>.
+    너에게 배정된 메이트는 사납고 매서운 흑발 단발의 그 녀석, <b style="color:#fff">시로세 미오</b>.
+    사계절이 흐르고 스탯이 쌓이고 호감도가 변한다 — 졸업식에서 둘은 어떤 결말을 맞을까.</p>
+    <div class="cta reveal">
+      <a href="#char" class="btn primary"><span>미오를 만나기</span></a>
+      <a href="#system" class="btn ghost"><span>시스템 보기</span></a>
+    </div>
+    <div class="turnstrip reveal">
+      <span class="turn"><b>TURN 01</b></span>
+      <span>📅 2026.03</span><span class="sep">·</span><span>🌅 아침</span><span class="sep">·</span>
+      <span>☀ 맑음</span><span class="sep">·</span><span>📍 교실</span><span class="sep">·</span>
+      <span style="color:var(--red)">❤ 0% · 배정 직후</span>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about" class="wrap">
+  <div class="sec-head reveal"><div class="big">ABOUT</div><div class="ko">이 이야기에 대하여</div></div>
+  <div class="about-grid">
+    <div class="layer l-line reveal">
+      <div class="panel clip-a">
+        <h3>🌸 사쿠라미치 고교, 3학년 봄</h3>
+        <p>학원물·성장물·순애·청춘 일상이 섞인 감정선 중심의 인터랙티브 스토리. 학교생활의 사소함을 탐미적으로 포착하고,
+        사계절의 변화에 감정을 투영한다. 교실·복도·옥상·도서관·하굣길… 평범한 무대가 둘만의 기억으로 물든다.</p>
+        <div class="memo"><span class="hl">상위 30위권이 하위 30위권을 1:1로 담당</span>, 함께 생활하며 성적을 끌어올리는 게 메이트 제도. 너는 상위권, 미오는 하위권. 기간은 졸업까지.</div>
+      </div>
+    </div>
+    <div class="layer l-red reveal">
+      <div class="panel dark clip-b">
+        <h3>🎮 무엇이 변하는가</h3>
+        <p>매 응답마다 <b style="color:#fff">턴</b>이 흐르고 하루는 <b style="color:#fff">아침·점심·저녁·밤</b> 4타임(+조건부 새벽)으로 굴러간다.
+        날씨가 미오의 감정을 흔들고 너의 행동이 5종 스탯을 쌓는다. 스탯이 오르면 스트레스도 함께 차오른다.
+        그 흐름의 끝에서 호감도는 0%에서 100%까지 — 첫만남에서 연인까지 움직인다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHARACTER -->
+<section id="char" class="wrap">
+  <div class="sec-head reveal"><div class="big">MIO</div><div class="ko">시로세 미오 · 너의 메이트</div></div>
+  <div class="layer l-red reveal">
+    <div class="char-wrap">
+      <div class="char-visual">
+        <span class="char-tag"><b>MIO ⓒ</b></span>
+        <div class="char-eyes"><div class="eye"></div><div class="eye"></div></div>
+        <div class="char-bigname">미오</div>
+      </div>
+      <div class="char-info">
+        <h2>시로세 미오</h2>
+        <div class="sub">SHIROSE MIO · 18 · 3-A</div>
+        <div class="stat-row"><span class="k">외모</span><span class="v">154cm · 흑발 단발 · 고양이상 · 붉은 눈</span></div>
+        <div class="stat-row"><span class="k">성격</span><span class="v">사납고 매서운 츤데레 · 욕설 잦음</span></div>
+        <div class="stat-row"><span class="k">말투</span><span class="v">"~냐?" "~면 되지." · 버럭 잘 지름</span></div>
+        <div class="stat-row"><span class="k">배경</span><span class="v">2살 때 모친 사별 · 부친과 둘이 삶</span></div>
+        <div class="stat-row"><span class="k">속마음</span><span class="v">인정욕구 · 애정결핍 · 가면 속 여린 소녀</span></div>
+        <div class="quote">"ㅁ, 미쳤냐…?! 누가 네놈 집에 가!"<small>— 끝이 살짝 떨리던, 아무것도 아닌 척하던 목소리</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SYSTEM -->
+<section id="system" class="wrap">
+  <div class="sec-head reveal"><div class="big">SYSTEM</div><div class="ko">플레이어 시스템 가이드</div></div>
+  <div class="sys-grid">
+    <div class="sys-card reveal"><div class="accent" style="background:var(--blue)"></div><div class="label">TIME</div><div class="ko">타임 시스템</div>
+      <ul><li>1일 = 아침·점심·저녁·밤 4타임</li><li>1타임 = 4턴, 완료 시 자동 전환</li><li>새벽: 호감도 70%↑ 해금</li></ul></div>
+    <div class="sys-card reveal"><div class="accent" style="background:var(--green)"></div><div class="label">CLUB</div><div class="ko">동아리 시스템</div>
+      <ul><li>문화부 15종 · 운동부 13종</li><li>가입 시 저녁 타임 활동 추가</li><li>관련 스탯(체력·예술) 상승</li></ul></div>
+    <div class="sys-card reveal"><div class="accent" style="background:var(--red)"></div><div class="label">DM</div><div class="ko">디엠 시스템</div>
+      <ul><li>/디엠 입력 → 미오에게 전송</li><li>스탬프 7종 전송 가능</li><li>호감도 50%↑부터 선디엠</li></ul></div>
+    <div class="sys-card reveal"><div class="accent" style="background:var(--orange)"></div><div class="label">STRESS</div><div class="ko">스트레스</div>
+      <ul><li>스탯 상승량 ×2 동반 상승</li><li>100% = 번아웃, 전체 -20pt</li><li>휴식·놀이·긍정 상호작용으로 감소</li></ul></div>
+    <div class="sys-card reveal"><div class="accent" style="background:var(--purple)"></div><div class="label">WEATHER</div><div class="ko">날씨</div>
+      <ul><li>맑음·눈 → 긍정, 스탯 +2~3pt</li><li>흐림·비·뇌우 → 부정 편향</li><li>6/30~7/30 장마, 매일 비</li></ul></div>
+    <div class="sys-card reveal"><div class="accent" style="background:var(--yellow)"></div><div class="label">AFFECTION</div><div class="ko">호감도</div>
+      <ul><li>첫만남→반친구→친근→의식</li><li>호감→짝사랑→연인 (0~100%)</li><li>경험 기반 점진적 변화</li></ul></div>
+  </div>
+</section>
+
+<!-- DM SHOWCASE -->
+<div id="dm" class="dm-zone">
+  <div class="wrap">
+    <div class="sec-head reveal"><div class="big">DM</div><div class="ko">미오에게 직접 메시지를</div></div>
+    <div class="dm-grid">
+      <div class="dm-copy reveal">
+        <p><b style="color:var(--red)">/디엠</b> 명령어로 언제든 미오에게 메시지를 보낼 수 있다. 직접 입력해서 보내보면, 내가 보낸 메시지가 채팅창에 그대로 쌓인다.</p>
+        <p>연속으로 보낸 메시지는 하나로 합쳐지고, 한 번만 보내면 둥근 알약 모양으로 떨어진다. 스탬프도 7종 중에 골라 보낼 수 있다.</p>
+        <ul class="dm-feats">
+          <li>아래 입력창에 텍스트 → 전송</li>
+          <li>😊 버튼 → 스탬프 7종 선택 전송</li>
+          <li>연속 전송 시 버블 자동 병합</li>
+          <li>실제 작동 — 직접 쳐서 보내보기</li>
+        </ul>
+      </div>
+      <div class="reveal">
+        <div class="phone">
+          <div class="ph-head">
+            <div class="ph-ava"><img src="assets/avatar.png" alt="미오"></div>
+            <div class="ph-name">mioooo_ss<small>시라세 미오</small></div>
+          </div>
+          <div class="ph-feed" id="phFeed">
+            <div class="grp recv">
+              <div class="who">미오</div>
+              <div class="recv-line">
+                <div class="mini"><img src="assets/avatar.png" alt=""></div>
+                <div class="stack">
+                  <div class="bub open">야</div>
+                  <div class="bub close">뭐해</div>
+                  <div class="time">19:00</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ph-tray" id="phTray">
+            <div class="st" data-stamp="heart"><img src="assets/stamps/heart.png" alt="heart"></div>
+            <div class="st" data-stamp="laugh"><img src="assets/stamps/laugh.png" alt="laugh"></div>
+            <div class="st" data-stamp="blush"><img src="assets/stamps/blush.png" alt="blush"></div>
+            <div class="st" data-stamp="thumbsup"><img src="assets/stamps/thumbsup.png" alt="thumbsup"></div>
+            <div class="st" data-stamp="angry"><img src="assets/stamps/angry.png" alt="angry"></div>
+            <div class="st" data-stamp="pout"><img src="assets/stamps/pout.png" alt="pout"></div>
+            <div class="st" data-stamp="ignore"><img src="assets/stamps/ignore.png" alt="ignore"></div>
+          </div>
+          <div class="ph-input">
+            <button class="ic-btn" id="phStamp" aria-label="스탬프">😊</button>
+            <div class="fld"><span class="cmd">/디엠</span><input id="phMsg" type="text" placeholder="메시지 입력…" autocomplete="off"></div>
+            <button class="snd" id="phSend" disabled>➤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<section id="stats" class="wrap">
+  <div class="sec-head reveal"><div class="big">STATS</div><div class="ko">5종 스탯 · 20pt당 1랭크</div></div>
+  <div class="layer l-line reveal">
+    <div class="stats-panel">
+      <div class="radar-box">
+        <svg width="300" height="300" viewBox="0 0 320 320">
+          <g fill="none" stroke="#cbc2ad" stroke-width="1.5">
+            <polygon points="160,30 283,120 236,264 84,264 37,120"/>
+            <polygon points="160,62.5 252,130 217,238 103,238 68,130"/>
+            <polygon points="160,95 221,140 198,212 122,212 99,140"/>
+            <polygon points="160,127.5 190,150 179,186 141,186 130,150"/>
+          </g>
+          <g stroke="#cbc2ad" stroke-width="1.5">
+            <line x1="160" y1="160" x2="160" y2="30"/><line x1="160" y1="160" x2="283" y2="120"/>
+            <line x1="160" y1="160" x2="236" y2="264"/><line x1="160" y1="160" x2="84" y2="264"/><line x1="160" y1="160" x2="37" y2="120"/>
+          </g>
+          <polygon points="160,118 222,138 200,206 120,206 99,140" fill="rgba(224,60,49,.22)" stroke="#e03c31" stroke-width="2.5"/>
+          <circle cx="160" cy="30" r="5" fill="#e03c31"/><circle cx="283" cy="120" r="5" fill="#f08a3c"/>
+          <circle cx="236" cy="264" r="5" fill="#8b5cf6"/><circle cx="84" cy="264" r="5" fill="#5bb56a"/><circle cx="37" cy="120" r="5" fill="#4a9fd8"/>
+        </svg>
+      </div>
+      <div>
+        <div class="stat-item"><span class="chip" style="background:var(--red)"><span>📚 학업</span></span><div class="desc">공부·독서·수업 집중·토론</div><div class="ranks">바부→평균이하→평균이상→박학다식→지식의요람→만물박사</div></div>
+        <div class="stat-item"><span class="chip" style="background:var(--orange)"><span>💪 체력</span></span><div class="desc">운동·체육·걷기·운동부</div><div class="ranks">저질→달팽이→토끼→라이징스타→마라토너→올림푸스</div></div>
+        <div class="stat-item"><span class="chip" style="background:var(--purple)"><span>🎨 예술</span></span><div class="desc">그림·음악·글쓰기·문화부</div><div class="ranks">무미건조→정취→운치→풍류→거장→신필</div></div>
+        <div class="stat-item"><span class="chip" style="background:var(--green)"><span>💬 사교</span></span><div class="desc">대화·협력·이벤트·새 관계</div><div class="ranks">외톨이→듣기만점→스피처→두터운교우관계→인싸→카리스마</div></div>
+        <div class="stat-item"><span class="chip" style="background:var(--blue)"><span>🛠 재주</span></span><div class="desc">요리·수리·제작·PC</div><div class="ranks">허접→고장잦음→취미생→전문가→장인→명장</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section id="timeline" class="wrap">
+  <div class="sec-head reveal"><div class="big">TIMELINE</div><div class="ko">2026.3 입학 → 2027.3 졸업</div></div>
+  <div class="layer l-line reveal">
+    <div class="panel clip-c" style="padding:8px 20px">
+      <div class="tl">
+        <div class="tl-item"><div class="node" style="background:var(--red)"></div><div class="date">05.15</div><div class="ev">1학기 중간</div></div>
+        <div class="tl-item"><div class="node" style="background:var(--green)"></div><div class="date">06.09</div><div class="ev">체육대회</div></div>
+        <div class="tl-item"><div class="node" style="background:var(--red)"></div><div class="date">07.24</div><div class="ev">1학기 기말</div></div>
+        <div class="tl-item"><div class="node" style="background:var(--yellow)"></div><div class="date">08.23</div><div class="ev">미오 생일</div></div>
+        <div class="tl-item"><div class="node" style="background:var(--purple)"></div><div class="date">09.14</div><div class="ev">문화제</div></div>
+        <div class="tl-item"><div class="node" style="background:var(--blue)"></div><div class="date">10.23</div><div class="ev">수학여행</div></div>
+        <div class="tl-item"><div class="node" style="background:var(--red)"></div><div class="date">12.12</div><div class="ev">2학기 기말</div></div>
+        <div class="tl-item"><div class="node" style="background:var(--orange)"></div><div class="date">'27.03.30</div><div class="ev">졸업식·엔딩</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- END CTA -->
+<div class="endcta">
+  <div class="wrap">
+    <h2 class="reveal">졸업식에서,<br>둘은 어떤 결말을 맞을까</h2>
+    <p class="reveal">시험을 모두 PASS하고 사교를 MAX로 채우면 같은 대학으로. 예술이 MAX라면 예체능 대학으로.
+    누적된 스탯과 호감도가 너희의 엔딩을 가른다 — 사납던 그 녀석의 가면이 벗겨지는 순간까지.</p>
+    <a href="#char" class="btn primary reveal"><span>이야기 시작하기</span></a>
+  </div>
+</div>
+
+<footer><b>MATE — 青春回想録</b> · 구구 유니버스 (Goo9 Universe) interactive story system</footer>
+
+<script>
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.1});
+  document.querySelectorAll('.reveal').forEach((el,i)=>{el.style.transitionDelay=(i%4*0.05)+'s';io.observe(el)});
+
+  /* ===== 인터랙티브 DM: 4종 버블 + 미오 답변 매크로(3초 디바운스) ===== */
+  (function(){
+    const feed=document.getElementById('phFeed');
+    const input=document.getElementById('phMsg');
+    const sendBtn=document.getElementById('phSend');
+    const stampBtn=document.getElementById('phStamp');
+    const tray=document.getElementById('phTray');
+    if(!feed) return;
+
+    const STAMP_DIR='assets/stamps/';
+    const AVATAR='assets/avatar.png';
+    const REPLY_MS=3000;
+    let replyTimer=null;
+    let pending=[];
+
+    function now(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+    function scroll(){feed.scrollTop=feed.scrollHeight;}
+
+    function reflowBubbles(stack){
+      const bubs=[...stack.querySelectorAll('.bub')];
+      bubs.forEach((b,i)=>{
+        b.classList.remove('only','open','middle','close');
+        if(bubs.length===1) b.classList.add('only');
+        else if(i===0) b.classList.add('open');
+        else if(i===bubs.length-1) b.classList.add('close');
+        else b.classList.add('middle');
+      });
+    }
+    function getSendGroup(){
+      const last=feed.lastElementChild;
+      if(last && last.classList.contains('grp') && last.classList.contains('send') && !last.classList.contains('stamp')){
+        return last.querySelector('.stack');
+      }
+      const grp=document.createElement('div');
+      grp.className='grp send';
+      grp.innerHTML='<div class="stack"></div>';
+      feed.appendChild(grp);
+      return grp.querySelector('.stack');
+    }
+    function getRecvGroup(){
+      const last=feed.lastElementChild;
+      if(last && last.classList.contains('grp') && last.classList.contains('recv') && !last.classList.contains('stamp') && !last.classList.contains('typing')){
+        return last.querySelector('.stack');
+      }
+      const grp=document.createElement('div');
+      grp.className='grp recv';
+      grp.innerHTML='<div class="who">미오</div><div class="recv-line"><div class="mini"><img src="'+AVATAR+'" alt=""></div><div class="stack"></div></div>';
+      feed.appendChild(grp);
+      return grp.querySelector('.stack');
+    }
+    function refreshMeta(stack,withRead){
+      stack.querySelectorAll('.time,.read').forEach(e=>e.remove());
+      const t=document.createElement('div');t.className='time';t.textContent=now();stack.appendChild(t);
+      if(withRead){const r=document.createElement('div');r.className='read';r.textContent='읽음';stack.appendChild(r);}
+    }
+
+    function sendText(txt){
+      const stack=getSendGroup();
+      const bub=document.createElement('div');bub.className='bub';bub.textContent=txt;
+      const meta=stack.querySelector('.time');
+      if(meta) stack.insertBefore(bub,meta); else stack.appendChild(bub);
+      reflowBubbles(stack); refreshMeta(stack,true); scroll();
+      pending.push(txt); armReply();
+    }
+    function sendStamp(code){
+      const grp=document.createElement('div');
+      grp.className='grp send stamp';
+      grp.innerHTML='<div class="stack"><div class="bub"><img class="emo" src="'+STAMP_DIR+code+'.png" alt="'+code+'"></div><div class="time">'+now()+'</div><div class="read">읽음</div></div>';
+      feed.appendChild(grp); scroll();
+      pending.push('{'+code+'}'); armReply();
+    }
+
+    const R={
+      play:["진짜 나오는 거지? 안 나오면 죽는다.","흥, 의외네. 빨리 준비나 해.","8시. 1분이라도 늦으면 가만 안 둬."],
+      house:["ㅁ, 미쳤냐...?! 누가 네놈 집에 가!","...그치만 만화책은 좀 궁금해.","흥, 생각해보고."],
+      heart:["하, 하트는 뭔데 징그럽게.","...너 진짜 이상한 놈이야.","그런 거 보내지 마. ...싫진 않지만."],
+      nice:["뭐냐 갑자기. 기분 나쁘게 왜 잘해줘.","흥, 별로 안 고마워.","...고맙다고는 안 했다."],
+      angry:["야! 누가 너한테 화내래!","쳇, 됐어.","말 다 했냐."],
+      bored:["심심해. 놀자.","뭐라도 하자고. 답답해 죽겠어.","...너 말고 부를 사람도 없어."],
+      stamp:["뭐야 이 스탬프는.","...귀엽다고는 안 했어.","장난치지 말고."],
+      def:["...뭐.","그래서?","흥.","할 말 그게 다냐?","...뭐, 알겠어.","그게 다야?"]
+    };
+    const pick=a=>a[Math.floor(Math.random()*a.length)];
+    function classify(t){
+      if(/\{heart\}|\{blush\}/.test(t)||/heart|좋아|사랑/.test(t)) return R.heart;
+      if(/\{angry\}|\{pout\}/.test(t)||/화|짜증|바보|멍청|미워/.test(t)) return R.angry;
+      if(/\{/.test(t)) return R.stamp;
+      if(/놀|나와|나올|약속|만나|어디|몇시/.test(t)) return R.play;
+      if(/집|와서|읽을래|우리집/.test(t)) return R.house;
+      if(/고마|미안|착해|상냥|잘했|예뻐|귀여/.test(t)) return R.nice;
+      if(/심심|뭐해|할일|놀까|지루/.test(t)) return R.bored;
+      return R.def;
+    }
+    function decideCount(){ return Math.random()<0.4?2:1; }
+    function armReply(){ if(replyTimer) clearTimeout(replyTimer); replyTimer=setTimeout(fireReply,REPLY_MS); }
+    function fireReply(){
+      replyTimer=null;
+      if(pending.length===0) return;
+      const pool=classify(pending.join(' ')); pending=[];
+      const ty=document.createElement('div');
+      ty.className='grp recv typing';
+      ty.innerHTML='<div class="recv-line"><div class="mini"><img src="'+AVATAR+'" alt=""></div><div class="stack"><div class="bub only"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div></div>';
+      feed.appendChild(ty); scroll();
+      const n=decideCount(); let done=0;
+      function emit(){
+        if(done===0) ty.remove();
+        const stack=getRecvGroup();
+        const bub=document.createElement('div');bub.className='bub';bub.textContent=pick(pool);
+        const meta=stack.querySelector('.time');
+        if(meta) stack.insertBefore(bub,meta); else stack.appendChild(bub);
+        reflowBubbles(stack); refreshMeta(stack,false); scroll();
+        done++;
+        if(done<n) setTimeout(emit,700+Math.random()*600);
+      }
+      setTimeout(emit,700+Math.random()*500);
+    }
+
+    input.addEventListener('input',()=>sendBtn.disabled=input.value.trim()==='');
+    function fire(){
+      const v=input.value.trim();if(!v)return;
+      sendText(v); input.value='';sendBtn.disabled=true;
+      tray.classList.remove('open');stampBtn.classList.remove('on'); input.focus();
+    }
+    sendBtn.addEventListener('click',fire);
+    input.addEventListener('keydown',e=>{if(e.key==='Enter')fire();});
+    stampBtn.addEventListener('click',()=>{
+      tray.classList.toggle('open');stampBtn.classList.toggle('on');
+      if(tray.classList.contains('open'))scroll();
+    });
+    tray.querySelectorAll('.st').forEach(st=>st.addEventListener('click',()=>{
+      sendStamp(st.dataset.stamp);tray.classList.remove('open');stampBtn.classList.remove('on');
+    }));
+  })();
+</script>
+</body>
+</html>
