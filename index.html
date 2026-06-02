@@ -142,12 +142,11 @@
   .char-wrap{display:grid;grid-template-columns:1fr 1.1fr;background:var(--panel);border:3px solid #000;overflow:hidden;
     clip-path:polygon(0 1%,99% 0,100% 99%,1% 100%)}
   @media(max-width:820px){.char-wrap{grid-template-columns:1fr}}
-  .char-visual{background:linear-gradient(160deg,#3a2420,#1c1512);position:relative;min-height:360px;
-    display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+  .char-visual{background:linear-gradient(160deg,#3a2420,#1c1512);position:relative;min-height:360px;overflow:hidden}
   .char-visual::before{content:"";position:absolute;inset:0;z-index:1;
     background-image:repeating-linear-gradient(45deg, rgba(224,60,49,.08) 0 14px, transparent 14px 28px)}
-  .char-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:.82}
-  .char-sprite{position:relative;z-index:2;height:92%;max-height:340px;width:auto;object-fit:contain;
+  .char-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 40%;z-index:0;opacity:.82}
+  .char-sprite{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center;z-index:2;
     filter:drop-shadow(0 4px 18px rgba(0,0,0,.7))}
   .char-bigname{position:absolute;bottom:14px;left:16px;font-family:'Black Han Sans';font-size:72px;color:#fff;
     text-shadow:4px 4px 0 var(--red-deep);line-height:.8;z-index:3}
@@ -302,7 +301,9 @@
   /* ===== END CTA ===== */
   .endcta{background:var(--panel);color:#fff;text-align:center;padding:110px 0;position:relative;overflow:hidden;border-top:5px solid var(--red)}
   .endcta::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(224,60,49,.3),transparent 55%)}
-  .endcta h2{position:relative;font-family:'Black Han Sans';font-size:clamp(30px,7vw,56px);text-shadow:4px 4px 0 var(--red-deep);line-height:1.2}
+  .endcta h2{position:relative;font-family:'Black Han Sans';font-size:clamp(28px,6.5vw,52px);
+    -webkit-text-stroke:1.5px var(--red-deep);paint-order:stroke fill;
+    text-shadow:none;line-height:1.4;letter-spacing:2px;word-break:keep-all}
   .endcta p{position:relative;color:#cfc8b8;margin:16px auto 26px;max-width:520px;font-weight:500;line-height:1.8;font-size:15px}
 
   footer{background:#000;color:#766e60;text-align:center;padding:24px;font-size:12.5px;font-weight:600}
@@ -571,7 +572,7 @@
   </div>
 </div>
 
-<footer><b>MATE — 青春回想録</b> · 구구 유니버스 (Goo9 Universe) interactive story system</footer>
+<footer><b>Goo9 Universe</b> · Da Capo Series · 2026/06/03 Released</footer>
 
 <script>
   const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.1});
