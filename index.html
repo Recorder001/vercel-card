@@ -85,6 +85,10 @@
   .hero{position:relative;background:var(--panel);color:#fff;padding:70px 0 104px;overflow:hidden}
   .hero::before{content:"";position:absolute;top:-40%;right:-12%;width:560px;height:560px;
     background:radial-gradient(circle, rgba(224,60,49,.34), transparent 60%)}
+  .hero-bg{position:absolute;right:0;top:0;height:100%;width:58%;object-fit:cover;object-position:center 20%;
+    z-index:1;opacity:.28;filter:grayscale(100%) brightness(1.4) contrast(1.1);
+    -webkit-mask-image:linear-gradient(to left,black 15%,transparent 82%);
+    mask-image:linear-gradient(to left,black 15%,transparent 82%)}
   .hero .slash{position:absolute;top:0;right:0;width:46%;height:100%;background:var(--red);
     clip-path:polygon(28% 0,100% 0,100% 100%,8% 100%);opacity:.92}
   .hero-inner{position:relative;z-index:2}
@@ -383,6 +387,7 @@
 
 <!-- HERO -->
 <div class="hero">
+  <img class="hero-bg" src="hero-bg.png" alt="">
   <div class="slash"></div>
   <div class="wrap hero-inner">
     <div class="eyebrow"><span>SCHOOL × GROWTH × 純愛</span></div>
