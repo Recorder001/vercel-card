@@ -25,8 +25,8 @@
     --line:#cbc2ad;
     --memo:#fdf6c9;
     --hl:#fff27a;
-    --r-big:20px;
-    --r-cut:7px;
+    --r-big:27px;
+    --r-cut:0px;
   }
   /* ===== jagged clip-path variants (각진/불규칙) ===== */
   /* 살짝 비뚤어진 사각형들 — 모서리마다 미세하게 어긋남 */
@@ -201,15 +201,15 @@
   .phone{background:var(--paper);border:3px solid #000;max-width:360px;margin:0 auto;position:relative;
     box-shadow:0 18px 40px rgba(0,0,0,.5);overflow:hidden;display:flex;flex-direction:column;height:560px}
   /* head */
-  .ph-head{background:#171311;color:#fff;display:flex;align-items:center;gap:11px;padding:12px 14px;
-    position:relative;border-bottom:3px solid var(--red);flex-shrink:0}
-  .ph-head::after{content:"";position:absolute;top:0;right:0;border-top:18px solid var(--red);border-left:18px solid transparent}
-  .ph-ava{width:38px;height:38px;border-radius:50%;flex-shrink:0;overflow:hidden;
+  .ph-head{background:#1a1a1a;color:#fff;display:flex;align-items:center;gap:14px;padding:14px 16px;
+    position:relative;border-bottom:5px solid #c0392b;flex-shrink:0}
+  .ph-head::after{content:"";position:absolute;top:0;right:0;border-top:26px solid #c0392b;border-left:26px solid transparent}
+  .ph-ava{width:46px;height:46px;border-radius:50%;flex-shrink:0;overflow:hidden;
     background:radial-gradient(circle at 50% 42%,#3a2a1e,#15100c);display:flex;align-items:center;justify-content:center}
   .ph-ava .ce{width:6px;height:8px;background:#f5b942;border-radius:50%;margin:0 1px;box-shadow:0 0 5px #f5b942;display:inline-block}
   .ph-ava img{width:100%;height:100%;object-fit:cover}
   .ph-name{font-weight:900;color:#fff;font-size:15px;line-height:1.15}
-  .ph-name small{display:block;color:#a8a092;font-size:11px;font-weight:600}
+  .ph-name small{display:block;color:#888888;font-size:11px;font-weight:600}
   /* feed */
   .ph-feed{flex:1;overflow-y:auto;padding:16px 14px 8px;display:flex;flex-direction:column;gap:13px;-webkit-overflow-scrolling:touch}
   .ph-feed::-webkit-scrollbar{width:4px}.ph-feed::-webkit-scrollbar-thumb{background:#cabda6}
@@ -219,7 +219,7 @@
   .grp.recv{align-self:flex-start}
   .grp.recv .who{font-weight:900;font-size:13px;color:#2a2520;margin:0 0 5px 2px}
   .recv-line{display:flex;align-items:flex-end;gap:8px}
-  .recv-line .mini{width:34px;height:34px;border-radius:50%;flex-shrink:0;overflow:hidden;align-self:flex-end;
+  .recv-line .mini{width:42px;height:42px;border-radius:50%;flex-shrink:0;overflow:hidden;align-self:flex-end;
     background:radial-gradient(circle at 50% 42%,#2a1d14,#100b08);display:flex;align-items:center;justify-content:center}
   .recv-line .mini .ce{width:5px;height:7px;background:#e0392e;border-radius:50%;margin:0 1px;box-shadow:0 0 4px #e0392e;display:inline-block}
   .recv-line .mini img{width:100%;height:100%;object-fit:cover}
@@ -229,8 +229,8 @@
   .grp.send .stack{align-items:flex-end}
   /* 버블 본체 */
   .bub{font-size:14.5px;font-weight:800;line-height:1.4;padding:9px 15px;width:fit-content;max-width:100%;word-break:break-word}
-  .recv .bub{background:#1c1816;color:#f4efe4}
-  .send .bub{background:#fbf8f0;color:#1a1614;border:2px solid #1a1614}
+  .recv .bub{background:#1a1a1a;color:#ffffff}
+  .send .bub{background:#fafaf5;color:#1a1a1a;border:2px solid #1a1a1a}
   /* === 버블 4종: only(알약)/open(아래뾰족)/middle(위아래뾰족)/close(위뾰족) === */
   .bub{border-radius:var(--r-big)}
   /* recv = 좌측, 꼬리(각짐)는 왼쪽 모서리에 */
@@ -244,10 +244,10 @@
   .send .bub.middle{border-top-right-radius:var(--r-cut);border-bottom-right-radius:var(--r-cut)}
   .send .bub.close{border-top-right-radius:var(--r-cut)}
   /* time / read */
-  .grp .time{font-size:10px;color:var(--muted, #9c9486);font-weight:700;margin-top:3px}
-  .recv .time{margin-left:42px}
+  .grp .time{font-size:10px;color:#999999;font-weight:700;margin-top:3px}
+  .recv .time{margin-left:50px}
   .send .stack .time{text-align:right}
-  .send .read{font-size:10px;color:#9c9486;font-weight:700;text-align:right;margin-top:2px}
+  .send .read{font-size:10px;color:#888888;font-weight:700;text-align:right;margin-top:2px}
   /* 스탬프 (배경없이 실제 이미지 얹힘) */
   .grp.stamp .bub{background:none;border:none;padding:0;border-radius:0}
   .grp.stamp .emo{display:block;width:104px;height:auto;filter:drop-shadow(2px 4px 5px rgba(0,0,0,.18))}
@@ -260,14 +260,14 @@
   .ph-tray .st img{width:100%;height:100%;object-fit:contain}
   .ph-tray .st:active{transform:scale(.88);border-color:var(--red)}
   /* input */
-  .ph-input{background:#171311;padding:9px 10px;display:flex;align-items:center;gap:8px;position:relative;
-    border-top:3px solid var(--red);flex-shrink:0}
+  .ph-input{background:#1a1a1a;padding:9px 10px;display:flex;align-items:center;gap:8px;position:relative;
+    border-top:5px solid #c0392b;flex-shrink:0}
   .ph-input::before{content:"";position:absolute;bottom:0;right:0;border-bottom:11px solid var(--red);border-left:11px solid transparent;pointer-events:none;z-index:0}
   .ic-btn{width:38px;height:38px;flex-shrink:0;background:#2a2420;color:#e4dccb;border:none;font-size:18px;cursor:pointer;
     border-radius:11px;display:flex;align-items:center;justify-content:center;transition:.12s}
   .ic-btn:active,.ic-btn.on{background:var(--red);color:#fff}
   .ph-input>*{position:relative;z-index:1}
-  .fld{flex:1;min-width:0;background:#fbf8f0;display:flex;align-items:center;padding:0 5px 0 12px;border-radius:12px}
+  .fld{flex:1;min-width:0;background:#f5efe0;display:flex;align-items:center;padding:0 5px 0 12px;border-radius:12px}
   .fld .cmd{color:var(--red);font-weight:900;font-size:13px;margin-right:6px;flex-shrink:0}
   .fld input{flex:1;min-width:0;background:transparent;border:none;outline:none;color:#1a1614;font-family:'Gothic A1';
     font-size:14px;font-weight:700;padding:10px 0}
@@ -474,14 +474,14 @@
       <div class="reveal">
         <div class="phone">
           <div class="ph-head">
-            <div class="ph-ava"><img src="avatar.png" alt="미오"></div>
-            <div class="ph-name">mioooo_ss<small>시라세 미오</small></div>
+            <div class="ph-ava"><img src="api/assets/미오_프사.png" alt="미오"></div>
+            <div class="ph-name">miooo_ss<small>시라세 미오</small></div>
           </div>
           <div class="ph-feed" id="phFeed">
             <div class="grp recv">
               <div class="who">미오</div>
               <div class="recv-line">
-                <div class="mini"><img src="avatar.png" alt=""></div>
+                <div class="mini"><img src="api/assets/미오_프사.png" alt=""></div>
                 <div class="stack">
                   <div class="bub open">야</div>
                   <div class="bub close">뭐해</div>
@@ -588,7 +588,7 @@
     if(!feed) return;
 
     const STAMP_DIR='';
-    const AVATAR='avatar.png';
+    const AVATAR='api/assets/미오_프사.png';
     const REPLY_MS=3000;
     let replyTimer=null;
     let pending=[];
