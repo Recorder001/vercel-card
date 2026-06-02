@@ -249,6 +249,12 @@
   /* 버블 + 시간 인라인 행 */
   .bub-line{display:flex;align-items:flex-end;gap:6px}
   .grp.send .bub-line{flex-direction:row-reverse}
+  /* 타이핑 도트 */
+  .dot{display:inline-block;width:7px;height:7px;background:#aaa;border-radius:50%;margin:0 2px;vertical-align:middle;
+    animation:blink 1.4s infinite}
+  .dot:nth-child(2){animation-delay:.2s}
+  .dot:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
   /* 스탬프 (배경없이 실제 이미지 얹힘) */
   .grp.stamp .bub{background:none;border:none;padding:0;border-radius:0}
   .grp.stamp .emo{display:block;width:104px;height:auto;filter:drop-shadow(2px 4px 5px rgba(0,0,0,.18))}
