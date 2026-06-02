@@ -217,7 +217,7 @@
   @keyframes pop{from{opacity:0;transform:translate(-8px,6px)}to{opacity:1;transform:none}}
   /* 미오(좌) */
   .grp.recv{align-self:flex-start}
-  .grp.recv .who{font-weight:900;font-size:13px;color:#2a2520;margin:0 0 5px 2px}
+  .grp.recv .who{font-weight:600;font-size:11px;color:#999999;margin:0 0 4px 2px}
   .recv-line{display:flex;align-items:flex-end;gap:8px}
   .recv-line .mini{width:42px;height:42px;border-radius:50%;flex-shrink:0;overflow:hidden;align-self:flex-end;
     background:radial-gradient(circle at 50% 42%,#2a1d14,#100b08);display:flex;align-items:center;justify-content:center}
@@ -244,10 +244,11 @@
   .send .bub.middle{border-top-right-radius:var(--r-cut);border-bottom-right-radius:var(--r-cut)}
   .send .bub.close{border-top-right-radius:var(--r-cut)}
   /* time / read */
-  .grp .time{font-size:10px;color:#999999;font-weight:700;margin-top:3px}
-  .recv .time{margin-left:50px}
-  .send .stack .time{text-align:right}
+  .grp .time{font-size:10px;color:#999999;font-weight:700;white-space:nowrap;flex-shrink:0}
   .send .read{font-size:10px;color:#888888;font-weight:700;text-align:right;margin-top:2px}
+  /* 버블 + 시간 인라인 행 */
+  .bub-line{display:flex;align-items:flex-end;gap:6px}
+  .grp.send .bub-line{flex-direction:row-reverse}
   /* 스탬프 (배경없이 실제 이미지 얹힘) */
   .grp.stamp .bub{background:none;border:none;padding:0;border-radius:0}
   .grp.stamp .emo{display:block;width:104px;height:auto;filter:drop-shadow(2px 4px 5px rgba(0,0,0,.18))}
@@ -484,8 +485,10 @@
                 <div class="mini"><img src="api/assets/미오_프사.png" alt=""></div>
                 <div class="stack">
                   <div class="bub open">야</div>
-                  <div class="bub close">뭐해</div>
-                  <div class="time">19:00</div>
+                  <div class="bub-line">
+                    <div class="bub close">뭐해</div>
+                    <div class="time">19:00</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -597,7 +600,7 @@
     function scroll(){feed.scrollTop=feed.scrollHeight;}
 
     function reflowBubbles(stack){
-      const bubs=[...stack.querySelectorAll('.bub')];
+      const bubs=[...stack.querySelectorAll(':scope>.bub')];
       bubs.forEach((b,i)=>{
         b.classList.remove('only','open','middle','close');
         if(bubs.length===1) b.classList.add('only');
@@ -605,6 +608,11 @@
         else if(i===bubs.length-1) b.classList.add('close');
         else b.classList.add('middle');
       });
+    }
+    function unwrapLine(stack){
+      const bl=stack.querySelector(':scope>.bub-line');
+      if(bl){bl.before(bl.querySelector('.bub'));bl.remove();}
+      stack.querySelectorAll(':scope>.time,:scope>.read').forEach(e=>e.remove());
     }
     function getSendGroup(){
       const last=feed.lastElementChild;
@@ -629,23 +637,28 @@
       return grp.querySelector('.stack');
     }
     function refreshMeta(stack,withRead){
-      stack.querySelectorAll('.time,.read').forEach(e=>e.remove());
-      const t=document.createElement('div');t.className='time';t.textContent=now();stack.appendChild(t);
+      unwrapLine(stack);
+      const bubs=[...stack.querySelectorAll(':scope>.bub')];
+      if(!bubs.length) return;
+      const lastBub=bubs[bubs.length-1];
+      const line=document.createElement('div');line.className='bub-line';
+      lastBub.after(line);line.appendChild(lastBub);
+      const t=document.createElement('div');t.className='time';t.textContent=now();line.appendChild(t);
       if(withRead){const r=document.createElement('div');r.className='read';r.textContent='읽음';stack.appendChild(r);}
     }
 
     function sendText(txt){
       const stack=getSendGroup();
+      unwrapLine(stack);
       const bub=document.createElement('div');bub.className='bub';bub.textContent=txt;
-      const meta=stack.querySelector('.time');
-      if(meta) stack.insertBefore(bub,meta); else stack.appendChild(bub);
+      stack.appendChild(bub);
       reflowBubbles(stack); refreshMeta(stack,true); scroll();
       pending.push(txt); armReply();
     }
     function sendStamp(code){
       const grp=document.createElement('div');
       grp.className='grp send stamp';
-      grp.innerHTML='<div class="stack"><div class="bub"><img class="emo" src="'+STAMP_DIR+code+'.png" alt="'+code+'"></div><div class="time">'+now()+'</div><div class="read">읽음</div></div>';
+      grp.innerHTML='<div class="stack"><div class="bub-line"><div class="bub"><img class="emo" src="'+STAMP_DIR+code+'.png" alt="'+code+'"></div><div class="time">'+now()+'</div></div><div class="read">읽음</div></div>';
       feed.appendChild(grp); scroll();
       pending.push('{'+code+'}'); armReply();
     }
@@ -685,9 +698,9 @@
       function emit(){
         if(done===0) ty.remove();
         const stack=getRecvGroup();
+        unwrapLine(stack);
         const bub=document.createElement('div');bub.className='bub';bub.textContent=pick(pool);
-        const meta=stack.querySelector('.time');
-        if(meta) stack.insertBefore(bub,meta); else stack.appendChild(bub);
+        stack.appendChild(bub);
         reflowBubbles(stack); refreshMeta(stack,false); scroll();
         done++;
         if(done<n) setTimeout(emit,700+Math.random()*600);
