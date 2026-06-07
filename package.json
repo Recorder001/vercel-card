@@ -4,7 +4,8 @@
   "type": "module",
   "description": "Goo9 캐챗용 가변 스탯 카드 + 캐릭터 포트레이트 API",
   "scripts": {
-    "build": "echo 'no build step'",
+    "start": "tsx server.ts",
+    "dev":   "tsx --watch server.ts",
     "deploy": "vercel --prod"
   },
   "engines": {
@@ -13,7 +14,8 @@
   "dependencies": {
     "@fontsource/archivo-black": "^5.2.8",
     "@fontsource/nanum-pen-script": "^5.2.7",
-    "@vercel/og": "^0.11.1"
+    "@vercel/og": "^0.11.1",
+    "tsx": "^4.19.2"
   },
   "devDependencies": {
     "@types/node": "^25.6.2",
